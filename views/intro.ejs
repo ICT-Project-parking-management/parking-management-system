@@ -11,15 +11,14 @@
 <body>
     <h1> 주차장을 고르세요. </h1>
     <div>
-        <input type="button" value="1" onclick="movepage()" />
-        <input type="button" value="2" onclick="movepage()" />
-        <script type="text/javascript">
-            function movepage() {
-                location.href = "/main";
-            }
-            //ejs 반복문 쓰기
-        </script>
+        <% parkingLotList.forEach(element => { %>
+            <input type="button" value=<%= element.name %> onclick="movepage(<%= element.parkingLotIndex %>);" />
+        <% }); %>
     </div>
 </body>
-
+<script type="text/javascript">
+    function movepage(value) {
+        location.href = `/main/${value}`;
+    }
+</script>
 </html>

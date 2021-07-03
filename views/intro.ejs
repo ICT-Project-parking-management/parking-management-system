@@ -12,7 +12,7 @@
     <h1> 주차장을 고르세요. </h1>
     <div>
         <% parkingLotList.forEach(element => { %>
-            <input type="button" value=<%= element.name %> onclick="movepage(<%= element.parkingLotIndex %>);" />
+            <input type="button" value="<%= element.name %>" onclick="movepage(<%= element.parkingLotIndex %>);" />
         <% }); %>
     </div>
 </body>

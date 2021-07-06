@@ -23,6 +23,7 @@ exports.example = async function (req, res) {
         }
     ];
 
+    //return res.render("intro.ejs", {parkingLotList});
     return res.render("intro.ejs", {parkingLotList});
 }
 

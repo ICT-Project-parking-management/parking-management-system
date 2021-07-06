@@ -1,15 +1,51 @@
 <!DOCTYPE html>
 <html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <meta name="description" content="" />
+        <meta name="author" content="" />
+        <title>주차관리 시스템</title>
+        <!-- Favicon-->
+        <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
+        <!-- Core theme CSS (includes Bootstrap)-->
+        <link rel="stylesheet" href="/css/style.css" type="text/css">
+        <link rel="stylesheet" href="/css/main.css" type="text/css">
+    </head>
+    <body>
+        <!-- Responsive navbar-->
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <div class="container">
+                <a class="navbar-brand" href="#">주차관리 시스템</a>
+            </div>
+        </nav>
+        <!-- Page content-->
+        <div class="container">
+            <div class="text-center mt-5">
+                <h1> <%= idx %> 주차장 </h1>
+                <p class="lead">실시간 주차 현황을 확인하세요.</p>
+            
+                <div class="parking">
+                    <!-- <div class="B1-floor">
+                        <h3 class="B1-ment"> B1 </h3>
+                        <div class="A1"></div>
+                        <div class="A2"></div>
+                        <div class="A3"></div>
+                    </div>
+                    <div class="B2-floor">
+                        <h3 class="B2-ment"> B2 </h3>
+                        <div class="B1"></div>
+                        <div class="B2"></div>
+                        <div class="B3"></div>
+                    </div> -->
+                </div>
 
-<head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>주차관리 시스템</title>
-</head>
+            </div>
+        </div>
 
-<body>
-    <h1> 인덱스가 <%= idx %> 인 주차장을 골랐습니다. </h1>
-</body>
-
+        <!-- Bootstrap core JS-->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+        <!-- Core theme JS-->
+        <script src="js/scripts.js"></script>
+    </body>
 </html>

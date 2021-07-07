@@ -1,5 +1,8 @@
 const express = require('./config/express');
 const database = require('./config/database');
+const { JSDOM } = require( "jsdom" );
+const { window } = new JSDOM( "" );
+const $ = require( "jquery" )( window );
 
 const app = express(); 
 

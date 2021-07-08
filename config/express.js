@@ -1,5 +1,5 @@
 // node_modules의 express 관련 파일 가져옴
-var express = require('express');
+const express = require('express');
 
 module.exports = function () {
     const app = express();
@@ -8,7 +8,7 @@ module.exports = function () {
     app.set("views", process.cwd() + "/views");
 
     app.use(express.static(process.cwd() + '/static'));
-
+    
     require("../src/routes/indexRoute")(app);
 
     return app;   

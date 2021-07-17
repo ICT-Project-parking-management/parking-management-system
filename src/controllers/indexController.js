@@ -23,7 +23,9 @@ exports.example = async function (req, res) {
         }
     ];
 
-    //return res.render("intro.ejs", {parkingLotList});
+    // Dynamo Example
+    await indexDao.dynamoExample(1);
+
     return res.render("intro.ejs", {parkingLotList});
 }
 

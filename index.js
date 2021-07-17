@@ -1,12 +1,13 @@
 const express = require('./config/express');
-const database = require('./config/database');
 const { JSDOM } = require( "jsdom" );
 const { window } = new JSDOM( "" );
 const $ = require( "jquery" )( window );
+require('dotenv').config();
 
-const app = express(); 
+const app = express();
+const PORT = process.env.NODE_PORT || 3000
 
 // 3000 포트로 서버 오픈
 app.listen(3000, function() {
-    console.log('Development - Server At Port 3000')
+    console.log(`Server At Port ${PORT}`);
 })

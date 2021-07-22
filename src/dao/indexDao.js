@@ -37,17 +37,29 @@ async function getComplexName(idx) {
     const connection = await pool.getConnection(async (conn) => conn);
     const getComplexNameQuery = `
     SELECT complexName,
-       (SELECT GROUP_CONCAT(areaName) FROM ParkingArea) AS areas
-       FROM ParkingLot
-    WHERE parkingLotIndex = ${idx};
+       (SELECT GROUP_CONCAT(areaName) FROM ParkingArea WHERE parkingLotIndex = ${idx}) AS areas
+       FROM ParkingLot WHERE parkingLotIndex = ${idx};
     `;
     const [rows] = await connection.query(getComplexNameQuery);
     const complexName = JSON.parse(JSON.stringify(rows))[0].complexName;
-    const areas = JSON.parse(JSON.stringify(rows))[0].areas.split(',');
-    
-    connection.release();
+    var areas = '';
+    var B1 = [];
+    var B2 = [];
 
-    return [complexName, areas]
+    if (JSON.parse(JSON.stringify(rows))[0].areas) {
+        areas = JSON.parse(JSON.stringify(rows))[0].areas.split(',');
+        for (i = 0; i < areas.length; i++) {
+            if (areas[i].slice(0, 2) == 'B1') {
+                B1.push(areas[i].slice(2, 4));
+            }
+            else if (areas[i].slice(0, 2) == 'B2') {
+                B2.push(areas[i].slice(2, 4));
+            }
+        }
+    }
+
+    connection.release();
+    return [complexName, areas, B1, B2]
 }
 
 module.exports = {

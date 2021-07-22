@@ -10840,21 +10840,6 @@ textarea.form-control-lg {
   }
 }
 
-.B1-floor, .B2-floor {
-  border: 3px solid black;
-  float: left;
-  padding: 10px;
-  margin: 2.5%;
-  width: 45%;
-}
-
-.B1-ment, .B2-ment {
-  padding: 10px;
-  margin-bottom: 10px;
-  background-color: black;
-  color: white;
-}
-
 .A1, .A2, .A3, .B1, .B2, .B3 {
   display: inline-block;
   border: 3px solid black;

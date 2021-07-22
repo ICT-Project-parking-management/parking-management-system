@@ -7,6 +7,11 @@ exports.parkingData = async function (req, res) {
 
 exports.main = async function (req, res) {
     const idx = req.params.idx;
-    const complexName = await indexDao.getComplexName(idx);
-    return res.render("main.ejs", {complexName});
+    const rows = await indexDao.getComplexName(idx);
+
+    const complexName = rows[0];
+    const areas = rows[1];
+
+    console.log(complexName, areas);
+    return res.render("main.ejs", {complexName, areas});
 }

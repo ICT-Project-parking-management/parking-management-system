@@ -13,19 +13,9 @@ exports.main = async function (req, res) {
 
     const complexName = rows[0];
     const areas = rows[1];
+    const B1 = rows[2];
+    const B2 = rows[3];
 
     console.log(complexName, areas);
-    return res.render("main.ejs", {complexName, areas});
+    return res.render("main.ejs", {complexName, areas, B1, B2});
 }
-
-// exports.main = async function (req, res) {
-//     const idx = req.params.idx;
-
-//     /**
-//      * Todo 210703
-//      * - path variable로 주차장 인덱스를 받으면 해당 인덱스의 실시간 주차 구역 정보 제공
-//      * - 지금은 DB 연결이 안되어있어서 인덱스 그대로 반환
-//      */
-
-//     return res.render("main.ejs", {idx});
-// }

@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "pm2 start index.js --name pms",
-    "test": "nodemon index.js"
+    "start": "nodemon index.js",
+    "pm2-start": "pm2 start index.js --name pms"
   },
   "keywords": [],
   "author": "",

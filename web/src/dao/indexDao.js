@@ -27,10 +27,54 @@ async function dynamoExample (id) {
             console.log(err);
         } else {
             const { Items } = data;
-            console.log(Items);
+            console.log('Items >>', Items);
             return Items;
         }
     });
+}
+
+async function getCurrParkData(idx) {
+
+    // idx는 주차장 인덱스
+    // 우선 RDS에서 해당 주차장 인덱스에 대한 주차구역 & 장애인전용/전기차전용/일반 여부 뽑아옴
+    // dynamo 접근해서 해당 주차장에 in 한 차량의 차량번호 & location 불러옴
+    // 위반 여부 판단
+
+    const dynamo = new AWS.DynamoDB({apiVersion: '2012-08-10'}); // 이걸로 할 때 지원하는 걸아
+    const docClient = new AWS.DynamoDB.DocumentClient(); // 이걸로 할 때 지원하는 게 좀 다르네
+
+    //dynamo_config.table_name
+
+    const params = {
+        TableName: "parkingData",
+        KeyConditionExpression: 'idx = :idx',
+        ExpressionAttributeValues: {
+            ':idx': idx
+        }
+    };
+
+    try {
+        await docClient.query(params, (err, data) => {
+            if (err) {
+                console.log(err);
+            } else {
+                console.log('data >>', data);
+            }
+        })
+
+        // await dynamo.describeTable(params, (err, data) => {
+        //     if (err) {
+        //         console.log(err);
+        //     } else {
+        //         const { Items } = data;
+        //         console.log('Items >>', Items);
+        //         return Items;
+        //     }
+        // })
+
+    } catch (err) {
+        console.log(err);
+    }
 }
 
 async function getComplexName(idx) {
@@ -62,8 +106,31 @@ async function getComplexName(idx) {
     return [complexName, areas, B1, B2]
 }
 
+async function getMyArea(idx, userIndex) {
+    const dynamo = new AWS.DynamoDB.DocumentClient();
+    const params = {
+        TableName: dynamo_config.table_name,
+        KeyConditionExpression: 'parkingId = :id',
+        ExpressionAttributeValues: {
+            ':id': id
+        }
+    }
+
+    await dynamo.query(params, (err, data) => {
+        if (err) {
+            console.log(err);
+        } else {
+            const { Items } = data;
+            console.log(Items);
+            return Items;
+        }
+    });
+}
+
 module.exports = {
     getParkingList,
     dynamoExample,
-    getComplexName
+    getCurrParkData,
+    getComplexName,
+    getMyArea
 };

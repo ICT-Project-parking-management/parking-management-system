@@ -17,6 +17,8 @@
     "express": "^4.17.1",
     "jquery": "^3.6.0",
     "jsdom": "^16.6.0",
-    "mysql2": "^2.2.5"
+    "jsonwebtoken": "^8.5.1",
+    "mysql2": "^2.2.5",
+    "request": "^2.88.2"
   }
 }

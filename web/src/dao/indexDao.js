@@ -1,6 +1,7 @@
 const AWS = require('aws-sdk');
 const dynamo_config = require('../../config/dynamo');
 const { pool } = require("../../config/database");
+const { Route53Resolver } = require('aws-sdk');
 
 AWS.config.update(dynamo_config.aws_remote_config);
 
@@ -33,48 +34,39 @@ async function dynamoExample (id) {
     });
 }
 
-async function getCurrParkData(idx) {
+async function getCurrParkData(idx, areas) {
 
-    // idx는 주차장 인덱스
-    // 우선 RDS에서 해당 주차장 인덱스에 대한 주차구역 & 장애인전용/전기차전용/일반 여부 뽑아옴
-    // dynamo 접근해서 해당 주차장에 in 한 차량의 차량번호 & location 불러옴
-    // 위반 여부 판단
+    // idx = 주차장 인덱스
+    // RDS => 해당 주차장의 주차구역 & 정보(장애인전용/전기차전용/일반전용) 확인
+    // DynamoDB => 해당 주차장의 특정 주차구역의 가장 최신 정보(차정보/inOut 등) 확인
+    // 주차된 위치 표시 & 주차 위반 여부 팝업
 
-    const dynamo = new AWS.DynamoDB({apiVersion: '2012-08-10'}); // 이걸로 할 때 지원하는 걸아
-    const docClient = new AWS.DynamoDB.DocumentClient(); // 이걸로 할 때 지원하는 게 좀 다르네
+    var parkDataList = [];
+    const dynamo = new AWS.DynamoDB.DocumentClient();
 
-    //dynamo_config.table_name
-
-    const params = {
-        TableName: "parkingData",
-        KeyConditionExpression: 'idx = :idx',
-        ExpressionAttributeValues: {
-            ':idx': idx
-        }
-    };
-
-    try {
-        await docClient.query(params, (err, data) => {
-            if (err) {
-                console.log(err);
-            } else {
-                console.log('data >>', data);
+    areas.forEach(async (area) => {
+        // 특정 주차구역(parkLocation)의 가장 최근 값만 불러오도록 수정 필요
+        const params = {
+            TableName: "parkingData",
+            ScanIndexForward: true,
+            ProjectionExpression: "idx, parkLocation, carNum, classify, #inOut",          
+            ExpressionAttributeNames: {
+                "#inOut": "inOut"
+            },
+            FilterExpression: 'parkLocation = :area',
+            ExpressionAttributeValues: {
+                ":area": area
             }
-        })
+        }
 
-        // await dynamo.describeTable(params, (err, data) => {
-        //     if (err) {
-        //         console.log(err);
-        //     } else {
-        //         const { Items } = data;
-        //         console.log('Items >>', Items);
-        //         return Items;
-        //     }
-        // })
-
-    } catch (err) {
-        console.log(err);
-    }
+        const result = await dynamo.scan(params, (err, data) => {
+            if (err) {
+                console.log(err)
+            } else {
+                console.log(area, '|', data.Items);
+            }
+        });
+    })
 }
 
 async function getComplexName(idx) {
@@ -87,6 +79,8 @@ async function getComplexName(idx) {
     const [rows] = await connection.query(getComplexNameQuery);
     const complexName = JSON.parse(JSON.stringify(rows))[0].complexName;
     var areas = '';
+
+    // B1층, B2층 구분해 데이터 보내주기 위함 => 수정 필요
     var B1 = [];
     var B2 = [];
 

@@ -33,7 +33,7 @@ exports.main = async function (req, res) {
         isLogined =  "로그인";
         nickname = '';
         barStatus = `<a class="nav-link active" aria-current="page" href="javascript:openModal('login-modal');">
-        로그인`; //ejs에서 로그아웃 후 뒤로가기 안되게 추가
+        로그인`; 
     }
     return res.render("main.ejs", {complexName, areas, B1, B2, isLogined, nickname, barStatus});
 }

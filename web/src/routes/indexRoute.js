@@ -1,17 +1,31 @@
 const { response } = require("express");
-const indexDao = require("../dao/indexDao");
+const mysql = require("mysql");
+require('dotenv').config();
 
 module.exports = function(app) {
     const index = require("../controllers/indexController");
+    
     const session  =require('express-session');
-    var FileStore = require('session-file-store')(session) //파일말고 db에 저장
-    var bodyParser = require('body-parser');
+    const MySQLStore = require("express-mysql-session")(session);
+    
+    const bodyParser = require('body-parser');
+   
+    const options = {
+        host: process.env.DB_HOST ,
+        port: process.env.DB_PORT,
+        user: process.env.DB_USER,
+        password: process.env.DB_PW ,
+        database: process.env.DB_NAME 
+    }
+
+    const sessionStore = new MySQLStore(options);
 
     app.use(session({
-        secret: 'asadlfkj!@#!@#dfgasdg',
+        key: "session_cookie_name",
+        secret: "session_cookie_secret", //key: "session_cookie_name"
         resave: false,
         saveUninitialized: true,
-        store:new FileStore()
+        store: sessionStore
     })) //미들웨어
    
     app.use(bodyParser.urlencoded({extended:false}));
@@ -23,35 +37,35 @@ module.exports = function(app) {
         req.session.destroy(function(){
             req.session;
         })
+      
         res.redirect('/main/1');
+        
     }, index.main);
 
     app.post('/login_check', async function(req, res){ 
-        const userList = await indexDao.getUserList();
         const userID = req.body.id;
         const userPW = req.body.pw;
-        const [rows] = await userList.query(`SELECT userID, userPW FROM User;`);
-        //const userQUERY = "SELECT userID, userPW"+ "FROM User WHERE userID = ? AND userPW = ?;";
-
-        //let result = await userList.query(userQUERY);
-        //console.log(result);
+        const connection = mysql.createConnection(options);
+        
         req.session.is_logined = false;
         
-        console.log(rows);
-        for (var i=0; i<rows.length; i++){
-            if(rows[i].userID === req.body.id && rows[i].userPW===req.body.pw){ //로그인 성공 시
-                req.session.is_logined=true;
-                req.session.nickname = req.body.id;
-                req.session.save(function(){
+        if(userID && userPW){
+            connection.query(`SELECT userID, userPW FROM User WHERE userID = ? AND userPW = ?`,[userID, userPW], async function(error, results){
+                if(error) throw error;
+                if(results.length > 0){
+                    req.session.is_logined=true;
+                    req.session.nickname = req.body.id;
+                    req.session.save(function(){
+                        
                     res.redirect('/main/1');
-                })
-            }
+                    });
+                }else{
+                    res.send(`<script>alert('로그인 실패');location.href='/main/1';</script>`);
+                } 
+            } ) 
+        }else{
+            res.send(`<script>alert('로그인 정보 미입력');location.href='/main/1';</script>`);
         }
-        
-        if(req.session.is_logined===false){
-            res.send(`<script>alert('로그인 실패');location.href='/main/1';</script>`);
-        }
-        
     }, index.main);
 
 }

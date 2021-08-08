@@ -20,7 +20,6 @@ exports.main = async function (req, res) {
     var isLogined;
     var nickname;
     var barStatus;
-
     if (req.session.is_logined){ //로그인 성공 시
         isLogined = `로그아웃`;
         nickname = '안녕하세요 '+ req.session.nickname +'님 |';

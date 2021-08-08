@@ -1,25 +1,31 @@
+const mysql = require('mysql2/promise');
 const AWS = require('aws-sdk');
 const dynamo_config = require('../../config/dynamo');
 const { pool } = require("../../config/database");
+const newPool = mysql.createPool(pool); 
 
 AWS.config.update(dynamo_config.aws_remote_config);
 
 async function getParkingList() {
-    const connection = await pool.getConnection(async (conn) => conn);
+    const connection = await newPool.getConnection(async (conn) => conn);
     const getParkingListQuery = `SELECT parkingLotIndex, complexName FROM ParkingLot;`;
     const [rows] = await connection.query(getParkingListQuery);
     connection.release();
     return JSON.parse(JSON.stringify(rows));
+}//로그인 쿼리문 Dao에 따로 분리.
+
+async function getUserList(userID, userPW){
+
+    const connection = await newPool.getConnection(async (conn)=> conn);
+    
+    const [rows, fields] = await connection.query(`SELECT userID, userPW FROM User WHERE userID = ? AND userPW = ?`, [userID, userPW]);
+    if(rows.length){
+        console.log("로그인 성공");
+    }else {
+        console.log("로그인 실패");
+    }
+
 }
-
-async function getUserList(){
-
-    const connection = await pool.getConnection(async (conn)=> conn);
-    connection.release();
-
-    return connection;
-}
-
 
 async function dynamoExample (id) {
     const dynamo = new AWS.DynamoDB.DocumentClient();
@@ -43,7 +49,7 @@ async function dynamoExample (id) {
 }
 
 async function getComplexName(idx) {
-    const connection = await pool.getConnection(async (conn) => conn);
+    const connection = await newPool.getConnection(async (conn) => conn);
     const getComplexNameQuery = `
     SELECT complexName,
        (SELECT GROUP_CONCAT(areaName) FROM ParkingArea WHERE parkingLotIndex = ${idx}) AS areas

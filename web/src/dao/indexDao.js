@@ -1,37 +1,67 @@
-const AWS = require('aws-sdk');
-const dynamo_config = require('../../config/dynamo');
 const { pool } = require("../../config/database");
-const { Route53Resolver } = require('aws-sdk');
+const { dynamo } = require('../../config/dynamo');
 
-AWS.config.update(dynamo_config.aws_remote_config);
-
+/**
+ * update: 2021.08.08
+ * author: serin
+ * connect : RDS
+ * desc : 등록된 주차장 리스트 조회
+ */
 async function getParkingList() {
     const connection = await pool.getConnection(async (conn) => conn);
     const getParkingListQuery = `SELECT parkingLotIndex, complexName FROM ParkingLot;`;
     const [rows] = await connection.query(getParkingListQuery);
     connection.release();
-    return JSON.parse(JSON.stringify(rows));
+    return rows
 }
 
-async function dynamoExample (id) {
-    const dynamo = new AWS.DynamoDB.DocumentClient();
-    const params = {
-        TableName: dynamo_config.table_name,
-        KeyConditionExpression: 'parkingId = :id',
-        ExpressionAttributeValues: {
-            ':id': id
-        }
-    }
+/**
+ * update: 2021.08.08
+ * author: serin
+ * connect : RDS
+ * desc : 주차장 이름 조회
+ */
+ async function getComplexName(idx) {
+    const connection = await pool.getConnection(async (conn) => conn);
+    const getComplexNameQuery = `
+    SELECT complexName FROM ParkingLot WHERE parkingLotIndex = ${idx};
+    `;
+    const [rows] = await connection.query(getComplexNameQuery);
+    connection.release();
+    return rows;
+}
 
-    await dynamo.query(params, (err, data) => {
-        if (err) {
-            console.log(err);
-        } else {
-            const { Items } = data;
-            console.log('Items >>', Items);
-            return Items;
-        }
-    });
+/**
+ * update: 2021.08.08
+ * author: heedong
+ * connect : RDS
+ * desc : 주차장 층 조회
+ */
+async function getFloors(idx) {
+    const connection = await pool.getConnection(async (conn) => conn);
+    const Query = `
+    SELECT DISTINCT floor FROM ParkingArea WHERE parkingLotIndex = ${idx};
+    `;
+    const [rows] = await connection.query(Query);
+    connection.release();
+    return rows;
+}
+
+/**
+ * update: 2021.08.08
+ * author: heedong
+ * connect : RDS
+ * desc : 층별 구역 정보 조회
+ */
+ async function getAreas(idx, floorName) {
+    const connection = await pool.getConnection(async (conn) => conn);
+    const Query = `
+    SELECT areaName, areaInfo FROM ParkingArea WHERE parkingLotIndex = ? AND floor = ?;
+    `;
+    const Params = [idx, floorName];
+    const [rows] = await connection.query(Query, Params);
+    connection.release();
+    return rows;
 }
 
 async function getCurrParkData(idx, areas) {
@@ -42,7 +72,7 @@ async function getCurrParkData(idx, areas) {
     // 주차된 위치 표시 & 주차 위반 여부 팝업
 
     var parkDataList = [];
-    const dynamo = new AWS.DynamoDB.DocumentClient();
+    // const dynamo = new AWS.DynamoDB.DocumentClient();
 
     areas.forEach(async (area) => {
         // 특정 주차구역(parkLocation)의 가장 최근 값만 불러오도록 수정 필요
@@ -63,41 +93,11 @@ async function getCurrParkData(idx, areas) {
             if (err) {
                 console.log(err)
             } else {
-                console.log(area, '|', data.Items);
+                const { Items } = data;
+                console.log(Items);
             }
         });
     })
-}
-
-async function getComplexName(idx) {
-    const connection = await pool.getConnection(async (conn) => conn);
-    const getComplexNameQuery = `
-    SELECT complexName,
-       (SELECT GROUP_CONCAT(areaName) FROM ParkingArea WHERE parkingLotIndex = ${idx}) AS areas
-       FROM ParkingLot WHERE parkingLotIndex = ${idx};
-    `;
-    const [rows] = await connection.query(getComplexNameQuery);
-    const complexName = JSON.parse(JSON.stringify(rows))[0].complexName;
-    var areas = '';
-
-    // B1층, B2층 구분해 데이터 보내주기 위함 => 수정 필요
-    var B1 = [];
-    var B2 = [];
-
-    if (JSON.parse(JSON.stringify(rows))[0].areas) {
-        areas = JSON.parse(JSON.stringify(rows))[0].areas.split(',');
-        for (i = 0; i < areas.length; i++) {
-            if (areas[i].slice(0, 2) == 'B1') {
-                B1.push(areas[i].slice(2, 4));
-            }
-            else if (areas[i].slice(0, 2) == 'B2') {
-                B2.push(areas[i].slice(2, 4));
-            }
-        }
-    }
-
-    connection.release();
-    return [complexName, areas, B1, B2]
 }
 
 async function getMyArea(idx, userIndex) {
@@ -123,8 +123,10 @@ async function getMyArea(idx, userIndex) {
 
 module.exports = {
     getParkingList,
-    dynamoExample,
-    getCurrParkData,
     getComplexName,
-    getMyArea
+    getFloors,
+    getAreas,
+    getCurrParkData,
+    getMyArea,
+    
 };

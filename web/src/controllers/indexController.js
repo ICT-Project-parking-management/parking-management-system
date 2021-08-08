@@ -1,32 +1,55 @@
 const indexDao = require("../dao/indexDao");
 
-const request = require('request');
-const jwt = require('jsonwebtoken');
-
-
+/**
+ * update: 2021.08.08
+ * author: serin
+ * desc : 인덱스 페이지
+ */
 exports.parkingData = async function (req, res) {
+    // 등록된 주차장 리스트 조회
     const parkingLotList = await indexDao.getParkingList();
-    // Dynamo Example
-    const ress = await indexDao.dynamoExample(1);
-
     return res.render("intro.ejs", {parkingLotList});
 }
 
+/**
+ * update: 2021.08.08
+ * author: heedong
+ * desc : 메인 페이지
+ */
 exports.main = async function (req, res) {
     const idx = req.params.idx;
-    const rows = await indexDao.getComplexName(idx);
 
-    const complexName = rows[0];
-    const areas = rows[1]; // 모든 주차구역 리스트
-    const B1 = rows[2]; // B1층 주차구역 리스트
-    const B2 = rows[3]; // B2층 주차구역 리스트
+    // 특정 주차장 정보 조회(주차장 이름, 주차 구역 리스트)
+    // 데이터 포맷 : https://github.com/ICT-Project-parking-management/parking-management-system/wiki/%EB%8D%B0%EC%9D%B4%ED%84%B0-%ED%8F%AC%EB%A7%B7#main-%ED%8E%98%EC%9D%B4%EC%A7%80
+    let parkingLotInfo = [];
 
-    console.log('주차구역 >>', areas);
+    // 1. 주차장 이름 조회
+    const [getComplexNameRows] = await indexDao.getComplexName(idx);
+    const complexName = getComplexNameRows.complexName;
 
-    const rows2 = await indexDao.getCurrParkData(idx, areas);
-    //console.log('rows2 >>', rows2);
+    // 2. 주차장 층 조회
+    const floorRows = await indexDao.getFloors(idx);
+    floorRows.forEach(async function (e1) {
+        const floorName = e1.floor;
 
-    return res.render("main.ejs", {complexName, areas, B1, B2});
+        // 3. 층별 주차면 정보 조회
+        let areas = [];
+        const AreaRows = await indexDao.getAreas(idx, floorName);
+        AreaRows.forEach(async function (e2) {
+            const araeName = e2.araeName;
+            const areaInfo = e2.areaInfo;
+
+            // TODO 4. Dynamo 조회해서 차량 번호 및 위반 여부 파악
+
+            const area = {araeName, areaInfo};
+            areas.push(area);
+        });
+
+        const floor = {floorName, areas};
+        parkingLotInfo.push(floor);
+    });
+
+    return res.render("main.ejs", {complexName, parkingLotInfo});
 }
 
 exports.myArea = async function (req, res) {

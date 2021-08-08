@@ -17,14 +17,14 @@ async function getParkingList() {
 async function getUserList(userID, userPW){
 
     const connection = await newPool.getConnection(async (conn)=> conn);
-    
     const [rows, fields] = await connection.query(`SELECT userID, userPW FROM User WHERE userID = ? AND userPW = ?`, [userID, userPW]);
     if(rows.length){
-        console.log("로그인 성공");
+        return JSON.parse(JSON.stringify(rows))[0].userID;
     }else {
+
         console.log("로그인 실패");
     }
-
+    connection.release();
 }
 
 async function dynamoExample (id) {

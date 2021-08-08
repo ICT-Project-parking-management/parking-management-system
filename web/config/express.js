@@ -6,7 +6,7 @@ const { pool } = require("./database");
 
 module.exports = function () {
     const app = express();
-    const sessionStore = new MySQLStore(pool); //express-mysql-session의 MySQLStroe(options) 인자가 options여야함
+    const sessionStore = new MySQLStore(pool); //express-mysql-session의 MySQLStroe(options). 파라미터 options에 createPool이
     
     app.set("view engine", "ejs");
     app.set("views", process.cwd() + "/views");

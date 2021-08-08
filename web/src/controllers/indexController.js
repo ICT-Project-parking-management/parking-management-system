@@ -8,7 +8,7 @@ exports.parkingData = async function (req, res) {
 }
 
 exports.main = async function (req, res) {
-    
+    console.log('req.sesseion.nickname', req.session.nickname);
     const idx = req.params.idx;
     const rows = await indexDao.getComplexName(idx);
     const complexName = rows[0];
@@ -17,22 +17,29 @@ exports.main = async function (req, res) {
     const B2 = rows[3];
     console.log(complexName, areas);
 
-    var isLogined;
+    return res.render("main.ejs", {complexName, areas, B1, B2});
+} 
+
+//barStatus =  `<a class="nav-link active" aria-current="page" href="/logout_check">로그아웃`; 
+exports.login_check = async function(req, res){
+  
     var nickname;
-    var barStatus;
-    if (req.session.is_logined){ //로그인 성공 시
-        isLogined = `로그아웃`;
-        nickname = '안녕하세요 '+ req.session.nickname +'님 |';
-        barStatus =  `<a class="nav-link active" aria-current="page" href="/logout_check">
-        로그아웃`; 
-       
+    const userID = req.body.id;
+    const userPW = req.body.pw;
+    const  isLogined = await indexDao.getUserList(userID, userPW);
+    
+    if(isLogined){
+        console.log("로그인 성공");
+        req.session.nickname = userID;
+        nickname = req.session.nickname;
+        req.session.save(function(){    
+            //res.redirect('/main/1');                    
+            res.render("login.ejs", {nickname}) //로그인이 됐으니까 이제 로그아웃이라 표시
+        });
+    }else{
+        console.log("로그인 실패");
     }
-    else{ //로그인 실패 시
-       
-        isLogined =  "로그인";
-        nickname = '';
-        barStatus = `<a class="nav-link active" aria-current="page" href="javascript:openModal('login-modal');">
-        로그인`; 
-    }
-    return res.render("main.ejs", {complexName, areas, B1, B2, isLogined, nickname, barStatus});
-}
+
+}  
+
+//controller를 두개 만들어서 로그인 부분이랑 본문 부분을 해야하나??

@@ -21,11 +21,12 @@ exports.main = async function (req, res) {
 
     // 특정 주차장 정보 조회(주차장 이름, 주차 구역 리스트)
     // 데이터 포맷 : https://github.com/ICT-Project-parking-management/parking-management-system/wiki/%EB%8D%B0%EC%9D%B4%ED%84%B0-%ED%8F%AC%EB%A7%B7#main-%ED%8E%98%EC%9D%B4%EC%A7%80
-    let parkingLotInfo = [];
+
 
     // 1. 주차장 이름 조회
     const [getComplexNameRows] = await indexDao.getComplexName(idx);
     const complexName = getComplexNameRows.complexName;
+    const parkingLotInfo = [];
 
     // 2. 주차장 층 조회
     const floorRows = await indexDao.getFloors(idx);
@@ -36,7 +37,7 @@ exports.main = async function (req, res) {
         let areas = [];
         const AreaRows = await indexDao.getAreas(idx, floorName);
         AreaRows.forEach(async function (e2) {
-            const araeName = e2.araeName;
+            const araeName = e2.areaName;
             const areaInfo = e2.areaInfo;
 
             // TODO 4. Dynamo 조회해서 차량 번호 및 위반 여부 파악
@@ -47,9 +48,14 @@ exports.main = async function (req, res) {
 
         const floor = {floorName, areas};
         parkingLotInfo.push(floor);
-    });
 
-    return res.render("main.ejs", {complexName, parkingLotInfo});
+        // 리턴
+        if (parkingLotInfo.length == floorRows.length) {
+            console.log(complexName);
+            console.log(parkingLotInfo);
+            // return res.render("main.ejs", {complexName, parkingLotInfo});
+        }
+    })
 }
 
 exports.myArea = async function (req, res) {

@@ -45,67 +45,28 @@
                 <p class="lead">실시간 주차 현황을 확인하세요.</p>
 
                 <div class="parking">
-                    <table>
-                        <thead>
-                            <tr>
-                                <% B1.forEach(element => { %> <th><%= element %></th> <% }); %>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <% B1.forEach(element => { %>
-                                    <td id=<%= element %>></td>
-                                <% }); %>
-                            </tr>
-                        </tbody>
-                    </table>
 
-                    <table>
-                        <thead>
-                            <tr>
-                                <% B2.forEach(element => { %> <th><%= element %></th> <% }); %>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <% B2.forEach(element => { %> <td></td> <% }); %>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <% parkingLotInfo.forEach(element => { %>
+                        <h3><%= element.floorName %></h3>
 
-
-
-                    <!-- <div class="B1">
-                        <h4 class="floor">B1층</h4>
                         <table>
                             <thead>
                                 <tr>
-                                    <% B1.forEach(element => { %> <th><%= element %></th> <% }); %>
+                                    <% element.areas.forEach(area => { %>
+                                        <th> <%= area.areaName %> </th>    
+                                    <% }); %>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
-                                    <% B1.forEach(element => { %> <td></td> <% }); %>
+                                    <% element.areas.forEach(area => { %>
+                                        <td id=<%= area.areaName %>></td>
+                                    <% }); %>
                                 </tr>
                             </tbody>
                         </table>
-                    </div>
-                    <div class="B2">
-                        <h4 class="floor">B2층</h4>
-                        <table>
-                            <thead>
-                                <tr>
-                                    <% B2.forEach(element => { %> <th><%= element %></th> <% }); %>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <% B2.forEach(element => { %> <td></td> <% }); %>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div> -->
 
+                    <% }); %>
                 </div>
             </div>
         </div>

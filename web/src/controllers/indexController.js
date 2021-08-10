@@ -37,12 +37,13 @@ exports.main = async function (req, res) {
         let areas = [];
         const AreaRows = await indexDao.getAreas(idx, floorName);
         AreaRows.forEach(async function (e2) {
-            const araeName = e2.areaName;
+            const areaName = e2.areaName;
             const areaInfo = e2.areaInfo;
 
             // TODO 4. Dynamo 조회해서 차량 번호 및 위반 여부 파악
+            //const test = await indexDao.getCurrParkData(0, ['A1', 'A2']);
 
-            const area = {araeName, areaInfo};
+            const area = {areaName, areaInfo};
             areas.push(area);
         });
 
@@ -51,9 +52,12 @@ exports.main = async function (req, res) {
 
         // 리턴
         if (parkingLotInfo.length == floorRows.length) {
-            console.log(complexName);
-            console.log(parkingLotInfo);
-            // return res.render("main.ejs", {complexName, parkingLotInfo});
+            //console.log(complexName);
+            //console.log(parkingLotInfo);
+            
+            const test = await indexDao.getCurrParkData(idx, parkingLotInfo);
+
+            return res.render("main.ejs", {complexName, parkingLotInfo});
         }
     })
 }

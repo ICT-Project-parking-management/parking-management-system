@@ -64,7 +64,7 @@ async function getFloors(idx) {
     return rows;
 }
 
-async function getCurrParkData(idx, areas) {
+async function getCurrParkData(idx, parkingLotInfo) {
 
     // idx = 주차장 인덱스
     // RDS => 해당 주차장의 주차구역 & 정보(장애인전용/전기차전용/일반전용) 확인
@@ -74,30 +74,72 @@ async function getCurrParkData(idx, areas) {
     var parkDataList = [];
     // const dynamo = new AWS.DynamoDB.DocumentClient();
 
-    areas.forEach(async (area) => {
-        // 특정 주차구역(parkLocation)의 가장 최근 값만 불러오도록 수정 필요
-        const params = {
-            TableName: "parkingData",
-            ScanIndexForward: true,
-            ProjectionExpression: "idx, parkLocation, carNum, classify, #inOut",          
-            ExpressionAttributeNames: {
-                "#inOut": "inOut"
-            },
-            FilterExpression: 'parkLocation = :area',
-            ExpressionAttributeValues: {
-                ":area": area
-            }
-        }
+    var floor;
+    var area;
 
-        const result = await dynamo.scan(params, (err, data) => {
-            if (err) {
-                console.log(err)
-            } else {
-                const { Items } = data;
-                console.log(Items);
+    // 210810 특정 층, 특정 구역에 대한 DynamoDB 데이터 조회
+    // TODO: timestamp 기준 최근 하나만 불러오도록 수정 필요
+
+    parkingLotInfo.forEach((e1) => {
+        floor = e1.floorName;
+        e1.areas.forEach((e2) => {
+            area = e2.areaName;
+
+            const params = {
+                TableName: "parking-data",
+                ProjectionExpression: "createdTime, carNum, disabled, electric, #inOut, parkLocation, floor",
+                ExpressionAttributeNames: {
+                    "#inOut": "inOut"
+                },
+                FilterExpression: 'parkLocation = :area AND floor = :floor',
+                ExpressionAttributeValues: {
+                    ":area": area,
+                    ":floor": floor
+                }
             }
-        });
-    })
+
+            const result = dynamo.scan(params, (err, data) => {
+                if (err) {
+                    console.log(err)
+                } else {
+                    const { Items } = data;
+                    console.log(Items);
+                }
+            })
+
+
+        })
+
+    });
+
+    // var areas = ['A1', 'A2'];
+
+    // areas.forEach(async (area) => {
+    //     // 특정 주차구역(parkLocation)의 가장 최근 값만 불러오도록 수정 필요
+    //     const params = {
+    //         TableName: "parking-data",
+    //         Limit: 1,
+    //         ScanIndexForward: false,
+    //         ProjectionExpression: "createdTime, carNum, disabled, electric, #inOut, parkLocation",          
+    //         ExpressionAttributeNames: {
+    //             "#inOut": "inOut"
+    //         },
+    //         FilterExpression: 'parkLocation = :area',
+    //         ExpressionAttributeValues: {
+    //             ":area": area
+    //         }
+    //     }
+
+    //     const result = await dynamo.scan(params, (err, data) => {
+    //         if (err) {
+    //             console.log(err)
+    //         } else {
+    //             const { Items } = data;
+    //             //console.log('결과 >>', Items);
+    //         }
+    //     })
+
+    // })
 }
 
 async function getMyArea(idx, userIndex) {

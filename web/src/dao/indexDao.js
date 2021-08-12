@@ -14,18 +14,28 @@ async function getParkingList() {
     return JSON.parse(JSON.stringify(rows));
 }//로그인 쿼리문 Dao에 따로 분리.
 
-async function getUserList(userID, userPW){
-
+async function getUserList(userID, userPW){ //일치 불일치가 검증이 안됨
     const connection = await newPool.getConnection(async (conn)=> conn);
-    const [rows, fields] = await connection.query(`SELECT userID, userPW FROM User WHERE userID = ? AND userPW = ?`, [userID, userPW]);
-    if(rows.length){
-        return JSON.parse(JSON.stringify(rows))[0].userID;
-    }else {
-
-        console.log("로그인 실패");
+    const [idRows, idFields] = await connection.query(`SELECT userID, userPW FROM User WHERE userID = ? AND userPW = ?`, [userID, userPW]);
+    console.log(idRows);
+    console.log(idRows.length);
+    //userID가 없음
+    if(idRows.length > 0){
+        var userName = JSON.parse(JSON.stringify(idRows))[0].userID;
+        var [indexRows, indexFields] = await connection.query(`SELECT userIndex FROM User WHERE userID = ?`, [userName]);
+        var userIndex = JSON.parse(JSON.stringify(indexRows))[0].userIndex;
     }
+    else{
+        userName=[];
+        userIndex=[];
+        console.log(userName, userIndex);
+    }
+   
+    //if((idRows.legnth)>0) //로그인 성공시
+   
     connection.release();
-}
+    return [userName, userIndex];
+} 
 
 async function dynamoExample (id) {
     const dynamo = new AWS.DynamoDB.DocumentClient();

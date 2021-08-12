@@ -8,7 +8,6 @@ exports.parkingData = async function (req, res) {
 }
 
 exports.main = async function (req, res) {
-    console.log('req.sesseion.nickname', req.session.nickname);
     const idx = req.params.idx;
     const rows = await indexDao.getComplexName(idx);
     const complexName = rows[0];
@@ -16,30 +15,45 @@ exports.main = async function (req, res) {
     const B1 = rows[2];
     const B2 = rows[3];
     console.log(complexName, areas);
-
-    return res.render("main.ejs", {complexName, areas, B1, B2});
+    const userName = req.session.nickname;
+    
+    return res.render("main.ejs", {idx, complexName, areas, B1, B2, userName});
 } 
 
 //barStatus =  `<a class="nav-link active" aria-current="page" href="/logout_check">로그아웃`; 
-exports.login_check = async function(req, res){
-  
-    var nickname;
+
+
+//controller를 두개 만들어서 로그인 부분이랑 본문 부분을 해야하나??
+
+exports.login_check = async function(req, res,next){
+    
+    const select = req.params.select;
     const userID = req.body.id;
     const userPW = req.body.pw;
-    const  isLogined = await indexDao.getUserList(userID, userPW);
-    
-    if(isLogined){
+    const rows = await indexDao.getUserList(userID, userPW);
+    const userName = rows[0];
+    const userIndex = rows[1];
+
+    if(userName.length>0){
         console.log("로그인 성공");
         req.session.nickname = userID;
-        nickname = req.session.nickname;
         req.session.save(function(){    
-            //res.redirect('/main/1');                    
-            res.render("login.ejs", {nickname}) //로그인이 됐으니까 이제 로그아웃이라 표시
+            //next(); //next해서 하는 방법도 존재
+            res.redirect(`/main/${select}`);
         });
     }else{
         console.log("로그인 실패");
+        res.redirect(`/main/${select}`);
     }
 
 }  
 
-//controller를 두개 만들어서 로그인 부분이랑 본문 부분을 해야하나??
+exports.logout_check = async function(req, res){
+   
+    const select = req.params.select;
+    console.log("로그아웃 이거", select);
+    req.session.destroy(function(){
+        req.session;
+    })
+    res.redirect(`/main/${select}`);
+}

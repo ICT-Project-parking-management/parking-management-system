@@ -24,9 +24,19 @@
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-                        <li class="nav-item"><a class="nav-link active" aria-current="page" href="#"> 내 주차구역 확인하기</a></li>
-                        <a class="nav-link active" aria-current="page" href="javascript:openModal('login-modal');"> 로그인
-                            </a>
+                        
+                        <% if(userName) { %>
+                            <li class="nav-item"><a class="nav-link active" aria-current="page" > 안녕하세요 <%= userName %> 님 | </a></li>
+                            <li class="nav-item"><a class="nav-link active" aria-current="page" href="#"> 내 주차구역 확인하기</a></li>
+                            <% if(idx==1) { %>
+                            <a class="nav-link active" aria-current="page" href="/logout_check/1" > 로그아웃</a>
+                            <% }else{ %>
+                                <a class="nav-link active" aria-current="page" href="/logout_check/2" > 로그아웃</a>
+                                <% } %>
+                            <% }else{%>
+                                <li class="nav-item"><a class="nav-link active" aria-current="page" href="#"> 내 주차구역 확인하기</a></li>
+                                <a class="nav-link active" aria-current="page" href="javascript:openModal('login-modal');"> 로그인</a>
+                                <% } %>
                         </li>
                     </ul>
                 </div>
@@ -73,12 +83,16 @@
             <a href="javascript:;" class="close">X</a>
             <p class="title">로그인</p>
             <div class="con">
-                <form class="login" action="/login_check" method="post" >
-                    <input type="text" id="id" name="id" placeholder="아이디">
-                    <input type="text" id="pw" name="pw" placeholder="비밀번호">
-                    <input type="submit" value="로그인">
-    
-                </form>
+                <% if(idx==1) { %>
+                    <form class="login" action="/login_check/1" method="post" >
+                    <% } else { %>
+                        <form class="login" action="/login_check/2" method="post" >
+                        <% } %>
+                        <input type="text" id="id" name="id" placeholder="아이디">
+                        <input type="text" id="pw" name="pw" placeholder="비밀번호">
+                        <input type="submit" value="로그인">
+                    </form>
+                
                 <p>관리자 및 입주민 회원가입은 관리실에 문의하세요.</p>
             </div>
         </div>
@@ -97,6 +111,12 @@
                 $(".modal-con").fadeOut(300);
             });
            
+        </script>
+
+        <script type="text/javascript">
+            function moveLogin(value) {
+                location.href = `/login_check/${value}`;
+            }
         </script>
 
         <!-- Bootstrap core JS-->

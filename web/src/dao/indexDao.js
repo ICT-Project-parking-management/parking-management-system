@@ -17,9 +17,7 @@ async function getParkingList() {
 async function getUserList(userID, userPW){ //일치 불일치가 검증이 안됨
     const connection = await newPool.getConnection(async (conn)=> conn);
     const [idRows, idFields] = await connection.query(`SELECT userID, userPW FROM User WHERE userID = ? AND userPW = ?`, [userID, userPW]);
-    console.log(idRows);
-    console.log(idRows.length);
-    //userID가 없음
+
     if(idRows.length > 0){
         var userName = JSON.parse(JSON.stringify(idRows))[0].userID;
         var [indexRows, indexFields] = await connection.query(`SELECT userIndex FROM User WHERE userID = ?`, [userName]);
@@ -28,11 +26,8 @@ async function getUserList(userID, userPW){ //일치 불일치가 검증이 안�
     else{
         userName=[];
         userIndex=[];
-        console.log(userName, userIndex);
     }
-   
-    //if((idRows.legnth)>0) //로그인 성공시
-   
+
     connection.release();
     return [userName, userIndex];
 } 

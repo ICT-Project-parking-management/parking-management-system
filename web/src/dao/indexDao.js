@@ -1,5 +1,5 @@
 const { pool } = require("../../config/database");
-const { dynamo } = require('../../config/dynamo');
+const { AWS } = require('../../config/dynamo');
 
 /**
  * update: 2021.08.08
@@ -64,7 +64,7 @@ async function getFloors(idx) {
     return rows;
 }
 
-async function getCurrParkData(idx, floorName, areaName) {
+async function getCurrParkData(areaNumber) {
 
     // idx = 주차장 인덱스
     // RDS => 해당 주차장의 주차구역 & 정보(장애인전용/전기차전용/일반전용) 확인
@@ -77,25 +77,24 @@ async function getCurrParkData(idx, floorName, areaName) {
     // 210810 특정 층, 특정 구역에 대한 DynamoDB 데이터 조회
     // TODO: timestamp 기준 최근 하나만 불러오도록 수정 필요
 
+    const dynamo = new AWS.DynamoDB.DocumentClient();
+
     const params = {
-        TableName: "test",
-        ProjectionExpression: "createdTime, carNum, disabled, electric, #inOut, parkLocation, floor",
-        ExpressionAttributeNames: {
+        TableName: "parking",
+        ProjectionExpression: "#areaNumber, createdTime, carNum, disabled, electric, #inOut",
+        KeyConditionExpression: "#areaNumber = :num",
+        ExpressionAttributeNames:{
+            "#areaNumber": "areaNumber",
             "#inOut": "inOut"
         },
-        FilterExpression: 'parkLocation = :area AND floor = :floor',
         ExpressionAttributeValues: {
-            ":area": areaName,
-            ":floor": floorName
+            ":num": areaNumber
         },
         ScanIndexForward: false,
         Limit: 1
     }
 
-    const data = await dynamo.scan(params).promise();
-
-    console.log(data.Items);
-
+    const data = await dynamo.query(params).promise();
     return data.Items;
 
     // trash

@@ -14,8 +14,7 @@ const awsRemoteConfig = {
 };
 
 AWS.config.update(awsRemoteConfig);
-const dynamo = new AWS.DynamoDB.DocumentClient();
 
 module.exports = {
-    dynamo: dynamo
+    AWS: AWS
 };

@@ -64,53 +64,71 @@ async function getFloors(idx) {
     return rows;
 }
 
-async function getCurrParkData(idx, parkingLotInfo) {
+async function getCurrParkData(idx, floorName, areaName) {
 
     // idx = 주차장 인덱스
     // RDS => 해당 주차장의 주차구역 & 정보(장애인전용/전기차전용/일반전용) 확인
     // DynamoDB => 해당 주차장의 특정 주차구역의 가장 최신 정보(차정보/inOut 등) 확인
     // 주차된 위치 표시 & 주차 위반 여부 팝업
 
-    var parkDataList = [];
+    // var parkDataList = [];
     // const dynamo = new AWS.DynamoDB.DocumentClient();
-
-    var floor;
-    var area;
 
     // 210810 특정 층, 특정 구역에 대한 DynamoDB 데이터 조회
     // TODO: timestamp 기준 최근 하나만 불러오도록 수정 필요
 
-    parkingLotInfo.forEach((e1) => {
-        floor = e1.floorName;
-        e1.areas.forEach((e2) => {
-            area = e2.areaName;
+    const params = {
+        TableName: "test",
+        ProjectionExpression: "createdTime, carNum, disabled, electric, #inOut, parkLocation, floor",
+        ExpressionAttributeNames: {
+            "#inOut": "inOut"
+        },
+        FilterExpression: 'parkLocation = :area AND floor = :floor',
+        ExpressionAttributeValues: {
+            ":area": areaName,
+            ":floor": floorName
+        },
+        ScanIndexForward: false,
+        Limit: 1
+    }
 
-            const params = {
-                TableName: "parking-data",
-                ProjectionExpression: "createdTime, carNum, disabled, electric, #inOut, parkLocation, floor",
-                ExpressionAttributeNames: {
-                    "#inOut": "inOut"
-                },
-                FilterExpression: 'parkLocation = :area AND floor = :floor',
-                ExpressionAttributeValues: {
-                    ":area": area,
-                    ":floor": floor
-                }
-            }
+    const data = await dynamo.scan(params).promise();
 
-            const result = dynamo.scan(params, (err, data) => {
-                if (err) {
-                    console.log(err)
-                } else {
-                    const { Items } = data;
-                    console.log(Items);
-                }
-            })
+    console.log(data.Items);
 
+    return data.Items;
 
-        })
+    // trash
+    // parkingLotInfo.forEach((e1) => {
+    //     floor = e1.floorName;
+    //     e1.areas.forEach((e2) => {
+    //         area = e2.areaName;
 
-    });
+    //         const params = {
+    //             TableName: "test",
+    //             ProjectionExpression: "createdTime, carNum, disabled, electric, #inOut, parkLocation, floor",
+    //             ExpressionAttributeNames: {
+    //                 "#inOut": "inOut"
+    //             },
+    //             FilterExpression: 'parkLocation = :area AND floor = :floor',
+    //             ExpressionAttributeValues: {
+    //                 ":area": area,
+    //                 ":floor": floor
+    //             },
+    //             ScanIndexForward: false,
+    //             Limit: 1
+    //         }
+
+    //         const result = dynamo.scan(params, (err, data) => {
+    //             if (err) {
+    //                 console.log(err)
+    //             } else {
+    //                 const { Items } = data;
+    //                 // console.log(floor, area, Items);
+    //             }
+    //         })
+    //     })
+    // });
 
     // var areas = ['A1', 'A2'];
 

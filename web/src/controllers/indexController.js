@@ -41,7 +41,8 @@ exports.main = async function (req, res) {
             const areaInfo = e2.areaInfo;
 
             // TODO 4. Dynamo 조회해서 차량 번호 및 위반 여부 파악
-            //const test = await indexDao.getCurrParkData(0, ['A1', 'A2']);
+            const test = await indexDao.getCurrParkData(idx, floorName, areaName);
+            console.log(floorName, areaName, test);
 
             const area = {areaName, areaInfo};
             areas.push(area);
@@ -54,8 +55,6 @@ exports.main = async function (req, res) {
         if (parkingLotInfo.length == floorRows.length) {
             //console.log(complexName);
             //console.log(parkingLotInfo);
-            
-            const test = await indexDao.getCurrParkData(idx, parkingLotInfo);
 
             return res.render("main.ejs", {complexName, parkingLotInfo});
         }

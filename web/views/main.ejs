@@ -13,6 +13,8 @@
         <link rel="stylesheet" href="/css/main.css" type="text/css">
         <!-- jquery -->
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+        
     </head>
     <body>
         <!-- Responsive navbar-->
@@ -22,7 +24,11 @@
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-                        <li class="nav-item"><a class="nav-link active" aria-current="page" href="#">내 주차구역 확인하기</a></li>
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page" href="javascript:checkMyArea('area-modal');">
+                                내 주차구역 확인하기
+                            </a>
+                        </li>
                         <li class="nav-item">
                             <a class="nav-link active" aria-current="page" href="javascript:openModal('login-modal');">
                                 로그인
@@ -39,29 +45,28 @@
                 <p class="lead">실시간 주차 현황을 확인하세요.</p>
 
                 <div class="parking">
-                    <div class="B1">
-                        <h4 class="floor">B1층</h4>
-                        <% B1.forEach(element => { %>
-                            <div class="areas">
-                                <h5 class="areaName"><%= element %></h5>
-                                <!-- <div class="bar"></div> -->
-                            </div>
-                        <% }); %>
-                    </div>
-                    <div class="B2">
-                        <h4 class="floor">B2층</h4>
-                        <% B2.forEach(element => { %>
-                            <div class="areas">
-                                <h5 class="areaName"><%= element %></h5>
-                                <!-- <div class="bar"></div> -->
-                            </div>
-                        <% }); %>
-                    </div>
 
-                    <script>
-                        console.log('areas', areas);
-                    </script>
+                    <% parkingLotInfo.forEach(element => { %>
+                        <h3><%= element.floorName %></h3>
 
+                        <table>
+                            <thead>
+                                <tr>
+                                    <% element.areas.forEach(area => { %>
+                                        <th> <%= area.areaName %> </th>    
+                                    <% }); %>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <% element.areas.forEach(area => { %>
+                                        <td id=<%= area.areaName %>></td>
+                                    <% }); %>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                    <% }); %>
                 </div>
             </div>
         </div>
@@ -80,6 +85,16 @@
                 <p>관리자 및 입주민 회원가입은 관리실에 문의하세요.</p>
             </div>
         </div>
+
+        <!-- My Area Modal-->
+        <div id="modal2"></div>
+        <div class="modal-con2 area-modal">
+            <a href="javascript:;" class="close">X</a>
+            <p class="title">내 주차구역</p>
+            <div class="con">
+                <h5>귀하의 차량은 <%= complexName %> OO층 OO구역에 위치해 있습니다.</h5>
+            </div>
+        </div>
         <script>
             function openModal(modalname){
                 document.get
@@ -91,6 +106,19 @@
                 $("#modal").fadeOut(300);
                 $(".modal-con").fadeOut(300);
             });
+
+            function checkMyArea(modalname){
+                document.get
+                $("#modal2").fadeIn(300);
+                $("."+modalname).fadeIn(300);
+            }
+
+            $("#modal2, .close").on('click',function(){
+                $("#modal2").fadeOut(300);
+                $(".modal-con2").fadeOut(300);
+            });
+
+            
         </script>
 
         <!-- Bootstrap core JS-->

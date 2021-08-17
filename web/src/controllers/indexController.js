@@ -84,8 +84,20 @@ exports.main = async function (req, res) {
                 parkingLotInfo.push(floor);
 
                 if (parkingLotInfo.length == floorRows.length) {
-                    return res.json(parkingLotInfo);
-                    // return res.render("main.ejs", {complexName, parkingLotInfo});
+                    //return res.json(parkingLotInfo);
+
+                    // 층 순서 정렬
+                    parkingLotInfo.sort((a, b) => {
+                        return (a.floorName < b.floorName) ? -1 : (a.floorName > b.floorName) ? 1 : 0;
+                    })
+                    // 구역 순서 정렬
+                    parkingLotInfo.forEach((e) => {
+                        e.areas.sort((a, b) => {
+                            return (a.areaName < b.areaName) ? -1 : (a.areaName > b.areaName) ? 1 : 0;
+                        })
+                    })
+
+                    return res.render("main.ejs", {complexName, parkingLotInfo});
                 }
             }
         });

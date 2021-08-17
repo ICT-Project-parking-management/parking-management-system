@@ -48,7 +48,6 @@
 
                     <% parkingLotInfo.forEach(element => { %>
                         <h3><%= element.floorName %></h3>
-
                         <table>
                             <thead>
                                 <tr>
@@ -60,7 +59,34 @@
                             <tbody>
                                 <tr>
                                     <% element.areas.forEach(area => { %>
-                                        <td id=<%= area.areaName %>></td>
+                                        <%
+                                            if (area.isBlocked) {
+                                                %>
+                                                <%
+                                                if (area.areaInfo === 1) {
+                                                    %> <td id=blocked> <img class="icon" src="/img/disabled.png" width="50" height="50"/> </td> <%
+                                                } else if (area.areaInfo === 2) {
+                                                    %> <td id=blocked> <img class="icon" src="/img/electric.png" width="50" height="50"/> </td> <%
+                                                } else {
+                                                    %> <td id=blocked></td> <%
+                                                }
+                                                %>
+                                                <%
+                                            } else {
+                                                %>
+                                                <%
+                                                if (area.areaInfo === 1) {
+                                                    %> <td id=notBlocked> <img class="icon" src="/img/disabled.png" width="50" height="50"/> </td> <%
+                                                } else if (area.areaInfo === 2) {
+                                                    %> <td id=notBlocked> <img class="icon" src="/img/electric.png" width="50" height="50"/> </td> <%
+                                                } else {
+                                                    %> <td id=notBlocked></td> <%
+                                                }
+                                                %>
+                                                <%
+                                            }
+                                        %>
+                                        <!-- <td id=<%= area.areaName %>></td> -->
                                     <% }); %>
                                 </tr>
                             </tbody>

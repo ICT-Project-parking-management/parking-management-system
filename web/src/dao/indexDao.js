@@ -71,12 +71,6 @@ async function getCurrParkData(areaNumber) {
     // DynamoDB => 해당 주차장의 특정 주차구역의 가장 최신 정보(차정보/inOut 등) 확인
     // 주차된 위치 표시 & 주차 위반 여부 팝업
 
-    // var parkDataList = [];
-    // const dynamo = new AWS.DynamoDB.DocumentClient();
-
-    // 210810 특정 층, 특정 구역에 대한 DynamoDB 데이터 조회
-    // TODO: timestamp 기준 최근 하나만 불러오도록 수정 필요
-
     const dynamo = new AWS.DynamoDB.DocumentClient();
 
     const params = {
@@ -95,68 +89,8 @@ async function getCurrParkData(areaNumber) {
     }
 
     const data = await dynamo.query(params).promise();
+
     return data.Items;
-
-    // trash
-    // parkingLotInfo.forEach((e1) => {
-    //     floor = e1.floorName;
-    //     e1.areas.forEach((e2) => {
-    //         area = e2.areaName;
-
-    //         const params = {
-    //             TableName: "test",
-    //             ProjectionExpression: "createdTime, carNum, disabled, electric, #inOut, parkLocation, floor",
-    //             ExpressionAttributeNames: {
-    //                 "#inOut": "inOut"
-    //             },
-    //             FilterExpression: 'parkLocation = :area AND floor = :floor',
-    //             ExpressionAttributeValues: {
-    //                 ":area": area,
-    //                 ":floor": floor
-    //             },
-    //             ScanIndexForward: false,
-    //             Limit: 1
-    //         }
-
-    //         const result = dynamo.scan(params, (err, data) => {
-    //             if (err) {
-    //                 console.log(err)
-    //             } else {
-    //                 const { Items } = data;
-    //                 // console.log(floor, area, Items);
-    //             }
-    //         })
-    //     })
-    // });
-
-    // var areas = ['A1', 'A2'];
-
-    // areas.forEach(async (area) => {
-    //     // 특정 주차구역(parkLocation)의 가장 최근 값만 불러오도록 수정 필요
-    //     const params = {
-    //         TableName: "parking-data",
-    //         Limit: 1,
-    //         ScanIndexForward: false,
-    //         ProjectionExpression: "createdTime, carNum, disabled, electric, #inOut, parkLocation",          
-    //         ExpressionAttributeNames: {
-    //             "#inOut": "inOut"
-    //         },
-    //         FilterExpression: 'parkLocation = :area',
-    //         ExpressionAttributeValues: {
-    //             ":area": area
-    //         }
-    //     }
-
-    //     const result = await dynamo.scan(params, (err, data) => {
-    //         if (err) {
-    //             console.log(err)
-    //         } else {
-    //             const { Items } = data;
-    //             //console.log('결과 >>', Items);
-    //         }
-    //     })
-
-    // })
 }
 
 async function getMyArea(idx, userIndex) {

@@ -9,5 +9,6 @@ const pool = {
 };
 
 module.exports = {
-    pool: pool
+    pool: pool,
+    pool2: pool
 };

@@ -86,7 +86,7 @@
             <div class="con">
                 <form class="login" method="post">
                     <input type="text" id="id" name="id" placeholder="아이디">
-                    <input type="text" id="pw" name="pw" placeholder="비밀번호">
+                    <input type="password" id="pw" name="pw" placeholder="비밀번호">
                     <% if (failed == "failedId") { %>
                         <p id="loginFailed">아이디를 잘못 입력하셨습니다</p>
                         <script>window.location.href="javascript:openModal('login-modal');"

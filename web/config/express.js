@@ -1,5 +1,6 @@
 // node_modules의 express 관련 파일 가져옴
 const express = require('express');
+const bodyParser = require('body-parser');
 
 module.exports = function () {
     const app = express();

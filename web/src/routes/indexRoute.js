@@ -11,5 +11,5 @@ module.exports = function(app) {
     app.get('/main/:idx/myArea', index.myArea);
 
     // lambda
-    app.get('/lambda', index.lambda)
+    app.post('/lambda', index.lambda)
 }

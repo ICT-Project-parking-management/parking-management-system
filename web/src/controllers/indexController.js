@@ -20,6 +20,11 @@ exports.main = async function (req, res) {
     const parkingLotIdx = req.params.idx;
     // const status = req.session.status;
 
+
+    /* 210817 - 로그인 되었을 시 사용자 차량 주차 위치 확인 */
+    const userIndex = 1; // 테스트용
+    const myArea = await indexDao.getMyArea(parkingLotIdx, userIndex);
+
     // 특정 주차장 정보 조회(주차장 이름, 주차 구역 리스트)
     // 데이터 포맷 : https://github.com/ICT-Project-parking-management/parking-management-system/wiki/%EB%8D%B0%EC%9D%B4%ED%84%B0-%ED%8F%AC%EB%A7%B7#main-%ED%8E%98%EC%9D%B4%EC%A7%80
 
@@ -106,9 +111,14 @@ exports.main = async function (req, res) {
 
 exports.myArea = async function (req, res) {
     //const userIndex = req.verifiedToken.id;
-    const idx = req.params.idx;
+    const parkingLotIdx = req.params.idx;
     const userIndex = 1; // 테스트용
-    const rows = await indexDao.getMyArea(idx, userIndex);
 
-    return res.render("main.ejs", {myArea})
+    const [getComplexNameRows] = await indexDao.getComplexName(parkingLotIdx);
+    const complexName = getComplexNameRows.complexName;
+    const myArea = await indexDao.getMyArea(parkingLotIdx, userIndex);
+
+    console.log('myArea >>', myArea);
+
+    return res.render("main.ejs", {complexName, myArea})
 }

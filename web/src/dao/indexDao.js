@@ -94,24 +94,35 @@ async function getCurrParkData(areaNumber) {
 }
 
 async function getMyArea(idx, userIndex) {
-    const dynamo = new AWS.DynamoDB.DocumentClient();
-    const params = {
-        TableName: dynamo_config.table_name,
-        KeyConditionExpression: 'parkingId = :id',
-        ExpressionAttributeValues: {
-            ':id': id
-        }
-    }
 
-    await dynamo.query(params, (err, data) => {
-        if (err) {
-            console.log(err);
-        } else {
-            const { Items } = data;
-            console.log(Items);
-            return Items;
-        }
-    });
+    // 1. 해당 유저의 차량 정보 RDS 조회 (여러 개 일 수 있음)
+    const connection = await pool.getConnection(async (conn) => conn);
+    const Query = `SELECT GROUP_CONCAT(carNum) AS cars FROM Car WHERE userIndex = ${userIndex};`;
+    const [rows] = await connection.query(Query);
+    connection.release();
+
+    const carList = rows[0].cars.split(',');
+    console.log('carList >>', carList);
+
+    // 2. 해당 차량의 최근 주차 정보 DynamoDB 조회
+    const dynamo = new AWS.DynamoDB.DocumentClient();
+    carList.forEach(async (car) => {        
+        // const params = {
+        //     TableName: "parking",
+        //     ProjectionExpression: "areaNumber, createdTime, carNum, disabled, electric, #inOut",
+        //     KeyConditionExpression: "carNum = :num",
+        //     ExpressionAttributeNames:{
+        //         "#inOut": "inOut"
+        //     },
+        //     ExpressionAttributeValues: {
+        //         ":num": car
+        //     },
+        //     ScanIndexForward: false,
+        //     Limit: 1
+        // }
+        // const data = await dynamo.query(params).promise();
+        // console.log('data.response >>', data.response);
+    })
 }
 
 module.exports = {

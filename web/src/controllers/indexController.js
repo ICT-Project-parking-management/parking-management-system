@@ -124,10 +124,11 @@ exports.myArea = async function (req, res) {
 }
 
 exports.lambda = async function (req, res) {
-    const jsonName = req.body.jsonName;
-    const imgURL = req.body.imgURL;
+    //const jsonName = req.body.jsonName;
+    //const imgURL = req.body.imgURL;
 
-    console.log('새 data가 들어옴 >>', jsonName, imgURL);
+    console.log('req >>', req);
+    console.log('req.body.jsonName >>', req.body.jsonName);
 
-    return res.render("intro.ejs");
+    return res.render("test.ejs");
 }

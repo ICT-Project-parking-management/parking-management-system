@@ -41,9 +41,7 @@ a.button{display:inline-block; padding: 10px 20px; text-decoration:none; color:#
   line-height:1.3;
   padding: 30px;
 }
-.modal-con .con #loginFailed{
-  color: red;
-}
+
 .modal-con .close, .modal-con2 .close, .modal-con3 .close {
   display:block;
   position:absolute;
@@ -57,7 +55,9 @@ a.button{display:inline-block; padding: 10px 20px; text-decoration:none; color:#
   right:10px;
   top:10px;
 }
-
+.modal-con .con #loginFailed { 
+  color: red; 
+}
 .login input {
   display: block;
   width: 380px;
@@ -139,5 +139,12 @@ th, td {
 td {
   width: 100px;
   height: 100px;
-  background-color:rgb(236, 236, 236);
+}
+
+td#blocked {
+  background-color: rgb(214, 62, 62);
+}
+
+td#notBlocked {
+  background-color: rgb(109, 167, 109);
 }

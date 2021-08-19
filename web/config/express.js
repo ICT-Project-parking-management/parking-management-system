@@ -12,7 +12,11 @@ module.exports = function () {
     app.set("views", process.cwd() + "/views");
 
     app.use(express.static(process.cwd() + '/static'));
-    app.use(bodyParser.urlencoded({extended:false}));
+    //app.use(bodyParser.urlencoded({extended:false}));
+
+    app.use(express.json());
+    app.use(express.urlencoded({extended: true}));
+    
     app.use(session({
         key: "session_cookie_name",
         secret: "session_cookie_secret",

@@ -10,6 +10,9 @@ module.exports = function(app) {
     // 내 주차구역 확인
     app.get('/main/:idx/myArea', index.myArea);
 
+    // lambda
+    app.post('/lambda', index.lambda)
+
     //로그인
     app.post('/main/:idx', index.login_check);
     

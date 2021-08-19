@@ -19,7 +19,7 @@
         <!-- Responsive navbar-->
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
             <div class="container">
-                <a class="navbar-brand" href="/">주차관리 시스템</a>
+                <a class="navbar-brand" href="#">주차관리 시스템</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
@@ -27,7 +27,7 @@
                         <% if(userName) { %>
                             <li class="nav-item"><a class="nav-link active" aria-current="page" > 안녕하세요 <%= userName %> 님 | </a></li>
                             <li class="nav-item"><a class="nav-link active" aria-current="page" href="javascript:checkMyArea('area-modal');"> 내 주차구역 확인하기</a></li>
-                            <a class="nav-link active" aria-current="page" href="/logout_check/<%= idx %>"> 로그아웃</a> 
+                            <a class="nav-link active" aria-current="page" href="/logout_check/<%= parkingLotIdx %>"> 로그아웃</a> 
                             <% }else{%>
                                 <li class="nav-item"><a class="nav-link active" aria-current="page" href="javascript:checkMyLogin('requireLogin-modal');"> 내 주차구역 확인하기</a></li>
                                 <a class="nav-link active" aria-current="page" href="javascript:openModal('login-modal');"> 로그인</a>
@@ -58,9 +58,18 @@
                             </thead>
                             <tbody>
                                 <tr>
-                                    <% element.areas.forEach(area => { %>
-                                        <td id=<%= area.areaName %>></td>
-                                    <% }); %>
+                                    <% element.areas.forEach(area => { %> <%
+                                        if (area.isBlocked) { %> <%
+                                            if (area.areaInfo === 1) { %> <td id=blocked> <img class="icon" src="/img/disabled.png" width="50" height="50"/> </td> <% }
+                                            else if (area.areaInfo === 2) { %> <td id=blocked> <img class="icon" src="/img/electric.png" width="50" height="50"/> </td> <% }
+                                            else { %> <td id=blocked></td> <% }
+                                        %> <% }
+                                        else { %> <%
+                                            if (area.areaInfo === 1) { %> <td id=notBlocked> <img class="icon" src="/img/disabled.png" width="50" height="50"/> </td> <% }
+                                            else if (area.areaInfo === 2) { %> <td id=notBlocked> <img class="icon" src="/img/electric.png" width="50" height="50"/> </td> <% }
+                                            else { %> <td id=notBlocked></td> <% }
+                                        %> <% }
+                                    %> <% }); %>
                                 </tr>
                             </tbody>
                         </table>
@@ -87,40 +96,34 @@
                         <p id="loginFailed">비밀번호를 잘못 입력하셨습니다</p>
                         <script>window.location.href="javascript:openModal('login-modal');"
                         </script>
-    
                     <% } %>
-                        
                     <input type="submit" value="로그인">
-                      
                 </form>
-
-                
-
                 <p>관리자 및 입주민 회원가입은 관리실에 문의하세요.</p>
+            </div>
+        </div>
+     
+        <!-- My Area Modal-->
+        <div id="modal2"></div>
+        <div class="modal-con2 area-modal">
+            <a href="javascript:;" class="close">X</a>
+            <p class="title">내 주차구역</p>
+            <div class="con">
+                <h5>귀하의 차량은 <%= complexName %> OO층 OO구역에 위치해 있습니다.</h5>
+
 
             </div>
-
         </div>
-
-         <!-- My Area Modal-->
-         <div id="modal2"></div>
-         <div class="modal-con2 area-modal">
-             <a href="javascript:;" class="close">X</a>
-             <p class="title">내 주차구역</p>
-             <div class="con">
-                 <h5>귀하의 차량은 <%= complexName %> OO층 OO구역에 위치해 있습니다.</h5>
-             </div>
-         </div>
-
-          <!-- Require Login Modal-->
-          <div id="modal3"></div>
-          <div class="modal-con3 requireLogin-modal">
-              <a href="javascript:;" class="close">X</a>
-              <p class="title">얍</p>
-              <div class="con">
-                  <h5>로그인을 해주세요</h5>
-              </div>
-          </div>
+         
+        <!-- Require Login Modal-->
+        <div id="modal3"></div>
+        <div class="modal-con3 requireLogin-modal">
+            <a href="javascript:;" class="close">X</a>
+            <p class="title">얍</p>
+            <div class="con">
+                <h5>로그인이 필요한 기능입니당</h5>
+            </div>
+        </div>
 
         <script>
             function openModal(modalname){
@@ -128,20 +131,20 @@
                 $("#modal").fadeIn(300);
                 $("."+modalname).fadeIn(300);
             }
-
             $("#modal, .close").on('click',function(){
                 $("#modal").fadeOut(300);
                 $(".modal-con").fadeOut(300);
             });
-            
             function checkMyArea(modalname){
                 document.get
                 $("#modal2").fadeIn(300);
                 $("."+modalname).fadeIn(300);
+                //window.location = window.location.href + '/myArea';
+                //console.log('URL', window.location.href);
             }
             $("#modal2, .close").on('click',function(){
                 $("#modal2").fadeOut(300);
-                $(".modal-con2").fadeOut(300);
+                $(".modal-con2").fadeOut(300);                
             });
 
             function checkMyLogin(modalname){
@@ -153,18 +156,6 @@
                 $("#modal3").fadeOut(300);
                 $(".modal-con3").fadeOut(300);
             });
-        </script>
-
-        <script>
-            function moveLogin(value) {
-                console.log('ㅇㅇ')
-                // if (failed == true) {
-                //     console.log('실패')
-                // } else {
-                //     console.log('성공')
-                //     location.href = `/main/${value}`;
-                // }
-            }
         </script>
 
         <!-- Bootstrap core JS-->

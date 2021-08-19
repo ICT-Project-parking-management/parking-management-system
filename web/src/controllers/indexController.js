@@ -122,3 +122,12 @@ exports.myArea = async function (req, res) {
 
     return res.render("main.ejs", {complexName, myArea})
 }
+
+exports.lambda = async function (req, res) {
+    const jsonName = req.body.jsonName;
+    const imgURL = req.body.imgURL;
+
+    console.log('새 data가 들어옴 >>', jsonName, imgURL);
+
+    return res.render("intro.ejs");
+}

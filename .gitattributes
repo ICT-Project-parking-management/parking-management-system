@@ -1,0 +1,2 @@
+web/**/*.css  linguist-vendored
+web/**/*.ejs  linguist-vendored

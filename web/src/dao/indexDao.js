@@ -167,20 +167,21 @@ async function getMyArea(idx, userIndex) {
 
 async function getUserList(userID, userPW){ //일치 불일치가 검증이 안됨
     const connection = await newPool.getConnection(async (conn)=> conn);
-    const [idRows, idFields] = await connection.query(`SELECT userID, userPW FROM User WHERE userID = ? AND userPW = ?`, [userID, userPW]);
-
+    const [idRows, idFields] = await connection.query(`SELECT userID FROM User WHERE userID = ? `, [userID]);
     if(idRows.length > 0){
+        var [pwRows, pwFields] = await connection.query(`SELECT userID, userPW FROM User WHERE userID = ? AND userPW=?`, [userID, userPW]);
         var userName = JSON.parse(JSON.stringify(idRows))[0].userID;
-        var [indexRows, indexFields] = await connection.query(`SELECT userIndex FROM User WHERE userID = ?`, [userName]);
+        var [indexRows, indexFields] = await connection.query(`SELECT userIndex FROM User WHERE userID = ?`, userName);
         var userIndex = JSON.parse(JSON.stringify(indexRows))[0].userIndex;
     }
     else{
         userName=[];
         userIndex=[];
+        pwRows=[];
     }
 
     connection.release();
-    return [userName, userIndex];
+    return [userName,pwRows, userIndex];
 } 
 
 module.exports = {

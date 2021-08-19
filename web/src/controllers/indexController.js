@@ -1,3 +1,4 @@
+
 const indexDao = require("../dao/indexDao");
 
 /**
@@ -19,7 +20,6 @@ const indexDao = require("../dao/indexDao");
 
  exports.main = async function (req, res) {
     const idx = req.params.idx;
-    
     // 특정 주차장 정보 조회(주차장 이름, 주차 구역 리스트)
     // 데이터 포맷 : https://github.com/ICT-Project-parking-management/parking-management-system/wiki/%EB%8D%B0%EC%9D%B4%ED%84%B0-%ED%8F%AC%EB%A7%B7#main-%ED%8E%98%EC%9D%B4%EC%A7%80
 
@@ -59,7 +59,7 @@ const indexDao = require("../dao/indexDao");
             //console.log(parkingLotInfo);
             
             const test = await indexDao.getCurrParkData(idx, parkingLotInfo);
-            const failed = req.session.failed;
+            var failed = req.session.failed;
             return res.render("main.ejs", {complexName, parkingLotInfo, idx, userName, failed});
         }
     })
@@ -80,15 +80,22 @@ exports.login_check = async function(req, res){
     const userPW = req.body.pw;
     const rows = await indexDao.getUserList(userID, userPW);
     const userName = rows[0];
-    const userIndex = rows[1];
-    if(userName.length>0){
+    const authPw = rows[1];
+    const userIndex = rows[2];
+
+    if(authPw.length>0){ //로그인 성공
         req.session.nickname = userID;
         req.session.failed="successLogin"
         req.session.save(function(){
             res.send(`<script>window.history.go(-1)</script>`)
         });
-    }else{
-        req.session.failed = "failedLogin";
+    }else{ //로그인 실패
+        if(userName.length>0){
+            req.session.failed = "failedPw";
+        }
+        else{
+            req.session.failed = "failedId";
+        }
         req.session.save(function(){
             res.send(`<script>window.history.go(-1)</script>`)
         });

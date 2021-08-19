@@ -43,8 +43,6 @@ a.button{display:inline-block; padding: 10px 20px; text-decoration:none; color:#
 }
 .modal-con .con #loginFailed{
   color: red;
-  position: relative;
-  left:-145px;
 }
 .modal-con .close, .modal-con2 .close, .modal-con3 .close {
   display:block;

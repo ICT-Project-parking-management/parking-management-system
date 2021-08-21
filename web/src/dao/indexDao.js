@@ -1,6 +1,5 @@
 const { pool } = require("../../config/database");
 const { AWS } = require('../../config/dynamo');
-
 /**
  * update: 2021.08.08
  * author: serin
@@ -113,7 +112,25 @@ async function addToDynamo(parkLocation, createdTime, electric, carNum, disabled
     // credit 값 thershold 이상일 시 DynamoDB에 데이터 삽입
 
 }
+async function getUserList(userID, userPW){ //일치 불일치가 검증이 안됨
+    const connection = await pool.getConnection(async (conn)=> conn);
+    const [idRows, idFields] = await connection.query(`SELECT userID FROM User WHERE userID = ? `, [userID]);
+    if(idRows.length > 0){
+        var [pwRows, pwFields] = await connection.query(`SELECT userID, userPW FROM User WHERE userID = ? AND userPW=?`, [userID, userPW]);
+        var userName = JSON.parse(JSON.stringify(idRows))[0].userID;
+        var [indexRows, indexFields] = await connection.query(`SELECT userIndex, status FROM User WHERE userID = ?`, userName);
+        var userIndex = JSON.parse(JSON.stringify(indexRows))[0].userIndex;
+        var status = JSON.parse(JSON.stringify(indexRows))[0].status;
+    }
+    else{
+        userName=[];
+        userIndex=[];
+        pwRows=[];
+    }
 
+    connection.release();
+    return [userName,pwRows, userIndex, status];
+} 
 
 module.exports = {
     getParkingList,
@@ -122,5 +139,6 @@ module.exports = {
     getAreas,
     getCurrParkData,
     getMyCars,
-    getMyAreas
+    getMyAreas,
+    getUserList
 };

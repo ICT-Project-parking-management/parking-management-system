@@ -127,8 +127,7 @@ exports.lambda = async function (req, res) {
     //const jsonName = req.body.jsonName;
     //const imgURL = req.body.imgURL;
 
-    console.log('req >>', req);
-    console.log('req.body.jsonName >>', req.body.jsonName);
+    console.log('req.body.parkLocation >>', req.body.parkLocation);
 
     return res.render("test.ejs");
 }

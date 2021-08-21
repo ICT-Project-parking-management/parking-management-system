@@ -107,17 +107,37 @@ exports.main = async function (req, res) {
 }
 
 exports.myArea = async function (req, res) {
-    //const userIndex = req.verifiedToken.id;
     const parkingLotIdx = req.params.idx;
     const userIndex = 1; // 테스트용
 
     const [getComplexNameRows] = await indexDao.getComplexName(parkingLotIdx);
     const complexName = getComplexNameRows.complexName;
-    const myCars = await indexDao.getMyCars(parkingLotIdx, userIndex); // RDS에서 내 차량번호 조회
-    const myCarsArea = await indexDao.getMyAreas(myCars); // DynamoDB에서 내 차량 데이터 조회
 
-    // TODO : 사용자의 차량이 어느 주차장 어느 구역에 주차되어 있는지 json 리턴
-    //return res.json();
+    const myCars = await indexDao.getMyCars(parkingLotIdx, userIndex); // RDS에서 내 차량번호 조회
+    let areas = [];
+    myCars.forEach(async function(e) {
+        const carNum = e.cars;
+        const info = await indexDao.getMyAreas(carNum);
+        
+        if (info.length !=0 && info[0].inOut == "in") {
+            let area = {
+                carNum,
+                'areaName': info[0].areaNumber
+            };
+            areas.push(area);
+        } else {
+            let area = {
+                carNum,
+                'areaName': 'none'
+            };
+            areas.push(area);
+        }
+
+        if (areas.length == myCars.length) {
+            return res.send(areas);
+        }
+    });
+    
 }
 
 exports.lambda = async function (req, res) {

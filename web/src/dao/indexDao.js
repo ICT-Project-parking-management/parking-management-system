@@ -100,11 +100,28 @@ async function getMyCars(idx, userIndex) {
     return rows;
 }
 
-async function getMyAreas(myCars) {
-
+async function getMyAreas(carNum) {
     // TODO: myCars에 있는 차량번호를 바탕으로 DynamoDB 조회
     const dynamo = new AWS.DynamoDB.DocumentClient();
 
+    const params = {
+        TableName: "parking",
+        ProjectionExpression: "#areaNumber, createdTime, #carNum, disabled, electric, #inOut",
+        FilterExpression: "#carNum between :start and :end",
+        ExpressionAttributeNames:{
+            "#areaNumber": "areaNumber",
+            "#inOut": "inOut",
+            "#carNum": "carNum"
+        },
+        ExpressionAttributeValues: {
+            ":start": carNum,
+            ":end": carNum
+        },
+        ScanIndexForward: false,
+    }
+
+    const data = await dynamo.scan(params).promise();
+    return data.Items;
 }
 
 async function addToDynamo(parkLocation, createdTime, electric, carNum, disabled, inOut, credit, imgURL) {

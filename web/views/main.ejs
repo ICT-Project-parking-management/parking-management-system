@@ -48,7 +48,6 @@
 
                     <% parkingLotInfo.forEach(element => { %>
                         <h3><%= element.floorName %></h3>
-
                         <table>
                             <thead>
                                 <tr>
@@ -59,9 +58,18 @@
                             </thead>
                             <tbody>
                                 <tr>
-                                    <% element.areas.forEach(area => { %>
-                                        <td id=<%= area.areaName %>></td>
-                                    <% }); %>
+                                    <% element.areas.forEach(area => { %> <%
+                                        if (area.isBlocked) { %> <%
+                                            if (area.areaInfo === 1) { %> <td id=blocked> <img class="icon" src="/img/disabled.png" width="50" height="50"/> </td> <% }
+                                            else if (area.areaInfo === 2) { %> <td id=blocked> <img class="icon" src="/img/electric.png" width="50" height="50"/> </td> <% }
+                                            else { %> <td id=blocked></td> <% }
+                                        %> <% }
+                                        else { %> <%
+                                            if (area.areaInfo === 1) { %> <td id=notBlocked> <img class="icon" src="/img/disabled.png" width="50" height="50"/> </td> <% }
+                                            else if (area.areaInfo === 2) { %> <td id=notBlocked> <img class="icon" src="/img/electric.png" width="50" height="50"/> </td> <% }
+                                            else { %> <td id=notBlocked></td> <% }
+                                        %> <% }
+                                    %> <% }); %>
                                 </tr>
                             </tbody>
                         </table>
@@ -93,6 +101,8 @@
             <p class="title">내 주차구역</p>
             <div class="con">
                 <h5>귀하의 차량은 <%= complexName %> OO층 OO구역에 위치해 있습니다.</h5>
+
+
             </div>
         </div>
         <script>
@@ -111,13 +121,14 @@
                 document.get
                 $("#modal2").fadeIn(300);
                 $("."+modalname).fadeIn(300);
+                //window.location = window.location.href + '/myArea';
+                //console.log('URL', window.location.href);
             }
 
             $("#modal2, .close").on('click',function(){
                 $("#modal2").fadeOut(300);
-                $(".modal-con2").fadeOut(300);
+                $(".modal-con2").fadeOut(300);                
             });
-
             
         </script>
 
@@ -125,9 +136,6 @@
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
         <!-- Core theme JS-->
         <script src="js/scripts.js"></script>
-
-        
-        
 
     </body>
 </html>

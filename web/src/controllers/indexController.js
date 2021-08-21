@@ -84,8 +84,20 @@ exports.main = async function (req, res) {
                 parkingLotInfo.push(floor);
 
                 if (parkingLotInfo.length == floorRows.length) {
-                    return res.json(parkingLotInfo);
-                    // return res.render("main.ejs", {complexName, parkingLotInfo});
+                    //return res.json(parkingLotInfo);
+
+                    // 층 순서 정렬
+                    parkingLotInfo.sort((a, b) => {
+                        return (a.floorName < b.floorName) ? -1 : (a.floorName > b.floorName) ? 1 : 0;
+                    })
+                    // 구역 순서 정렬
+                    parkingLotInfo.forEach((e) => {
+                        e.areas.sort((a, b) => {
+                            return (a.areaName < b.areaName) ? -1 : (a.areaName > b.areaName) ? 1 : 0;
+                        })
+                    })
+
+                    return res.render("main.ejs", {complexName, parkingLotInfo});
                 }
             }
         });
@@ -94,9 +106,36 @@ exports.main = async function (req, res) {
 
 exports.myArea = async function (req, res) {
     //const userIndex = req.verifiedToken.id;
-    const idx = req.params.idx;
+    const parkingLotIdx = req.params.idx;
     const userIndex = 1; // 테스트용
-    const rows = await indexDao.getMyArea(idx, userIndex);
 
-    return res.render("main.ejs", {myArea})
+    const [getComplexNameRows] = await indexDao.getComplexName(parkingLotIdx);
+    const complexName = getComplexNameRows.complexName;
+    const myCars = await indexDao.getMyCars(parkingLotIdx, userIndex); // RDS에서 내 차량번호 조회
+    const myCarsArea = await indexDao.getMyAreas(myCars); // DynamoDB에서 내 차량 데이터 조회
+
+    // TODO : 사용자의 차량이 어느 주차장 어느 구역에 주차되어 있는지 json 리턴
+    //return res.json();
+}
+
+exports.lambda = async function (req, res) {
+    const parkLocation = req.body.parkLocation;
+    const createdTime = req.body.createdTime;
+    const electric = req.body.electric;
+    const carNum = req.body.carNum;
+    const disabled = req.body.disabled;
+    const inOut = req.body.inOut;
+    const credit = req.body.creidt;
+    const imgURL = req.body.imgURL;
+
+    // credit 값이 threshold 미만인 경우 => flask 2차 검증 진행
+    // credit 값이 threshold 이상인 경우 => dynamoDB 저장
+
+    // if (credit < 0.5) {
+
+    // } else {
+    //     const [addToDynamo] = await indexDao.addToDynamo(parkLocation, createdTime, electric, carNum, disabled, inOut, credit, imgURL);
+    // }
+
+    return res.render("test.ejs");
 }

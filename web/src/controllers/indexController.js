@@ -20,11 +20,6 @@ exports.main = async function (req, res) {
     const parkingLotIdx = req.params.idx;
     // const status = req.session.status;
 
-
-    /* 210817 - 로그인 되었을 시 사용자 차량 주차 위치 확인 */
-    const userIndex = 1; // 테스트용
-    const myArea = await indexDao.getMyArea(parkingLotIdx, userIndex);
-
     // 특정 주차장 정보 조회(주차장 이름, 주차 구역 리스트)
     // 데이터 포맷 : https://github.com/ICT-Project-parking-management/parking-management-system/wiki/%EB%8D%B0%EC%9D%B4%ED%84%B0-%ED%8F%AC%EB%A7%B7#main-%ED%8E%98%EC%9D%B4%EC%A7%80
 
@@ -116,18 +111,31 @@ exports.myArea = async function (req, res) {
 
     const [getComplexNameRows] = await indexDao.getComplexName(parkingLotIdx);
     const complexName = getComplexNameRows.complexName;
-    const myArea = await indexDao.getMyArea(parkingLotIdx, userIndex);
+    const myCars = await indexDao.getMyCars(parkingLotIdx, userIndex); // RDS에서 내 차량번호 조회
+    const myCarsArea = await indexDao.getMyAreas(myCars); // DynamoDB에서 내 차량 데이터 조회
 
-    console.log('myArea >>', myArea);
-
-    return res.render("main.ejs", {complexName, myArea})
+    // TODO : 사용자의 차량이 어느 주차장 어느 구역에 주차되어 있는지 json 리턴
+    //return res.json();
 }
 
 exports.lambda = async function (req, res) {
-    //const jsonName = req.body.jsonName;
-    //const imgURL = req.body.imgURL;
+    const parkLocation = req.body.parkLocation;
+    const createdTime = req.body.createdTime;
+    const electric = req.body.electric;
+    const carNum = req.body.carNum;
+    const disabled = req.body.disabled;
+    const inOut = req.body.inOut;
+    const credit = req.body.creidt;
+    const imgURL = req.body.imgURL;
 
-    console.log('req.body.parkLocation >>', req.body.parkLocation);
+    // credit 값이 threshold 미만인 경우 => flask 2차 검증 진행
+    // credit 값이 threshold 이상인 경우 => dynamoDB 저장
+
+    // if (credit < 0.5) {
+
+    // } else {
+    //     const [addToDynamo] = await indexDao.addToDynamo(parkLocation, createdTime, electric, carNum, disabled, inOut, credit, imgURL);
+    // }
 
     return res.render("test.ejs");
 }

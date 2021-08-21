@@ -128,7 +128,29 @@ async function addToDynamo(parkLocation, createdTime, electric, carNum, disabled
 
     // credit 값 thershold 이상일 시 DynamoDB에 데이터 삽입
 
+    const dynamo = new AWS.DynamoDB.DocumentClient();
+
+    const params = {
+        TableName: "parking",
+        Item: {
+            areaNumber: parkLocation,
+            createdTime: createdTime,
+            electric: electric,
+            carNum: carNum,
+            disabled: disabled,
+            inOut: inOut
+        }
+    };
+
+    const data = await dynamo.put(params).promise();
+    
+    console.log('등록? >>', data);
+
+    return;
+
+
 }
+
 async function getUserList(userID, userPW){ //일치 불일치가 검증이 안됨
     const connection = await pool.getConnection(async (conn)=> conn);
     const [idRows, idFields] = await connection.query(`SELECT userID FROM User WHERE userID = ? `, [userID]);
@@ -157,5 +179,6 @@ module.exports = {
     getCurrParkData,
     getMyCars,
     getMyAreas,
+    addToDynamo,
     getUserList
 };

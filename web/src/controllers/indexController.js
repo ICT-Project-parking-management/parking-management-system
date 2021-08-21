@@ -17,6 +17,7 @@ exports.parkingData = async function (req, res) {
  * desc : 메인 페이지
  */
 exports.main = async function (req, res) {
+    console.log(req.session.status);
     const parkingLotIdx = req.params.idx;
     // const status = req.session.status;
     const userName = req.session.nickname;
@@ -151,29 +152,30 @@ exports.login_check = async function(req, res){
     const userName = rows[0];
     const authPw = rows[1];
     const userIndex = rows[2];
-    console.log(userIndex);
+    const status = rows[3];
+    
     if(authPw.length>0){ //로그인 성공
-        console.log("로그인 성공");
         req.session.nickname = userID;
-        //req.session.failed="successLogin"
+        if(status == 0 ){
+            req.session.status = "admin";
+        }else{
+            req.session.status = "resident";
+        }
         req.session.save(function(){
             const data = {"status": 200};
-            res.send(data) //json형태로 status:1 ajax에서 응답을 성공적으로 돌아왔을 때 success함수 실행이 되는데
+            res.send(data)
 
         });
     }else{ //로그인 실패
-        console.log("로그인 실패", userName.length);
         let status = -1;
         if(userName.length>0) //비밀번호 틀림
             status = 201;
         else
             status = 202; //아이디 틀림
+       
+        const data = {status};
+        res.send(data);
         
-        req.session.save(function(){
-            const data = {status};
-            console.log(status);
-            res.send(data);
-        });
     }
 
 }  

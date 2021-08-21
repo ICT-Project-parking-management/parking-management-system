@@ -118,8 +118,9 @@ async function getUserList(userID, userPW){ //일치 불일치가 검증이 안�
     if(idRows.length > 0){
         var [pwRows, pwFields] = await connection.query(`SELECT userID, userPW FROM User WHERE userID = ? AND userPW=?`, [userID, userPW]);
         var userName = JSON.parse(JSON.stringify(idRows))[0].userID;
-        var [indexRows, indexFields] = await connection.query(`SELECT userIndex FROM User WHERE userID = ?`, userName);
+        var [indexRows, indexFields] = await connection.query(`SELECT userIndex, status FROM User WHERE userID = ?`, userName);
         var userIndex = JSON.parse(JSON.stringify(indexRows))[0].userIndex;
+        var status = JSON.parse(JSON.stringify(indexRows))[0].status;
     }
     else{
         userName=[];
@@ -128,7 +129,7 @@ async function getUserList(userID, userPW){ //일치 불일치가 검증이 안�
     }
 
     connection.release();
-    return [userName,pwRows, userIndex];
+    return [userName,pwRows, userIndex, status];
 } 
 
 module.exports = {

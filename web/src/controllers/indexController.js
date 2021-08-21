@@ -147,17 +147,17 @@ exports.lambda = async function (req, res) {
     const carNum = req.body.carNum;
     const disabled = req.body.disabled;
     const inOut = req.body.inOut;
-    const credit = req.body.creidt;
+    const credit = req.body.credit;
     const imgURL = req.body.imgURL;
 
     // credit 값이 threshold 미만인 경우 => flask 2차 검증 진행
     // credit 값이 threshold 이상인 경우 => dynamoDB 저장
 
-    // if (credit < 0.5) {
-
-    // } else {
-    //     const [addToDynamo] = await indexDao.addToDynamo(parkLocation, createdTime, electric, carNum, disabled, inOut, credit, imgURL);
-    // }
+    if (credit < 0.5) {
+        console.log('2차 검증 필요');
+    } else {
+        const [addToDynamo] = await indexDao.addToDynamo(parkLocation, createdTime, electric, carNum, disabled, inOut, imgURL);
+    }
 
     return res.render("test.ejs");
 }

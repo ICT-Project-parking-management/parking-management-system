@@ -19,7 +19,8 @@ exports.parkingData = async function (req, res) {
 exports.main = async function (req, res) {
     const parkingLotIdx = req.params.idx;
     // const status = req.session.status;
-
+    const userName = req.session.nickname;
+    
     // 특정 주차장 정보 조회(주차장 이름, 주차 구역 리스트)
     // 데이터 포맷 : https://github.com/ICT-Project-parking-management/parking-management-system/wiki/%EB%8D%B0%EC%9D%B4%ED%84%B0-%ED%8F%AC%EB%A7%B7#main-%ED%8E%98%EC%9D%B4%EC%A7%80
 
@@ -97,7 +98,7 @@ exports.main = async function (req, res) {
                         })
                     })
 
-                    return res.render("main.ejs", {complexName, parkingLotInfo});
+                    return res.render("main.ejs", {complexName, parkingLotInfo, parkingLotIdx, userName});
                 }
             }
         });
@@ -138,4 +139,50 @@ exports.lambda = async function (req, res) {
     // }
 
     return res.render("test.ejs");
+}
+
+exports.login_check = async function(req, res){
+    const select = req.params.idx;
+
+    const userID = req.body.username;
+    const userPW = req.body.password;
+
+    const rows = await indexDao.getUserList(userID, userPW);
+    const userName = rows[0];
+    const authPw = rows[1];
+    const userIndex = rows[2];
+  
+    if(authPw.length>0){ //로그인 성공
+        console.log("로그인 성공");
+        req.session.nickname = userID;
+        //req.session.failed="successLogin"
+        req.session.save(function(){
+            const data = {"status": 200};
+            res.send(data) //json형태로 status:1 ajax에서 응답을 성공적으로 돌아왔을 때 success함수 실행이 되는데
+
+        });
+    }else{ //로그인 실패
+        console.log("로그인 실패", userName.length);
+        let status = -1;
+        if(userName.length>0) //비밀번호 틀림
+            status = 201;
+        else
+            status = 202; //아이디 틀림
+        
+        req.session.save(function(){
+            const data = {status};
+            console.log(status);
+            res.send(data);
+        });
+    }
+
+}  
+
+exports.logout_check = async function(req, res){
+   
+    const select = req.params.idx;
+    req.session.destroy(function(){
+        req.session;
+    })
+    res.send(`<script>location.href='/main/${select}';window.history.go(-1)</script>`);
 }

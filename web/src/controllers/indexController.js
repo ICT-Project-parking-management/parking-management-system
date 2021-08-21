@@ -150,15 +150,14 @@ exports.lambda = async function (req, res) {
     const credit = req.body.credit;
     const imgURL = req.body.imgURL;
 
-    // credit 값이 threshold 미만인 경우 => flask 2차 검증 진행
-    // credit 값이 threshold 이상인 경우 => dynamoDB 저장
-
     if (credit < 0.5) {
-        console.log('2차 검증 필요');
+        console.log('2차 검증 필요 - flask 2차 검증');
     } else {
+        console.log('2차 검증 불필요 - DynamoDB 저장')
         const [addToDynamo] = await indexDao.addToDynamo(parkLocation, createdTime, electric, carNum, disabled, inOut, imgURL);
     }
 
+    // TODO : 리턴 형식 변경 (ex. "2차 검증 후 DynamoDB 저장 완료" or "DynamoDB 저장 완료")
     return res.render("test.ejs");
 }
 

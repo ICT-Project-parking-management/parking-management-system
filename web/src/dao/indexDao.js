@@ -1,7 +1,5 @@
-const mysql = require('mysql2/promise');
-const { DB_CONFIG } = require("../../config/database");
+const { pool } = require("../../config/database");
 const { AWS } = require('../../config/dynamo');
-const pool = mysql.createPool(DB_CONFIG); 
 /**
  * update: 2021.08.08
  * author: serin

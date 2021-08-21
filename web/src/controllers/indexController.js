@@ -151,7 +151,7 @@ exports.login_check = async function(req, res){
     const userName = rows[0];
     const authPw = rows[1];
     const userIndex = rows[2];
-  
+    console.log(userIndex);
     if(authPw.length>0){ //로그인 성공
         console.log("로그인 성공");
         req.session.nickname = userID;

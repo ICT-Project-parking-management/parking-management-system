@@ -17,7 +17,7 @@ exports.parkingData = async function (req, res) {
  * desc : 메인 페이지
  */
 exports.main = async function (req, res) {
-    console.log(req.session.status);
+    console.log('req.session.status >>', req.session.status);
     const parkingLotIdx = req.params.idx;
     // const status = req.session.status;
     const userName = req.session.nickname;
@@ -108,13 +108,18 @@ exports.main = async function (req, res) {
 
 exports.myArea = async function (req, res) {
     const parkingLotIdx = req.params.idx;
-    const userIndex = 1; // 테스트용
+    const userName = req.session.nickname;
+    const getUserIndex = await indexDao.getUserIndex(userName);
+    const userIndex = getUserIndex[0].userIndex;
 
     const [getComplexNameRows] = await indexDao.getComplexName(parkingLotIdx);
     const complexName = getComplexNameRows.complexName;
 
-    const myCars = await indexDao.getMyCars(parkingLotIdx, userIndex); // RDS에서 내 차량번호 조회
+    // RDS에서 내 차량번호 조회
+    const myCars = await indexDao.getMyCars(parkingLotIdx, userIndex);
     let areas = [];
+
+    // DynamoDB에서 내 차량 주차위치 조회
     myCars.forEach(async function(e) {
         const carNum = e.cars;
         const info = await indexDao.getMyAreas(carNum);

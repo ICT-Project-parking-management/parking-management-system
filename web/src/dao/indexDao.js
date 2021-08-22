@@ -1,11 +1,14 @@
 const { pool } = require("../../config/database");
 const { AWS } = require('../../config/dynamo');
-/**
- * update: 2021.08.08
- * author: serin
- * connect : RDS
- * desc : 등록된 주차장 리스트 조회
- */
+
+async function getUserIndex(userID) {
+    const connection = await pool.getConnection(async (conn) => conn);
+    const getUserIndexQuery = `SELECT userIndex FROM User WHERE userID = '${userID}';`;
+    const [rows] = await connection.query(getUserIndexQuery);
+    connection.release();
+    return rows;
+}
+
 async function getParkingList() {
     const connection = await pool.getConnection(async (conn) => conn);
     const getParkingListQuery = `SELECT parkingLotIndex, complexName FROM ParkingLot;`;
@@ -14,12 +17,6 @@ async function getParkingList() {
     return rows
 }
 
-/**
- * update: 2021.08.08
- * author: serin
- * connect : RDS
- * desc : 주차장 이름 조회
- */
  async function getComplexName(idx) {
     const connection = await pool.getConnection(async (conn) => conn);
     const getComplexNameQuery = `
@@ -172,6 +169,7 @@ async function getUserList(userID, userPW){ //일치 불일치가 검증이 안�
 } 
 
 module.exports = {
+    getUserIndex,
     getParkingList,
     getComplexName,
     getFloors,

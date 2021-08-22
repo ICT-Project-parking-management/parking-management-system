@@ -26,7 +26,7 @@
                     <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                         
                         <% if(userName) { %>
-                            <li class="nav-item"><a class="nav-link active" aria-current="page" > 안녕하세요 <%= userName %> 님 | </a></li>
+                            <li class="nav-item"><a class="nav-link active" aria-current="page" > 안녕하세요 <%= userName %> 님! </a></li>
                             <li class="nav-item"><a class="nav-link active" aria-current="page" href="javascript:checkMyArea('area-modal');"> 내 주차구역 확인하기</a></li>
                             <a class="nav-link active" aria-current="page" href="/logout_check/<%= parkingLotIdx %>"> 로그아웃</a> 
                             <% }else{%>
@@ -100,7 +100,8 @@
             <a href="javascript:;" class="close">X</a>
             <p class="title">내 주차구역 확인하기</p>
             <div class="con">
-                <h5>귀하의 차량은 <%= complexName %> OO층 OO구역에 위치해 있습니다.</h5>
+                <h5><b>주차장</b>: <%=complexName %></h5>
+                <div class="myAreaInfo"></div>
             </div>
         </div>
          <!-- Require Login Modal-->
@@ -134,15 +135,25 @@
                     type: "GET",
                     url: "/main/<%= parkingLotIdx %>/myArea",
                     dataType: "json",
-                    success: function(data) {
-                        console.log('data! >>', data);
+                    success: (data) => {
+                        data.forEach((e) => {
+                            if (e.areaName !== "none") {
+                                $(".myAreaInfo").append(
+                                    "<h5> <b>차량번호</b>: " + e.carNum +
+                                    "&ensp; <b>주차층</b>: " + e.areaName.substr(2, 2) +
+                                    "&ensp; <b>주차구역</b>: " + e.areaName.substr(4, 2) + "<h5>"
+                                )
+                            }
+                        })
+                        
                     }
                 })
             }
-
             $("#modal2, .close").on('click',function(){
+                var content = document.querySelector('.myAreaInfo');
+                content.innerHTML = '';
                 $("#modal2").fadeOut(300);
-                $(".modal-con2").fadeOut(300);                
+                $(".modal-con2").fadeOut(300);
             });
              function checkMyLogin(modalname){
                 document.get

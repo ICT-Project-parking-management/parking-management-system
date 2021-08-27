@@ -164,13 +164,13 @@ exports.lambda = async function (req, res) {
     }
 
     // 2. 위반 여부 파악
-
-    console.log('parkLoation >>', parkLocation);
-    console.log('req.session.status >>', req.session.status);
+    const parkingLotIdx = Number(parkLocation[0]);
+    const parkingFloor = parkLocation.substr(2, 2);
+    const parkingAreaName = parkLocation.substr(4, 2);
 
     // 2-a. 주차면 정보 조회
-    
-
+    const areaInfo = await indexDao.getSpecificAreaInfo(parkingLotIdx, parkingFloor, parkingAreaName);
+    console.log('areaInfo >', areaInfo);
      
 
     // TODO : 리턴 형식 변경 (ex. "2차 검증 후 DynamoDB 저장 완료" or "DynamoDB 저장 완료")

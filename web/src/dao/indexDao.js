@@ -1,37 +1,52 @@
 const { pool } = require("../../config/database");
 const { AWS } = require('../../config/dynamo');
 
+async function getUserList(userID, userPW) {
+    const connection = await pool.getConnection(async (conn)=> conn);
+    const [idRows, idFields] = await connection.query(`SELECT userID FROM User WHERE userID = ?`, [userID]);
+    if (idRows.length > 0) {
+        var [pwRows, pwFields] = await connection.query(`SELECT userID, userPW FROM User WHERE userID = ? AND userPW = ?`, [userID, userPW]);
+        var userName = JSON.parse(JSON.stringify(idRows))[0].userID;
+        var [indexRows, indexFields] = await connection.query(`SELECT userIndex, status FROM User WHERE userID = ?`, userName);
+        var userIndex = JSON.parse(JSON.stringify(indexRows))[0].userIndex;
+        var status = JSON.parse(JSON.stringify(indexRows))[0].status;
+    }
+    else {
+        userName = [];
+        userIndex = [];
+        pwRows = [];
+    }
+    connection.release();
+    return [userName, pwRows, userIndex, status];
+} 
+
 async function getUserIndex(userID) {
     const connection = await pool.getConnection(async (conn) => conn);
-    const getUserIndexQuery = `SELECT userIndex FROM User WHERE userID = '${userID}';`;
-    const [rows] = await connection.query(getUserIndexQuery);
+    const Query = `SELECT userIndex FROM User WHERE userID = '${userID}';`;
+    const [rows] = await connection.query(Query);
     connection.release();
     return rows;
 }
 
 async function getParkingList() {
     const connection = await pool.getConnection(async (conn) => conn);
-    const getParkingListQuery = `SELECT parkingLotIndex, complexName FROM ParkingLot;`;
-    const [rows] = await connection.query(getParkingListQuery);
+    const Query = `SELECT parkingLotIndex, complexName FROM ParkingLot;`;
+    const [rows] = await connection.query(Query);
     connection.release();
     return rows
 }
 
  async function getComplexName(idx) {
     const connection = await pool.getConnection(async (conn) => conn);
-    const getComplexNameQuery = `
-    SELECT complexName FROM ParkingLot WHERE parkingLotIndex = ${idx};
-    `;
-    const [rows] = await connection.query(getComplexNameQuery);
+    const Query = `SELECT complexName FROM ParkingLot WHERE parkingLotIndex = ${idx};`;
+    const [rows] = await connection.query(Query);
     connection.release();
     return rows;
 }
 
 async function getFloors(idx) {
     const connection = await pool.getConnection(async (conn) => conn);
-    const Query = `
-    SELECT DISTINCT floor FROM ParkingArea WHERE parkingLotIndex = ${idx};
-    `;
+    const Query = `SELECT DISTINCT floor FROM ParkingArea WHERE parkingLotIndex = ${idx};`;
     const [rows] = await connection.query(Query);
     connection.release();
     return rows;
@@ -56,7 +71,6 @@ async function getCurrParkData(areaNumber) {
     // 주차된 위치 표시 & 주차 위반 여부 팝업
 
     const dynamo = new AWS.DynamoDB.DocumentClient();
-
     const params = {
         TableName: "parking",
         ProjectionExpression: "#areaNumber, createdTime, carNum, disabled, electric, #inOut",
@@ -71,9 +85,7 @@ async function getCurrParkData(areaNumber) {
         ScanIndexForward: false,
         Limit: 1
     }
-
     const data = await dynamo.query(params).promise();
-
     return data.Items;
 }
 
@@ -124,26 +136,17 @@ async function addToDynamo(parkLocation, createdTime, electric, carNum, disabled
     return;
 }
 
-async function getUserList(userID, userPW) {
-    const connection = await pool.getConnection(async (conn)=> conn);
-    const [idRows, idFields] = await connection.query(`SELECT userID FROM User WHERE userID = ? `, [userID]);
-    if (idRows.length > 0) {
-        var [pwRows, pwFields] = await connection.query(`SELECT userID, userPW FROM User WHERE userID = ? AND userPW = ?`, [userID, userPW]);
-        var userName = JSON.parse(JSON.stringify(idRows))[0].userID;
-        var [indexRows, indexFields] = await connection.query(`SELECT userIndex, status FROM User WHERE userID = ?`, userName);
-        var userIndex = JSON.parse(JSON.stringify(indexRows))[0].userIndex;
-        var status = JSON.parse(JSON.stringify(indexRows))[0].status;
-    }
-    else {
-        userName = [];
-        userIndex = [];
-        pwRows = [];
-    }
+async function getSpecificAreaInfo(parkingLotIdx, floor, area) {
+    const connection = await pool.getConnection(async (conn) => conn);
+    const Query = `SELECT areaInfo FROM ParkingArea WHERE parkingLotIndex = ${parkingLotIdx} AND floor = ${floor} AND areaName = ${area};`;
+    const [rows] = await connection.query(Query);
     connection.release();
-    return [userName,pwRows, userIndex, status];
-} 
+    return rows;
+}
+
 
 module.exports = {
+    getUserList,
     getUserIndex,
     getParkingList,
     getComplexName,
@@ -153,5 +156,5 @@ module.exports = {
     getMyCars,
     getMyAreas,
     addToDynamo,
-    getUserList
+    getSpecificAreaInfo
 };

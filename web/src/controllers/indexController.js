@@ -148,13 +148,15 @@ exports.myArea = async function (req, res) {
 exports.lambda = async function (req, res) {
     const parkLocation = req.body.parkLocation;
     const createdTime = req.body.createdTime;
-    const electric = req.body.electric;
+    const electric = req.body.electric; // 0 or 1
     const carNum = req.body.carNum;
-    const disabled = req.body.disabled;
+    const disabled = req.body.disabled; // 0 or 1
     const inOut = req.body.inOut;
     const credit = req.body.credit;
     const imgURL = req.body.imgURL;
 
+    // TODO : Flask와 연결, 2차 검증 후 데이터 불러와서 DynamoDB 저장
+    // 1. 2차 검증 대상인지 판별
     if (credit < 0.5) {
         console.log('2차 검증 필요 - flask 2차 검증');
     } else {
@@ -162,7 +164,27 @@ exports.lambda = async function (req, res) {
         const [addToDynamo] = await indexDao.addToDynamo(parkLocation, createdTime, electric, carNum, disabled, inOut, imgURL);
     }
 
-    // TODO : 리턴 형식 변경 (ex. "2차 검증 후 DynamoDB 저장 완료" or "DynamoDB 저장 완료")
+    // 2. 위반 여부 파악
+    const parkingLotIdx = Number(parkLocation[0]);
+    const parkingFloor = parkLocation.substr(2, 2);
+    const parkingAreaName = parkLocation.substr(4, 2);
+    const [rows] = await indexDao.getSpecificAreaInfo(parkingLotIdx, parkingFloor, parkingAreaName);
+    const info = rows.areaInfo; // 일반 0 장애인 1 전기 2
+    
+    // TODO : 관리자인 경우 팝업으로 안내
+    // case 1 : 비 장애인 차량이 장애인 전용에 주차
+    // case 2 : 비 전기차량이 전기차 전용에 주차
+
+    if (disabled === 0 && info === 1 && inOut === "in") {
+        console.log('위반 (장애인차량 전용 구역에 주차)');
+        console.log(parkingFloor, parkingAreaName, carNum);
+
+    } else if (electric === 0 && info === 2 && inOut === "in") {
+        console.log('위반 (전기차 전용 구역에 주차');
+        console.log(parkingFloor, parkingAreaName, carNum);
+    }
+
+    // TODO : 리턴 형식 변경 (json 리턴)
     return res.render("test.ejs");
 }
 

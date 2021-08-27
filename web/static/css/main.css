@@ -59,7 +59,9 @@ a.button{display:inline-block; padding: 10px 20px; text-decoration:none; color:#
   color: red; 
 }
 .modal-con .con #login_btn{
-  color:rgb(109, 167, 109);
+  width: 100%;
+  background-color: rgb(204, 204, 204);
+  margin-bottom: 1rem;
 }
 
 .login input {

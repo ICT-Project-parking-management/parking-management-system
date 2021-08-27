@@ -27,12 +27,6 @@ async function getParkingList() {
     return rows;
 }
 
-/**
- * update: 2021.08.08
- * author: heedong
- * connect : RDS
- * desc : 주차장 층 조회
- */
 async function getFloors(idx) {
     const connection = await pool.getConnection(async (conn) => conn);
     const Query = `
@@ -43,12 +37,6 @@ async function getFloors(idx) {
     return rows;
 }
 
-/**
- * update: 2021.08.08
- * author: heedong
- * connect : RDS
- * desc : 층별 구역 정보 조회
- */
  async function getAreas(idx, floorName) {
     const connection = await pool.getConnection(async (conn) => conn);
     const Query = `
@@ -98,9 +86,7 @@ async function getMyCars(idx, userIndex) {
 }
 
 async function getMyAreas(carNum) {
-    // TODO: myCars에 있는 차량번호를 바탕으로 DynamoDB 조회
     const dynamo = new AWS.DynamoDB.DocumentClient();
-
     const params = {
         TableName: "parking",
         ProjectionExpression: "#areaNumber, createdTime, #carNum, disabled, electric, #inOut",
@@ -115,17 +101,13 @@ async function getMyAreas(carNum) {
         },
         ScanIndexForward: false,
     }
-
     const data = await dynamo.scan(params).promise();
     return data.Items;
 }
 
 async function addToDynamo(parkLocation, createdTime, electric, carNum, disabled, inOut, credit, imgURL) {
-
     // credit 값 thershold 이상일 시 DynamoDB에 데이터 삽입
-
     const dynamo = new AWS.DynamoDB.DocumentClient();
-
     const params = {
         TableName: "parking",
         Item: {
@@ -137,32 +119,26 @@ async function addToDynamo(parkLocation, createdTime, electric, carNum, disabled
             inOut: inOut
         }
     };
-
     const data = await dynamo.put(params).promise();
-    
-    console.log('등록? >>', data);
-
+    console.log('등록될 data >>', data);
     return;
-
-
 }
 
-async function getUserList(userID, userPW){ //일치 불일치가 검증이 안됨
+async function getUserList(userID, userPW) {
     const connection = await pool.getConnection(async (conn)=> conn);
     const [idRows, idFields] = await connection.query(`SELECT userID FROM User WHERE userID = ? `, [userID]);
-    if(idRows.length > 0){
-        var [pwRows, pwFields] = await connection.query(`SELECT userID, userPW FROM User WHERE userID = ? AND userPW=?`, [userID, userPW]);
+    if (idRows.length > 0) {
+        var [pwRows, pwFields] = await connection.query(`SELECT userID, userPW FROM User WHERE userID = ? AND userPW = ?`, [userID, userPW]);
         var userName = JSON.parse(JSON.stringify(idRows))[0].userID;
         var [indexRows, indexFields] = await connection.query(`SELECT userIndex, status FROM User WHERE userID = ?`, userName);
         var userIndex = JSON.parse(JSON.stringify(indexRows))[0].userIndex;
         var status = JSON.parse(JSON.stringify(indexRows))[0].status;
     }
-    else{
-        userName=[];
-        userIndex=[];
-        pwRows=[];
+    else {
+        userName = [];
+        userIndex = [];
+        pwRows = [];
     }
-
     connection.release();
     return [userName,pwRows, userIndex, status];
 } 

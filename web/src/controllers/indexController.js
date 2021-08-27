@@ -155,12 +155,23 @@ exports.lambda = async function (req, res) {
     const credit = req.body.credit;
     const imgURL = req.body.imgURL;
 
+    // 1. 2차 검증 대상인지 판별
     if (credit < 0.5) {
         console.log('2차 검증 필요 - flask 2차 검증');
     } else {
         console.log('2차 검증 불필요 - DynamoDB 저장')
         const [addToDynamo] = await indexDao.addToDynamo(parkLocation, createdTime, electric, carNum, disabled, inOut, imgURL);
     }
+
+    // 2. 위반 여부 파악
+
+    console.log('parkLoation >>', parkLocation);
+    console.log('req.session.status >>', req.session.status);
+
+    // 2-a. 주차면 정보 조회
+    
+
+     
 
     // TODO : 리턴 형식 변경 (ex. "2차 검증 후 DynamoDB 저장 완료" or "DynamoDB 저장 완료")
     return res.render("test.ejs");

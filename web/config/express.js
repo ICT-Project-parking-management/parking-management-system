@@ -2,11 +2,14 @@
 const express = require('express');
 const session = require('express-session');
 const MySQLStore = require("express-mysql-session")(session);
+const compression = require('compression');
 const { DB_CONFIG } = require("./database");
 
 module.exports = function () {
     const app = express();
     const sessionStore = new MySQLStore(DB_CONFIG);
+
+    app.use(compression());
 
     app.use(express.json());
     app.use(express.urlencoded({extended: true}));

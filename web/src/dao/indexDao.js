@@ -104,15 +104,14 @@ async function getMyAreas(carNum) {
     const params = {
         TableName: "parking",
         ProjectionExpression: "#areaNumber, createdTime, #carNum, disabled, electric, #inOut",
-        FilterExpression: "#carNum between :start and :end",
+        FilterExpression: "#carNum = :carNum",
         ExpressionAttributeNames:{
             "#areaNumber": "areaNumber",
             "#inOut": "inOut",
             "#carNum": "carNum"
         },
         ExpressionAttributeValues: {
-            ":start": carNum,
-            ":end": carNum
+            ":carNum": carNum,
         },
         ScanIndexForward: false,
     }

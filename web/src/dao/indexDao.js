@@ -54,9 +54,7 @@ async function getFloors(idx) {
 
  async function getAreas(idx, floorName) {
     const connection = await pool.getConnection(async (conn) => conn);
-    const Query = `
-    SELECT areaName, areaInfo FROM ParkingArea WHERE parkingLotIndex = ? AND floor = ?;
-    `;
+    const Query = `SELECT areaName, areaInfo FROM ParkingArea WHERE parkingLotIndex = ? AND floor = ?;`;
     const Params = [idx, floorName];
     const [rows] = await connection.query(Query, Params);
     connection.release();
@@ -138,7 +136,7 @@ async function addToDynamo(parkLocation, createdTime, electric, carNum, disabled
 
 async function getSpecificAreaInfo(parkingLotIdx, floor, area) {
     const connection = await pool.getConnection(async (conn) => conn);
-    const Query = `SELECT areaInfo FROM ParkingArea WHERE parkingLotIndex = ${parkingLotIdx} AND floor = ${floor} AND areaName = ${area};`;
+    const Query = `SELECT areaInfo FROM ParkingArea WHERE parkingLotIndex = ${parkingLotIdx} AND floor = '${floor}' AND areaName = '${area}';`;
     const [rows] = await connection.query(Query);
     connection.release();
     return rows;

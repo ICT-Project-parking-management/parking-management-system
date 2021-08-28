@@ -181,10 +181,36 @@ exports.login_check = async function(req, res){
 }  
 
 exports.logout_check = async function(req, res){
-   
     const select = req.params.idx;
     req.session.destroy(function(){
         req.session;
     })
     res.send(`<script>location.href='/main/${select}';window.history.go(-1)</script>`);
+}
+require('dotenv').config();
+const nodemailer = require('nodemailer');
+
+exports.mail = async function(req, res){
+    let toEmail = "jeongsoyeon0130@naver.com"; //관리자 이메일로 변경
+    let transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth:{
+            user: process.env.EMAIL_ID,
+            pass: process.env.EMAIL_PW
+        }
+    });
+    let mailOptions = {
+        from: process.env.EMAIL_ID,
+        to: toEmail,
+        subject: "[부정주차 차량]",
+        text: "요기닷"
+    };
+    transporter.sendMail(mailOptions, function(err, info){
+        if(err){
+            console.log(err);
+        }else{
+            console.log('이메일 보냈다');
+        }
+    });
+    res.redirect('/');
 }

@@ -5,9 +5,9 @@ const $ = require( "jquery" )( window );
 require('dotenv').config();
 
 const app = express();
-const PORT = process.env.NODE_PORT || 3000
+const PORT = process.env.NODE_PORT;
 
 // 3000 포트로 서버 오픈
-app.listen(3000, function() {
+app.listen(PORT, function() {
     console.log(`Server At Port ${PORT}`);
 })

@@ -24,15 +24,15 @@
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-                        <li class="nav-item">
-                            <a class="nav-link active" aria-current="page" href="javascript:checkMyArea('area-modal');">
-                                내 주차구역 확인하기
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link active" aria-current="page" href="javascript:openModal('login-modal');">
-                                로그인
-                            </a>
+                        
+                        <% if(userName) { %>
+                            <li class="nav-item"><a class="nav-link active" aria-current="page" > 안녕하세요 <%= userName %> 님! </a></li>
+                            <li class="nav-item"><a class="nav-link active" aria-current="page" href="javascript:checkMyArea('area-modal');"> 내 주차구역 확인하기</a></li>
+                            <a class="nav-link active" aria-current="page" href="/logout_check/<%= parkingLotIdx %>"> 로그아웃</a> 
+                            <% }else{%>
+                                <li class="nav-item"><a class="nav-link active" aria-current="page" href="javascript:checkMyLogin('requireLogin-modal');"> 내 주차구역 확인하기</a></li>
+                                <a class="nav-link active" aria-current="page" href="javascript:openModal('login-modal');"> 로그인</a>
+                                <% } %>
                         </li>
                     </ul>
                 </div>
@@ -48,7 +48,6 @@
 
                     <% parkingLotInfo.forEach(element => { %>
                         <h3><%= element.floorName %></h3>
-
                         <table>
                             <thead>
                                 <tr>
@@ -59,9 +58,18 @@
                             </thead>
                             <tbody>
                                 <tr>
-                                    <% element.areas.forEach(area => { %>
-                                        <td id=<%= area.areaName %>></td>
-                                    <% }); %>
+                                    <% element.areas.forEach(area => { %> <%
+                                        if (area.isBlocked) { %> <%
+                                            if (area.areaInfo === 1) { %> <td id=blocked> <img class="icon" src="/img/disabled.png" width="50" height="50"/> </td> <% }
+                                            else if (area.areaInfo === 2) { %> <td id=blocked> <img class="icon" src="/img/electric.png" width="50" height="50"/> </td> <% }
+                                            else { %> <td id=blocked></td> <% }
+                                        %> <% }
+                                        else { %> <%
+                                            if (area.areaInfo === 1) { %> <td id=notBlocked> <img class="icon" src="/img/disabled.png" width="50" height="50"/> </td> <% }
+                                            else if (area.areaInfo === 2) { %> <td id=notBlocked> <img class="icon" src="/img/electric.png" width="50" height="50"/> </td> <% }
+                                            else { %> <td id=notBlocked></td> <% }
+                                        %> <% }
+                                    %> <% }); %>
                                 </tr>
                             </tbody>
                         </table>
@@ -74,13 +82,13 @@
         <!-- Login Modal -->
         <div id="modal"></div>
         <div class="modal-con login-modal">
-            <a href="javascript:;" class="close">X</a>
             <p class="title">로그인</p>
             <div class="con">
                 <form class="login">
-                    <input type="text" placeholder="아이디">
-                    <input type="text" placeholder="비밀번호">
-                    <input type="submit" value="로그인">
+                <input class="form_control" type="text" id="login_id" name="username" placeholder="아이디" required="required">
+                <input class="form_control" type="text" id="login_pw" name="password" placeholder="비밀번호" required="required">
+                <p id="errormsg"></p>
+                <button type="button" id="login_btn" name="login" class="btn btn_default">로그인</button>
                 </form>
                 <p>관리자 및 입주민 회원가입은 관리실에 문의하세요.</p>
             </div>
@@ -90,11 +98,22 @@
         <div id="modal2"></div>
         <div class="modal-con2 area-modal">
             <a href="javascript:;" class="close">X</a>
-            <p class="title">내 주차구역</p>
+            <p class="title">내 주차구역 확인하기</p>
             <div class="con">
-                <h5>귀하의 차량은 <%= complexName %> OO층 OO구역에 위치해 있습니다.</h5>
+                <h5><b>주차장</b>: <%=complexName %></h5>
+                <div class="myAreaInfo"></div>
             </div>
         </div>
+         <!-- Require Login Modal-->
+         <div id="modal3"></div>
+         <div class="modal-con3 requireLogin-modal">
+             <a href="javascript:;" class="close">X</a>
+             <p class="title">내 주차구역 확인하기</p>
+             <div class="con">
+                 <h5>입주민 대상 기능입니다. 로그인을 진행해주세요.</h5>
+             </div>
+         </div>
+
         <script>
             function openModal(modalname){
                 document.get
@@ -111,23 +130,46 @@
                 document.get
                 $("#modal2").fadeIn(300);
                 $("."+modalname).fadeIn(300);
-            }
 
+                $.ajax({
+                    type: "GET",
+                    url: "/main/<%= parkingLotIdx %>/myArea",
+                    dataType: "json",
+                    success: (data) => {
+                        data.forEach((e) => {
+                            if (e.areaName !== "none") {
+                                $(".myAreaInfo").append(
+                                    "<h5> <b>차량번호</b>: " + e.carNum +
+                                    "&ensp; <b>주차층</b>: " + e.areaName.substr(2, 2) +
+                                    "&ensp; <b>주차구역</b>: " + e.areaName.substr(4, 2) + "<h5>"
+                                )
+                            }
+                        })
+                        
+                    }
+                })
+            }
             $("#modal2, .close").on('click',function(){
+                var content = document.querySelector('.myAreaInfo');
+                content.innerHTML = '';
                 $("#modal2").fadeOut(300);
                 $(".modal-con2").fadeOut(300);
             });
-
-            
+             function checkMyLogin(modalname){
+                document.get
+                $("#modal3").fadeIn(300);
+                $("."+modalname).fadeIn(300);
+            }
+            $("#modal3, .close").on('click',function(){
+                $("#modal3").fadeOut(300);
+                $(".modal-con3").fadeOut(300);
+            });
         </script>
 
+        <!--Login AJAX-->
+        <script src="/js/login.js"></script>
         <!-- Bootstrap core JS-->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
-        <!-- Core theme JS-->
-        <script src="js/scripts.js"></script>
-
-        
-        
 
     </body>
 </html>

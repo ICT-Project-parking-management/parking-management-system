@@ -1,10 +1,13 @@
 checkpoints
 android
-*.png
-ele.jpg
+camera1.jpg
+camera2.jpg
+result_disabled1.png
+result_disabled2.png
+result1.png
+result2.png
 *.mp4
 detections
-license_plate
 *.weights
 /ocr/weights_best.pb.*
 venv

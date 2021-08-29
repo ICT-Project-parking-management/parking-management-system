@@ -1,0 +1,11 @@
+checkpoints
+android
+*.png
+ele.jpg
+*.mp4
+detections
+license_plate
+*.weights
+/ocr/weights_best.pb.*
+venv
+*.ipynb

@@ -17,7 +17,7 @@ exports.parkingData = async function (req, res) {
  * desc : 메인 페이지
  */
 exports.main = async function (req, res) {
-    console.log(req.session.status);
+    console.log('req.session.status >>', req.session.status);
     const parkingLotIdx = req.params.idx;
     // const status = req.session.status;
     const userName = req.session.nickname;
@@ -107,38 +107,84 @@ exports.main = async function (req, res) {
 }
 
 exports.myArea = async function (req, res) {
-    //const userIndex = req.verifiedToken.id;
     const parkingLotIdx = req.params.idx;
-    const userIndex = 1; // 테스트용
+    const userName = req.session.nickname;
+    const getUserIndex = await indexDao.getUserIndex(userName);
+    const userIndex = getUserIndex[0].userIndex;
 
     const [getComplexNameRows] = await indexDao.getComplexName(parkingLotIdx);
     const complexName = getComplexNameRows.complexName;
-    const myCars = await indexDao.getMyCars(parkingLotIdx, userIndex); // RDS에서 내 차량번호 조회
-    const myCarsArea = await indexDao.getMyAreas(myCars); // DynamoDB에서 내 차량 데이터 조회
 
-    // TODO : 사용자의 차량이 어느 주차장 어느 구역에 주차되어 있는지 json 리턴
-    //return res.json();
+    // RDS에서 내 차량번호 조회
+    const myCars = await indexDao.getMyCars(parkingLotIdx, userIndex);
+    let areas = [];
+
+    // DynamoDB에서 내 차량 주차위치 조회
+    myCars.forEach(async function(e) {
+        const carNum = e.cars;
+        const info = await indexDao.getMyAreas(carNum);
+        
+        if (info.length !=0 && info[0].inOut == "in") {
+            let area = {
+                carNum,
+                'areaName': info[0].areaNumber
+            };
+            areas.push(area);
+        } else {
+            let area = {
+                carNum,
+                'areaName': 'none'
+            };
+            areas.push(area);
+        }
+
+        if (areas.length == myCars.length) {
+            return res.send(areas);
+        }
+    });
+    
 }
 
 exports.lambda = async function (req, res) {
     const parkLocation = req.body.parkLocation;
     const createdTime = req.body.createdTime;
-    const electric = req.body.electric;
+    const electric = req.body.electric; // 0 or 1
     const carNum = req.body.carNum;
-    const disabled = req.body.disabled;
+    const disabled = req.body.disabled; // 0 or 1
     const inOut = req.body.inOut;
-    const credit = req.body.creidt;
+    const credit = req.body.credit;
     const imgURL = req.body.imgURL;
 
-    // credit 값이 threshold 미만인 경우 => flask 2차 검증 진행
-    // credit 값이 threshold 이상인 경우 => dynamoDB 저장
+    // TODO : Flask와 연결, 2차 검증 후 데이터 불러와서 DynamoDB 저장
+    // 1. 2차 검증 대상인지 판별
+    if (credit < 0.5) {
+        console.log('2차 검증 필요 - flask 2차 검증');
+    } else {
+        console.log('2차 검증 불필요 - DynamoDB 저장')
+        const [addToDynamo] = await indexDao.addToDynamo(parkLocation, createdTime, electric, carNum, disabled, inOut, imgURL);
+    }
 
-    // if (credit < 0.5) {
+    // 2. 위반 여부 파악
+    const parkingLotIdx = Number(parkLocation[0]);
+    const parkingFloor = parkLocation.substr(2, 2);
+    const parkingAreaName = parkLocation.substr(4, 2);
+    const [rows] = await indexDao.getSpecificAreaInfo(parkingLotIdx, parkingFloor, parkingAreaName);
+    const info = rows.areaInfo; // 일반 0 장애인 1 전기 2
+    
+    // TODO : 관리자인 경우 팝업으로 안내
+    // case 1 : 비 장애인 차량이 장애인 전용에 주차
+    // case 2 : 비 전기차량이 전기차 전용에 주차
 
-    // } else {
-    //     const [addToDynamo] = await indexDao.addToDynamo(parkLocation, createdTime, electric, carNum, disabled, inOut, credit, imgURL);
-    // }
+    if (disabled === 0 && info === 1 && inOut === "in") {
+        console.log('위반 (장애인차량 전용 구역에 주차)');
+        console.log(parkingFloor, parkingAreaName, carNum);
 
+    } else if (electric === 0 && info === 2 && inOut === "in") {
+        console.log('위반 (전기차 전용 구역에 주차');
+        console.log(parkingFloor, parkingAreaName, carNum);
+    }
+
+    // TODO : 리턴 형식 변경 (json 리턴)
     return res.render("test.ejs");
 }
 

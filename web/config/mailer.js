@@ -3,32 +3,27 @@ const nodemailer = require('nodemailer');
 
 async function sendGmail(param){
     var transporter = nodemailer.createTransport({
-        service:'gmail',
-        prot: 587,
-        host: 'smtp.gmail.com',
-        secure: false,
-        requireTLS: true,
+        service: 'gmail',
         auth:{
             user: process.env.EMAIL_ID,
-            pass: process.end.EMAIL_PW
+            pass: process.env.EMAIL_PW
         }
-    });
-    var mailOptions = { //메일옵션
+    })
+    let toEmail = "jeongsoyeon0130@naver.com"; //관리자 메일로 변경
+    let mailOptions = {
         from: process.env.EMAIL_ID,
-        to: param.toEmail,
+        to: toEmail,
         subject: param.subject,
         text: param.text
     };
-    //메일발송
-    transporter.sendMail(mailOptions, async function(err, info){
+    transporter.sendMail(mailOptions, function(err, info){
         if(err){
             console.log(err);
         }else{
-            console.log('Email sent: ', info.res);
+            console.log('이메일 보냈다');
         }
     });
 }
-
 
 module.exports = {
     sendGmail

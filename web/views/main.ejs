@@ -28,7 +28,7 @@
                         <% if(userName) { %>
                             <li class="nav-item"><a class="nav-link active" aria-current="page" > 안녕하세요 <%= userName %> 님! </a></li>
                             <% if(userName =='admin') { %>
-                                <li class="nav-item"><a class="nav-link active" aria-current="page" href="/mail">부정주차 차량 확인하기</a></li>
+                                <li class="nav-item"><a class="nav-link active" aria-current="page" href="javascript:checkMyBan('ban-modal');">부정주차 차량 확인하기</a></li>
                             <% } else { %>
                             <li class="nav-item"><a class="nav-link active" aria-current="page" href="javascript:checkMyArea('area-modal');"> 내 주차구역 확인하기</a></li>
                             <% } %>
@@ -125,10 +125,63 @@
             <a href="javascript:;" class="close">X</a>
             <p class="title">부정주차 차량 확인하기</p>
             <div class="con">
-                <h5>입주민 대상 기능입니다. 로그인을 진행해주세요.</h5>
-            </div>
-        </div>
-
+               <div class="container">
+                   <input type='button' value='행추가' onclick='addRow()'/>
+                <table id="ban_list">
+                    <thead>
+                      <tr>
+                        <th>Lorem</th><th>Ipsum</th><th>Dolor</th><th></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>Lorem</td><td>Ipsum</td><td>Dolor</td>
+                        <td>
+                            <input type='button' value='Delete' onclick='deleteRow(this)'/>
+                            </td>
+                      </tr>
+                      <tr>
+                        <td>Lorem</td><td>Ipsum</td><td>Dolor</td>
+                        <td>
+                            <input type='button' value='Delete' onclick='deleteRow(this)'/>
+                            </td>
+                      </tr>
+                      <tr>
+                        <td>Lorem</td><td>Ipsum</td><td>Dolor</td>
+                        <td>
+                            <input type='button' value='Delete' onclick='deleteRow(this)'/>
+                            </td>
+                      </tr>
+                      <tr>
+                        <td>Lorem</td><td>Ipsum</td><td>Dolor</td>
+                        <td>
+                            <input type='button' value='Delete' onclick='deleteRow(this)'/>
+                            </td>
+                      </tr>
+                      <tr>
+                        <td>Lorem</td><td>Ipsum</td><td>Dolor</td>
+                        <td>
+                            <input type='button' value='Delete' onclick='deleteRow(this)'/>
+                            </td>
+                      </tr>
+                      <tr>
+                        <td>Lorem</td><td>Ipsum</td><td>Dolor</td>
+                        <td>
+                            <input type='button' value='Delete' onclick='deleteRow(this)'/>
+                            </td>
+                      </tr>
+                      <tr>
+                        <td>Lorem</td><td>Ipsum</td><td>Dolor</td>
+                        <td>
+                            <input type='button' value='Delete' onclick='deleteRow(this)'/>
+                            </td>
+                      </tr>
+                    
+                    </tbody>
+                  </table>
+                </div>
+         </div>
+        
         <script>
             function openModal(modalname){
                 document.get
@@ -189,6 +242,33 @@
                 $("#modal4").fadeOut(300);
                 $(".modal-con4").fadeOut(300);
             });
+
+            function addRow() { //부정주차차량 추가
+                const table = document.getElementById('ban_list');
+  
+                // 새 행(Row) 추가
+                const newRow = table.insertRow();
+                
+                // 새 행(Row)에 Cell 추가
+                const newCell1 = newRow.insertCell(0);
+                const newCell2 = newRow.insertCell(1);
+                const newCell3 = newRow.insertCell(2);
+                const newCell4 = newRow.insertCell(3);
+                
+                // Cell에 텍스트 추가
+                newCell1.innerText = '하이';
+                newCell2.innerText = 'New';
+                newCell3.innerText = '냠';
+                newCell4.innerHTML = "<input type='button' value='Delete' onclick='deleteRow(this)'/>"
+
+            }
+
+            function deleteRow(click){ //부정주차차량 삭제
+                var index = click.parentNode.parentNode.rowIndex;
+                document.getElementById("ban_list").deleteRow(index);
+
+                
+            }
         </script>
 
         <!--Login AJAX-->

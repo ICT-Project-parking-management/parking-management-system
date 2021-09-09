@@ -28,7 +28,7 @@
                         <% if(userName) { %>
                             <li class="nav-item"><a class="nav-link active" aria-current="page" > 안녕하세요 <%= userName %> 님! </a></li>
                             <% if(userName =='admin') { %>
-                                <li class="nav-item"><a class="nav-link active" aria-current="page" href="javascript:checkMyBan('ban-modal');">부정주차 차량 확인하기</a></li>
+                                <li class="nav-item2"><a class="nav-link active" aria-current="page" href="javascript:checkMyBan('ban-modal');">부정주차 차량 확인하기</a></li>
                             <% } else { %>
                             <li class="nav-item"><a class="nav-link active" aria-current="page" href="javascript:checkMyArea('area-modal');"> 내 주차구역 확인하기</a></li>
                             <% } %>
@@ -212,18 +212,14 @@
                 $(".modal-con4").fadeOut(300);
             });
 
-            function deleteRow(click){ //부정주차차량 삭제
+            function deleteRow(click){
                 $.ajax({
                     type: "POST",
                     url: "/main/<%= parkingLotIdx %>/banDoneList",
                     data: {"carNum": click.id},
                     success: (data) => {
-                        
-                    
                     }
                 });
-        
-
                 var index = click.parentNode.parentNode.rowIndex;
                 document.getElementById("banList").deleteRow(index);
 

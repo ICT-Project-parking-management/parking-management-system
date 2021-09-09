@@ -1,5 +1,5 @@
 const indexDao = require("../dao/indexDao");
-
+const mailer = require("../../config/mailer");
 /**
  * update: 2021.08.08
  * author: serin
@@ -193,9 +193,7 @@ exports.lambda = async function (req, res) {
 
 exports.banDoneList = async function(req, res){
     const carNum = req.body.carNum;
-    const [addToDone] = await indexDao.addToDone(carNum);
-
-    console.log(addToDone);
+    const addToDone = await indexDao.addToDone(carNum);
 }
 
 exports.login_check = async function(req, res){
@@ -244,11 +242,11 @@ exports.logout_check = async function(req, res){
     res.send(`<script>location.href='/main/${select}';window.history.go(-1)</script>`);
 }
 
-const mailer = require("../../config/mailer");
+
 exports.mail = async function(req, res){
     let emailParam = {
         subject: "[알림] 부정주차 차량",
-        text: `<p>삐용삐용</p>`
+        text:"삐용",
     }
     mailer.sendGmail(emailParam);
     res.status(200).send("성공");

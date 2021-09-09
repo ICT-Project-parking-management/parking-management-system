@@ -163,12 +163,17 @@ async function readToUndone(){
 async function addToDone(carNum){
     const connection = await pool.getConnection(async (conn) => conn);
     const QueryOne = `SELECT * FROM Undone WHERE carNum= '${carNum}';`;
-    const [rows] = await connection.query(QueryOne);
-
-    constQueryTwo = ``
+    const [rowsOne] = await connection.query(QueryOne);
+    console.log(rowsOne);
+    const data = JSON.parse(JSON.stringify(rowsOne))[0];
+    const QueryTwo= `INSERT INTO Done (parkingLotIndex, floor, areaName, carNum) VALUES(?, ?, ?, ?);`;
+    const Params = [data.parkingLotIndex, data.floor, data.areaName, data.carNum];
+    const [rowsTwo] = await connection.query(QueryTwo, Params);
+    const QueryThree = `Delete From Undone WHERE carNum= '${carNum}';`;
+    const [rowsThree] = await connection.query(QueryThree);
     connection.release();
 
-    return [rows];
+    return;
 }
 
 

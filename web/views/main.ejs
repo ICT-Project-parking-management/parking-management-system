@@ -77,7 +77,6 @@
                                 </tr>
                             </tbody>
                         </table>
-
                     <% }); %>
                 </div>
             </div>
@@ -119,67 +118,37 @@
              </div>
          </div>
 
+         
          <!-- My Ban Modal-->
         <div id="modal4"></div>
         <div class="modal-con4 ban-modal">
             <a href="javascript:;" class="close">X</a>
             <p class="title">부정주차 차량 확인하기</p>
             <div class="con">
-               <div class="container">
-                   <input type='button' value='행추가' onclick='addRow()'/>
-                <table id="ban_list">
+                <a class="nav-link active" aria-current="page" href="/mail">메일전송</a>
+                <table>
                     <thead>
-                      <tr>
-                        <th>Lorem</th><th>Ipsum</th><th>Dolor</th><th></th>
-                      </tr>
+                        <tr>
+                        <th>주차장</th><th>층</th><th>구역</th><th>차량번호</th><th></th>
+                        </tr>
                     </thead>
-                    <tbody>
-                      <tr>
-                        <td>Lorem</td><td>Ipsum</td><td>Dolor</td>
-                        <td>
-                            <input type='button' value='Delete' onclick='deleteRow(this)'/>
-                            </td>
-                      </tr>
-                      <tr>
-                        <td>Lorem</td><td>Ipsum</td><td>Dolor</td>
-                        <td>
-                            <input type='button' value='Delete' onclick='deleteRow(this)'/>
-                            </td>
-                      </tr>
-                      <tr>
-                        <td>Lorem</td><td>Ipsum</td><td>Dolor</td>
-                        <td>
-                            <input type='button' value='Delete' onclick='deleteRow(this)'/>
-                            </td>
-                      </tr>
-                      <tr>
-                        <td>Lorem</td><td>Ipsum</td><td>Dolor</td>
-                        <td>
-                            <input type='button' value='Delete' onclick='deleteRow(this)'/>
-                            </td>
-                      </tr>
-                      <tr>
-                        <td>Lorem</td><td>Ipsum</td><td>Dolor</td>
-                        <td>
-                            <input type='button' value='Delete' onclick='deleteRow(this)'/>
-                            </td>
-                      </tr>
-                      <tr>
-                        <td>Lorem</td><td>Ipsum</td><td>Dolor</td>
-                        <td>
-                            <input type='button' value='Delete' onclick='deleteRow(this)'/>
-                            </td>
-                      </tr>
-                      <tr>
-                        <td>Lorem</td><td>Ipsum</td><td>Dolor</td>
-                        <td>
-                            <input type='button' value='Delete' onclick='deleteRow(this)'/>
-                            </td>
-                      </tr>
-                    
-                    </tbody>
+                </table>
+              
+               <div class="container">
+                <table id="banList">
+                    <% banData.forEach(info => { %>
+                        <tr>
+                            <th><%= info.parkingLotIndex %></th>
+                            <th><%= info.floor %></th>
+                            <th><%= info.areaName %></th>
+                            <th><%= info.carNum %></th>
+                            <th><input type='button' id= "<%= info.carNum %>" value='Delete' onclick='deleteRow(this)'/></th>
+                        </tr>
+                      
+                     <% }); %>
                   </table>
                 </div>
+                
          </div>
         
         <script>
@@ -243,32 +212,24 @@
                 $(".modal-con4").fadeOut(300);
             });
 
-            function addRow() { //부정주차차량 추가
-                const table = document.getElementById('ban_list');
-  
-                // 새 행(Row) 추가
-                const newRow = table.insertRow();
-                
-                // 새 행(Row)에 Cell 추가
-                const newCell1 = newRow.insertCell(0);
-                const newCell2 = newRow.insertCell(1);
-                const newCell3 = newRow.insertCell(2);
-                const newCell4 = newRow.insertCell(3);
-                
-                // Cell에 텍스트 추가
-                newCell1.innerText = '하이';
-                newCell2.innerText = 'New';
-                newCell3.innerText = '냠';
-                newCell4.innerHTML = "<input type='button' value='Delete' onclick='deleteRow(this)'/>"
-
-            }
-
             function deleteRow(click){ //부정주차차량 삭제
-                var index = click.parentNode.parentNode.rowIndex;
-                document.getElementById("ban_list").deleteRow(index);
+                $.ajax({
+                    type: "POST",
+                    url: "/main/<%= parkingLotIdx %>/banDoneList",
+                    data: {"carNum": click.id},
+                    success: (data) => {
+                        
+                    
+                    }
+                });
+        
 
-                
+                var index = click.parentNode.parentNode.rowIndex;
+                document.getElementById("banList").deleteRow(index);
+
             }
+    
+
         </script>
 
         <!--Login AJAX-->

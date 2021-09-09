@@ -1,4 +1,4 @@
-import requests, json
+import os, requests, json
 from flask_restful import Resource, reqparse
 from utils.s3 import s3_connection, s3_connection_bucket, s3_get_object
 from ocr.detect import getCarNumber
@@ -34,9 +34,9 @@ class Verification(Resource):
                     newData['carNum'] = d['carNum']
                 else:
                     img = jsonInfo['imgUrl']
-                    print(img)
                     s3_get_object(s3, img, img)
                     carNum = getCarNumber(img)
+                    os.remove(img)
                     newData['carNum'] = carNum
             sendData.append(newData)
 

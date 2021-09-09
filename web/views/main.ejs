@@ -28,9 +28,10 @@
                         <% if(userName) { %>
                             <li class="nav-item"><a class="nav-link active" aria-current="page" > 안녕하세요 <%= userName %> 님! </a></li>
                             <% if(userName =='admin') { %>
-                                <li class="nav-item2"><a class="nav-link active" aria-current="page" href="javascript:checkMyBan('ban-modal');">부정주차 차량 확인하기</a></li>
+                                <li class="nav-item"><a class="nav-link active" aria-current="page" href="javascript:checkMyBan('ban-modal');">부정주차 차량 확인하기<span class="alarm"><%= banData.length %></span></a></li>
                             <% } else { %>
                             <li class="nav-item"><a class="nav-link active" aria-current="page" href="javascript:checkMyArea('area-modal');"> 내 주차구역 확인하기</a></li>
+                
                             <% } %>
                             <a class="nav-link active" aria-current="page" href="/logout_check/<%= parkingLotIdx %>"> 로그아웃</a> 
                         <% }else{%>

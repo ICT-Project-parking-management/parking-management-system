@@ -105,7 +105,6 @@ exports.main = async function (req, res) {
                     var banData= [];
                     for(var i=0; i< objLength; i++){
                         banData[i] = JSON.parse(JSON.stringify(readToUndone))[i];
-                        
                     }
         
                     return res.render("main.ejs", {complexName, parkingLotInfo, parkingLotIdx, userName, banData});

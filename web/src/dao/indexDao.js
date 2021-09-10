@@ -164,7 +164,6 @@ async function addToDone(carNum){
     const connection = await pool.getConnection(async (conn) => conn);
     const QueryOne = `SELECT * FROM Undone WHERE carNum= '${carNum}';`;
     const [rowsOne] = await connection.query(QueryOne);
-    console.log(rowsOne);
     const data = JSON.parse(JSON.stringify(rowsOne))[0];
     const QueryTwo= `INSERT INTO Done (parkingLotIndex, floor, areaName, carNum) VALUES(?, ?, ?, ?);`;
     const Params = [data.parkingLotIndex, data.floor, data.areaName, data.carNum];

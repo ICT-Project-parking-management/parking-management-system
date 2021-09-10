@@ -171,17 +171,15 @@ exports.lambda = async function (req, res) {
     //RDS에 조회해서 부정주차 확인
     const [rows] = await indexDao.getSpecificAreaInfo(parkingLotIdx, section, location);
     const areaInfo = rows.areaInfo; //일반 0 장애인 1 전기 2
-
-    if (disabled === 0 && areaInfo === 1 && inOut === "in") {  //비 장애인 차량이 장애인 전용에 주차
-        console.log('위반 (장애인차량 전용 구역에 주차)'); //B2B1
-        console.log(parkingLotIdx, section, location, carNum);
-        const addToUndone = await indexDao.addToUndone(parkingLotIdx, section, location, carNum);  
-
-    } else if (electric === 0 && areaInfo === 2 && inOut === "in") { //비 전기차량이 전기차 전용에 주차
-        console.log('위반 (전기차 전용 구역에 주차)'); //B1A1
+    if (inOut === "in") {
+        if (disabled === 0 && areaInfo === 1) {//비 장애인 차량이 장애인 전용에 주차
+            console.log('위반 (장애인차량 전용 구역에 주차)'); //B2B1
+        }else if(electric ===0 && areaInfo ===2){ //비 전기차량이 전기차 전용에 주차
+            console.log('위반 (전기차 전용 구역에 주차)'); //B1A1
+        }
         console.log(parkingLotIdx, section, location, carNum);
         //부정주차 RDS에 저장
-        const addToUndone = await indexDao.addToUndone(parkingLotIdx, section, location, carNum);    
+        const addToUndone = await indexDao.addToUndone(parkingLotIdx, section, location, carNum); 
     }
 
     //dynamoDB에 저장
@@ -197,7 +195,7 @@ exports.banDoneList = async function(req, res){
 
 exports.login_check = async function(req, res){
     const select = req.params.idx;
-
+    
     const userID = req.body.username;
     const userPW = req.body.password;
 

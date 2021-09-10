@@ -63,12 +63,6 @@ async function getFloors(idx) {
 }
 
 async function getCurrParkData(areaNumber) {
-
-    // idx = 주차장 인덱스
-    // RDS => 해당 주차장의 주차구역 & 정보(장애인전용/전기차전용/일반전용) 확인
-    // DynamoDB => 해당 주차장의 특정 주차구역의 가장 최신 정보(차정보/inOut 등) 확인
-    // 주차된 위치 표시 & 주차 위반 여부 팝업
-
     const dynamo = new AWS.DynamoDB.DocumentClient();
     const params = {
         TableName: "parking",
@@ -129,9 +123,7 @@ async function addToDynamo(parkLocation, createdTime, electric, carNum, disabled
             inOut: inOut
         }
     };
-    
     const data = await dynamo.put(params).promise();
-    console.log('등록될 data >>', data);
     return;
 };
 
@@ -153,14 +145,16 @@ async function addToUndone(parkingLotIdx, floor, area, carNum){
     connection.release();
     return;
 }
-async function readToUndone(){
+
+async function readToUndone() {
     const connection = await pool.getConnection(async (conn) => conn);
     const Query= `SELECT * FROM Undone;`;
     const [rows] = await connection.query(Query);
     connection.release();
     return [rows];
 }
-async function addToDone(carNum){
+
+async function addToDone(carNum) {
     const connection = await pool.getConnection(async (conn) => conn);
     const QueryOne = `SELECT * FROM Undone WHERE carNum= '${carNum}';`;
     const [rowsOne] = await connection.query(QueryOne);
@@ -172,10 +166,8 @@ async function addToDone(carNum){
     const QueryThree = `Delete From Undone WHERE carNum= '${carNum}';`;
     const [rowsThree] = await connection.query(QueryThree);
     connection.release();
-
     return;
 }
-
 
 module.exports = {
     getUserList,

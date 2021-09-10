@@ -1,5 +1,5 @@
 const indexDao = require("../dao/indexDao");
-
+const mailer = require("../../config/mailer");
 /**
  * update: 2021.08.08
  * author: serin
@@ -98,8 +98,16 @@ exports.main = async function (req, res) {
                             return (a.areaName < b.areaName) ? -1 : (a.areaName > b.areaName) ? 1 : 0;
                         })
                     })
-
-                    return res.render("main.ejs", {complexName, parkingLotInfo, parkingLotIdx, userName});
+                    
+                    //부정주차차량 RDS 조회
+                    const [readToUndone] = await indexDao.readToUndone();
+                    var objLength = Object.keys(readToUndone).length;
+                    var banData= [];
+                    for(var i=0; i< objLength; i++){
+                        banData[i] = JSON.parse(JSON.stringify(readToUndone))[i];
+                    }
+        
+                    return res.render("main.ejs", {complexName, parkingLotInfo, parkingLotIdx, userName, banData});
                 }
             }
         });
@@ -145,47 +153,46 @@ exports.myArea = async function (req, res) {
     
 }
 
+
 exports.lambda = async function (req, res) {
-    const parkLocation = req.body.parkLocation;
-    const createdTime = req.body.createdTime;
-    const electric = req.body.electric; // 0 or 1
-    const carNum = req.body.carNum;
-    const disabled = req.body.disabled; // 0 or 1
-    const inOut = req.body.inOut;
-    const credit = req.body.credit;
-    const imgURL = req.body.imgURL;
-
-    // TODO : Flask와 연결, 2차 검증 후 데이터 불러와서 DynamoDB 저장
-    // 1. 2차 검증 대상인지 판별
-    if (credit < 0.5) {
-        console.log('2차 검증 필요 - flask 2차 검증');
-    } else {
-        console.log('2차 검증 불필요 - DynamoDB 저장')
-        const [addToDynamo] = await indexDao.addToDynamo(parkLocation, createdTime, electric, carNum, disabled, inOut, imgURL);
-    }
-
-    // 2. 위반 여부 파악
-    const parkingLotIdx = Number(parkLocation[0]);
-    const parkingFloor = parkLocation.substr(2, 2);
-    const parkingAreaName = parkLocation.substr(4, 2);
-    const [rows] = await indexDao.getSpecificAreaInfo(parkingLotIdx, parkingFloor, parkingAreaName);
-    const info = rows.areaInfo; // 일반 0 장애인 1 전기 2
+    const info = req.body.info;
+    const data = JSON.parse(JSON.stringify(req.body.data))[0];
+    const parkingLotIdx = info.parkingLotIndex;
+    const section = info.section;
+    const type = info.type;
+    const imgUrl = info.imgURL;
+    const createdAt = info.createdAt;
+    const location = data.location;
+    const inOut = data.inOut;
+    const carNum = data.carNum;
+    const electric = data.electric;
+    const disabled = data.disabled;
     
-    // TODO : 관리자인 경우 팝업으로 안내
-    // case 1 : 비 장애인 차량이 장애인 전용에 주차
-    // case 2 : 비 전기차량이 전기차 전용에 주차
+    //RDS에 조회해서 부정주차 확인
+    const [rows] = await indexDao.getSpecificAreaInfo(parkingLotIdx, section, location);
+    const areaInfo = rows.areaInfo; //일반 0 장애인 1 전기 2
 
-    if (disabled === 0 && info === 1 && inOut === "in") {
-        console.log('위반 (장애인차량 전용 구역에 주차)');
-        console.log(parkingFloor, parkingAreaName, carNum);
+    if (disabled === 0 && areaInfo === 1 && inOut === "in") {  //비 장애인 차량이 장애인 전용에 주차
+        console.log('위반 (장애인차량 전용 구역에 주차)'); //B2B1
+        console.log(parkingLotIdx, section, location, carNum);
+        const addToUndone = await indexDao.addToUndone(parkingLotIdx, section, location, carNum);  
 
-    } else if (electric === 0 && info === 2 && inOut === "in") {
-        console.log('위반 (전기차 전용 구역에 주차');
-        console.log(parkingFloor, parkingAreaName, carNum);
+    } else if (electric === 0 && areaInfo === 2 && inOut === "in") { //비 전기차량이 전기차 전용에 주차
+        console.log('위반 (전기차 전용 구역에 주차)'); //B1A1
+        console.log(parkingLotIdx, section, location, carNum);
+        //부정주차 RDS에 저장
+        const addToUndone = await indexDao.addToUndone(parkingLotIdx, section, location, carNum);    
     }
 
-    // TODO : 리턴 형식 변경 (json 리턴)
+    //dynamoDB에 저장
+    // //const [addToDynamo] = await indexDao.addToDynamo(parkLocation, createdTime, electric, carNum, disabled, inOut);
+    
     return res.render("test.ejs");
+}
+
+exports.banDoneList = async function(req, res){
+    const carNum = req.body.carNum;
+    const addToDone = await indexDao.addToDone(carNum);
 }
 
 exports.login_check = async function(req, res){
@@ -227,10 +234,19 @@ exports.login_check = async function(req, res){
 }  
 
 exports.logout_check = async function(req, res){
-   
     const select = req.params.idx;
     req.session.destroy(function(){
         req.session;
     })
     res.send(`<script>location.href='/main/${select}';window.history.go(-1)</script>`);
+}
+
+
+exports.mail = async function(req, res){
+    let emailParam = {
+        subject: "[알림] 부정주차 차량",
+        text:"삐용",
+    }
+    mailer.sendGmail(emailParam);
+    res.status(200).send("성공");
 }

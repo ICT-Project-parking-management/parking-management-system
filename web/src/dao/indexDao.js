@@ -1,3 +1,4 @@
+const { resolveContent } = require("nodemailer/lib/shared");
 const { pool } = require("../../config/database");
 const { AWS } = require('../../config/dynamo');
 
@@ -113,26 +114,26 @@ async function getMyAreas(carNum) {
     }
     const data = await dynamo.scan(params).promise();
     return data.Items;
-}
+};
 
-async function addToDynamo(parkLocation, createdTime, electric, carNum, disabled, inOut, credit, imgURL) {
-    // credit 값 thershold 이상일 시 DynamoDB에 데이터 삽입
+async function addToDynamo(parkLocation, createdTime, electric, carNum, disabled, inOut) {
     const dynamo = new AWS.DynamoDB.DocumentClient();
     const params = {
         TableName: "parking",
         Item: {
             areaNumber: parkLocation,
             createdTime: createdTime,
-            electric: electric,
             carNum: carNum,
             disabled: disabled,
+            electric: electric,
             inOut: inOut
         }
     };
+    
     const data = await dynamo.put(params).promise();
     console.log('등록될 data >>', data);
     return;
-}
+};
 
 async function getSpecificAreaInfo(parkingLotIdx, floor, area) {
     const connection = await pool.getConnection(async (conn) => conn);
@@ -140,6 +141,39 @@ async function getSpecificAreaInfo(parkingLotIdx, floor, area) {
     const [rows] = await connection.query(Query);
     connection.release();
     return rows;
+};
+
+async function addToUndone(parkingLotIdx, floor, area, carNum){
+    const connection = await pool.getConnection(async (conn) => conn);
+    const Query= `INSERT INTO Undone (parkingLotIndex, floor, areaName, carNum) VALUES(?, ?, ?, ?);`;
+    const Params = [parkingLotIdx, floor, area, carNum];
+    const [rows] = await connection.query(Query, Params);
+    // const Query = `DELETE FROM Undone WHERE parkingLotIndex=1`;
+    // const [rows] = await connection.query(Query);
+    connection.release();
+    return;
+}
+async function readToUndone(){
+    const connection = await pool.getConnection(async (conn) => conn);
+    const Query= `SELECT * FROM Undone;`;
+    const [rows] = await connection.query(Query);
+    connection.release();
+    return [rows];
+}
+async function addToDone(carNum){
+    const connection = await pool.getConnection(async (conn) => conn);
+    const QueryOne = `SELECT * FROM Undone WHERE carNum= '${carNum}';`;
+    const [rowsOne] = await connection.query(QueryOne);
+    console.log(rowsOne);
+    const data = JSON.parse(JSON.stringify(rowsOne))[0];
+    const QueryTwo= `INSERT INTO Done (parkingLotIndex, floor, areaName, carNum) VALUES(?, ?, ?, ?);`;
+    const Params = [data.parkingLotIndex, data.floor, data.areaName, data.carNum];
+    const [rowsTwo] = await connection.query(QueryTwo, Params);
+    const QueryThree = `Delete From Undone WHERE carNum= '${carNum}';`;
+    const [rowsThree] = await connection.query(QueryThree);
+    connection.release();
+
+    return;
 }
 
 
@@ -154,5 +188,8 @@ module.exports = {
     getMyCars,
     getMyAreas,
     addToDynamo,
-    getSpecificAreaInfo
+    getSpecificAreaInfo,
+    addToUndone,
+    readToUndone,
+    addToDone
 };

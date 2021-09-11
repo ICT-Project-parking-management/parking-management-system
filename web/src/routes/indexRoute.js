@@ -13,8 +13,8 @@ module.exports = function(app) {
     // 부정주차 차량 확인
     app.post('/main/:idx/banDoneList', index.banDoneList);
 
-    // lambda
-    app.post('/lambda', index.lambda)
+    // violation
+    app.post('/violation', index.violation)
 
     //로그인
     app.post('/login_check', index.login_check);

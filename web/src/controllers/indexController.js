@@ -152,7 +152,7 @@ exports.myArea = async function (req, res) {
     });
 }
 
-exports.lambda = async function (req, res) {
+exports.violation = async function (req, res) {
     const info = req.body.info;
     const type = info.type; // parking or snapshot
     const createdAt = info.createdAt;
@@ -204,7 +204,7 @@ exports.lambda = async function (req, res) {
         }
     });
 
-    return res.render("test.ejs");
+    return res.sendStatus(200);
 }
 
 exports.banDoneList = async function(req, res){

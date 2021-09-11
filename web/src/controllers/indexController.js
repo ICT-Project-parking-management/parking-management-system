@@ -158,17 +158,28 @@ exports.lambda = async function (req, res) {
     const createdAt = info.createdAt;
     const data = req.body.data;
 
-    // 0. type 확인
-    if (type === "parking") {
-        const parkLocation = data[0].parkLocation;
-        const inOut = data[0].inOut;
-        const carNum = data[0].carNum;
-        const electric = data[0].electric;
-        const disabled = data[0].disabled;
+    data.forEach(async (element) => {
+        const parkLocation = element.parkLocation;
+        const inOut = element.inOut;
+        const carNum = element.carNum;
+        const electric = element.electric;
+        const disabled = element.disabled;
 
-        // 1. DyanmoDB 데이터 추가
-        console.log('dynamoDB Update');
-        const update = await indexDao.addToDynamo(parkLocation, createdAt, electric, carNum, disabled, inOut);
+        // 1. type 확인
+        if (type === "parking") {
+            // 1-1. DyanmoDB 데이터 추가
+            console.log('dynamoDB Update');
+            const update = await indexDao.addToDynamo(parkLocation, createdAt, electric, carNum, disabled, inOut);
+        } else if (type === "snapshot") {
+            // 1-2-1. DynamoDB 조회 (해당 주차구역에 대한 정보 Update 목적)
+            const [rows] = await indexDao.getCurrParkData(parkLocation);
+
+            // 1-2-2. 해당 주차구역에 대한 정보가 없거나, Update 되어 있지 않은 경우 DynamoDB 데이터 추가
+            if (rows === undefined || rows.carNum !== carNum || rows.inOut !== inOut) {
+                console.log('dynamoDB Insert New Data');
+                const update = await indexDao.addToDynamo(parkLocation, createdAt, electric, carNum, disabled, inOut);
+            }
+        }
 
         // 2. inOut in인 경우 부정주차 여부 확인
         if (inOut === "in") {
@@ -176,11 +187,11 @@ exports.lambda = async function (req, res) {
             let section = parkLocation.substr(2, 2);
             let location = parkLocation.substr(4, 2);
 
-            // 2-a. RDS 조회
+            // 2-1. RDS 조회
             const [rows] = await indexDao.getSpecificAreaInfo(parkingLotIdx, section, location);
             const areaInfo = rows.areaInfo; //일반 0 장애인 1 전기 2
 
-            // 2-b. 부정주차 시 RDS 데이터 추가
+            // 2-2. 부정주차 시 RDS 데이터 추가
             if (disabled === 0 && areaInfo === 1) {
                 console.log('부정주차 - 장애인차량 전용 구역 주차');
                 console.log(parkingLotIdx, section, location, carNum);
@@ -191,46 +202,8 @@ exports.lambda = async function (req, res) {
                 const addToUndone = await indexDao.addToUndone(parkingLotIdx, section, location, carNum);    
             }
         }
-    } else if (type === "snapshot") {
-        data.forEach(async (element) => {
-            const parkLocation = element.parkLocation;
-            const inOut = element.inOut;
-            const carNum = element.carNum;
-            const electric = element.electric;
-            const disabled = element.disabled;
-    
-            // 1. DynamoDB 조회 (해당 주차구역에 대한 정보 Update 목적)
-            const [rows] = await indexDao.getCurrParkData(parkLocation);
-    
-            // 2. 해당 주차구역에 대한 정보가 없거나, Update 되어 있지 않은 경우 DynamoDB 데이터 추가
-            if (rows === undefined || rows.carNum !== carNum || rows.inOut !== inOut) {
-                console.log('dynamoDB Update');
-                const update = await indexDao.addToDynamo(parkLocation, createdAt, electric, carNum, disabled, inOut);
-            }
-    
-            // 3. inOut in인 경우 부정주차 여부 확인
-            if (inOut === "in") {
-                let parkingLotIdx = parkLocation.substr(0, 1);
-                let section = parkLocation.substr(2, 2);
-                let location = parkLocation.substr(4, 2);
-    
-                // 3-a. RDS 조회
-                const [rows] = await indexDao.getSpecificAreaInfo(parkingLotIdx, section, location);
-                const areaInfo = rows.areaInfo; //일반 0 장애인 1 전기 2
-    
-                // 3-b. 부정주차 시 RDS 데이터 추가
-                if (disabled === 0 && areaInfo === 1) {
-                    console.log('부정주차 - 장애인차량 전용 구역 주차');
-                    console.log(parkingLotIdx, section, location, carNum);
-                    const addToUndone = await indexDao.addToUndone(parkingLotIdx, section, location, carNum);  
-                } else if (electric === 0 && areaInfo === 2) {
-                    console.log('부정주차 - 전기차 전용 구역 주차');
-                    console.log(parkingLotIdx, section, location, carNum);
-                    const addToUndone = await indexDao.addToUndone(parkingLotIdx, section, location, carNum);    
-                }
-            }
-        })
-    }       
+    });
+
     return res.render("test.ejs");
 }
 

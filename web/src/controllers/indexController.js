@@ -197,13 +197,13 @@ exports.violation = async function (req, res) {
             if (disabled === 0 && areaInfo === 1) {
                 console.log('부정주차 - 장애인차량 전용 구역 주차');
                 console.log(parkingLotIdx, section, location, carNum);
-                const addToUndone = await indexDao.addToUndone(parkingLotIdx, section, location, carNum);
+                await indexDao.addViolation(parkingLotIdx, section, location, carNum, VIOLATION_DISABLED, createdAt);
                 // 메일 전송
                 await indexService.sendMail(parkingLotIdx, section, location, carNum, VIOLATION_DISABLED);
             } else if (electric === 0 && areaInfo === 2) {
                 console.log('부정주차 - 전기차 전용 구역 주차');
                 console.log(parkingLotIdx, section, location, carNum);
-                const addToUndone = await indexDao.addToUndone(parkingLotIdx, section, location, carNum);
+                await indexDao.addViolation(parkingLotIdx, section, location, carNum, VIOLATION_ELECTRIC, createdAt);
                 // 메일 전송
                 await indexService.sendMail(parkingLotIdx, section, location, carNum, VIOLATION_ELECTRIC);
             }

@@ -134,6 +134,29 @@ async function getSpecificAreaInfo(parkingLotIdx, floor, area) {
     return rows;
 };
 
+// 부정주차 리스트 추가
+async function addViolation(parkingLotIdx, floor, area, carNum, description, createdAt) {
+    const connection = await pool.getConnection(async (conn) => conn);
+    const Query = `INSERT INTO Violation(parkingLotIndex, floor, name, carNum, description, createdAt)
+    VALUES(?, ?, ?, ?, ?, ?);`;
+    const Params = [parkingLotIdx, floor, area, carNum, description, createdAt];
+    const [rows] = await connection.query(Query, Params);
+    connection.release();
+    return;
+}
+
+// 부정주차 확인 시 read 처리
+async function readViolation(violationIndex) {
+    const connection = await pool.getConnection(async (conn) => conn);
+    const Query = `UPDATE Violation
+    SET status = 'read'
+    WHERE violationIndex = ?;`;
+    const Params = [violationIndex];
+    const [rows] = await connection.query(Query, Params);
+    connection.release();
+    return;
+}
+
 async function addToUndone(parkingLotIdx, floor, area, carNum){
     const connection = await pool.getConnection(async (conn) => conn);
     const Query= `INSERT INTO Undone (parkingLotIndex, floor, areaName, carNum) VALUES(?, ?, ?, ?);`;
@@ -182,5 +205,7 @@ module.exports = {
     getSpecificAreaInfo,
     addToUndone,
     readToUndone,
-    addToDone
+    addToDone,
+    addViolation,
+    readViolation
 };

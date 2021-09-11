@@ -25,6 +25,20 @@ async function sendGmail(param){
     });
 }
 
+async function createEmailContent(complexName, section, location, carNum, violationDesc) {
+    return  emailParam = {
+        subject: "[알림] 부정주차 차량",
+        text: `부정주차 정보\n
+                주차장          : ${complexName}\n
+                층(구역)        : ${section}\n
+                위치            : ${location}\n
+                차량 번호        : ${carNum}\n
+                부정주차 사유    : ${violationDesc} 
+                `,
+    }
+}
+
 module.exports = {
-    sendGmail
+    sendGmail,
+    createEmailContent
 };

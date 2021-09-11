@@ -1,4 +1,3 @@
-const { resolveContent } = require("nodemailer/lib/shared");
 const { pool } = require("../../config/database");
 const { AWS } = require('../../config/dynamo');
 

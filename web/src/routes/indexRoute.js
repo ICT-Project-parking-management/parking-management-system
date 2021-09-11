@@ -21,7 +21,4 @@ module.exports = function(app) {
 
     //로그아웃
     app.get('/logout_check/:idx', index.logout_check);
-
-    //메일
-    app.get('/mail', index.mail);
 }

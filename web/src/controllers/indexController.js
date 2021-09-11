@@ -1,5 +1,7 @@
 const indexDao = require("../dao/indexDao");
-const mailer = require("../../config/mailer");
+const indexService = require("../services/indexService");
+const { VIOLATION_ELECTRIC, VIOLATION_DISABLED } = require("../../config/violation");
+
 /**
  * update: 2021.08.08
  * author: serin
@@ -195,11 +197,15 @@ exports.violation = async function (req, res) {
             if (disabled === 0 && areaInfo === 1) {
                 console.log('부정주차 - 장애인차량 전용 구역 주차');
                 console.log(parkingLotIdx, section, location, carNum);
-                const addToUndone = await indexDao.addToUndone(parkingLotIdx, section, location, carNum);  
+                const addToUndone = await indexDao.addToUndone(parkingLotIdx, section, location, carNum);
+                // 메일 전송
+                await indexService.sendMail(parkingLotIdx, section, location, carNum, VIOLATION_DISABLED);
             } else if (electric === 0 && areaInfo === 2) {
                 console.log('부정주차 - 전기차 전용 구역 주차');
                 console.log(parkingLotIdx, section, location, carNum);
-                const addToUndone = await indexDao.addToUndone(parkingLotIdx, section, location, carNum);    
+                const addToUndone = await indexDao.addToUndone(parkingLotIdx, section, location, carNum);
+                // 메일 전송
+                await indexService.sendMail(parkingLotIdx, section, location, carNum, VIOLATION_ELECTRIC);
             }
         }
     });
@@ -254,14 +260,4 @@ exports.logout_check = async function(req, res){
         req.session;
     })
     res.send(`<script>location.href='/main/${select}';window.history.go(-1)</script>`);
-}
-
-
-exports.mail = async function(req, res){
-    let emailParam = {
-        subject: "[알림] 부정주차 차량",
-        text:"삐용",
-    }
-    mailer.sendGmail(emailParam);
-    res.status(200).send("성공");
 }

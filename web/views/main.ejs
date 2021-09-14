@@ -29,6 +29,7 @@
                             <li class="nav-item"><a class="nav-link active" aria-current="page" > 안녕하세요 <%= userName %> 님! </a></li>
                             <% if(userName =='admin') { %>
                                 <li class="nav-item"><a class="nav-link active" aria-current="page" href="javascript:checkMyBan('ban-modal');">부정주차 차량 확인하기<span class="alarm"><%= banData.length %></span></a></li>
+                                <li class="nav-item"><a class="nav-link active" aria-current="page" href="/analyze">주차 정보 분석 보러가기</a></li>
                             <% } else { %>
                             <li class="nav-item"><a class="nav-link active" aria-current="page" href="javascript:checkMyArea('area-modal');"> 내 주차구역 확인하기</a></li>
                 
@@ -109,47 +110,48 @@
             </div>
         </div>
 
-         <!-- Require Login Modal-->
-         <div id="modal3"></div>
-         <div class="modal-con3 requireLogin-modal">
-             <a href="javascript:;" class="close">X</a>
-             <p class="title">내 주차구역 확인하기</p>
-             <div class="con">
-                 <h5>입주민 대상 기능입니다. 로그인을 진행해주세요.</h5>
-             </div>
+        <!-- Require Login Modal-->
+        <div id="modal3"></div>
+        <div class="modal-con3 requireLogin-modal">
+            <a href="javascript:;" class="close">X</a>
+            <p class="title">내 주차구역 확인하기</p>
+            <div class="con">
+                <h5>입주민 대상 기능입니다. 로그인을 진행해주세요.</h5>
+            </div>
          </div>
 
          
-         <!-- My Ban Modal-->
+        <!-- My Ban Modal-->
         <div id="modal4"></div>
         <div class="modal-con4 ban-modal">
             <a href="javascript:;" class="close">X</a>
             <p class="title">부정주차 차량 확인하기</p>
-            <div class="con">
+            <div class="con" id="banCon">
                 <a class="nav-link active" aria-current="page" href="/mail">메일전송</a>
-                <table>
-                    <thead>
-                        <tr>
-                        <th>주차장</th><th>층</th><th>구역</th><th>차량번호</th><th></th>
-                        </tr>
-                    </thead>
-                </table>
-              
-               <div class="container">
-                <table id="banList">
-                    <% banData.forEach(info => { %>
-                        <tr>
-                            <th><%= info.parkingLotIndex %></th>
-                            <th><%= info.floor %></th>
-                            <th><%= info.areaName %></th>
-                            <th><%= info.carNum %></th>
-                            <th><input type='button' id= "<%= info.carNum %>" value='Delete' onclick='deleteRow(this)'/></th>
-                        </tr>
-                      
-                     <% }); %>
-                  </table>
+                <div class="container">
+                    <table id="banList">
+                        <thead>
+                            <tr>
+                                <th>주차장</th>
+                                <th>층</th>
+                                <th>구역</th>
+                                <th>차량번호</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        <% banData.forEach(info => { %>
+                            <tr>
+                                <th><%= info.complexName %></th>
+                                <th><%= info.floor %></th>
+                                <th><%= info.areaName %></th>
+                                <th><%= info.carNum %></th>
+                                <th><input type="button" id="<%= info.carNum %>" value="확인" onclick='deleteRow(this)'/></th>
+                            </tr>
+                        <% }); %>
+                        </tbody>
+                    </table>
                 </div>
-                
          </div>
         
         <script>
@@ -168,7 +170,6 @@
                 document.get
                 $("#modal2").fadeIn(300);
                 $("."+modalname).fadeIn(300);
-
                 $.ajax({
                     type: "GET",
                     url: "/main/<%= parkingLotIdx %>/myArea",
@@ -183,21 +184,23 @@
                                 )
                             }
                         })
-                        
                     }
                 })
             }
+
             $("#modal2, .close").on('click',function(){
                 var content = document.querySelector('.myAreaInfo');
                 content.innerHTML = '';
                 $("#modal2").fadeOut(300);
                 $(".modal-con2").fadeOut(300);
             });
+
              function checkMyLogin(modalname){
                 document.get
                 $("#modal3").fadeIn(300);
                 $("."+modalname).fadeIn(300);
             }
+
             $("#modal3, .close").on('click',function(){
                 $("#modal3").fadeOut(300);
                 $(".modal-con3").fadeOut(300);
@@ -208,6 +211,7 @@
                 $("#modal4").fadeIn(300);
                 $("."+modalname).fadeIn(300);
             }
+
             $("#modal4, .close").on('click',function(){
                 $("#modal4").fadeOut(300);
                 $(".modal-con4").fadeOut(300);
@@ -223,10 +227,7 @@
                 });
                 var index = click.parentNode.parentNode.rowIndex;
                 document.getElementById("banList").deleteRow(index);
-
             }
-    
-
         </script>
 
         <!--Login AJAX-->

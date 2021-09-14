@@ -21,3 +21,7 @@ typing-extensions==3.10.0.0
 urllib3==1.26.6
 Werkzeug==2.0.1
 zipp==3.5.0
+tensorflow==2.0.0b0
+opencv-python==4.5.2.54
+tqdm
+editdistance

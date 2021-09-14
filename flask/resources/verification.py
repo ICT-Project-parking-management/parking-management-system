@@ -1,7 +1,7 @@
 import os, requests, json
 from flask_restful import Resource, reqparse
 from utils.s3 import s3_connection, s3_connection_bucket, s3_get_object
-from ocr.detect import getCarNumber
+from ocr.predict import getCarNumber
 from config import TARGET_URL, TARGET_PORT, TARGET_API
 
 s3 = s3_connection()
@@ -41,6 +41,6 @@ class Verification(Resource):
             sendData.append(newData)
 
         # data = {'info': sendInfo, 'data': sendData}
-        # return {'data': data}, 200
+        # return {'data': data} , 200
         res = requests.post(targetUrl, data=data)
         return {}, 200

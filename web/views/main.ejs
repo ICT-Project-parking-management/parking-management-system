@@ -28,12 +28,12 @@
                         <% if(userName) { %>
                             <li class="nav-item"><a class="nav-link active" aria-current="page" > 안녕하세요 <%= userName %> 님! </a></li>
                             <% if(userName =='admin') { %>
-                                <li class="nav-item"><a class="nav-link active" aria-current="page" href="javascript:checkMyBan('ban-modal');">부정주차 차량 확인하기<span class="alarm"><%= banData.length %></span></a></li>
+                                <li class="nav-item"><a class="nav-link active" aria-current="page" href="javascript:checkMyBan('ban-modal');">부정주차 차량 확인하기<span class="alarm"><%= violationList.length %></span></a></li>
                             <% } else { %>
                             <li class="nav-item"><a class="nav-link active" aria-current="page" href="javascript:checkMyArea('area-modal');"> 내 주차구역 확인하기</a></li>
                 
                             <% } %>
-                            <a class="nav-link active" aria-current="page" href="/logout_check/<%= parkingLotIdx %>"> 로그아웃</a> 
+                            <a class="nav-link active" aria-current="page" href="/logoutCheck/<%= parkingLotIdx %>"> 로그아웃</a> 
                         <% }else{%>
                             <li class="nav-item"><a class="nav-link active" aria-current="page" href="javascript:checkMyLogin('requireLogin-modal');"> 내 주차구역 확인하기</a></li>
                             <a class="nav-link active" aria-current="page" href="javascript:openModal('login-modal');"> 로그인</a>
@@ -89,10 +89,10 @@
             <p class="title">로그인</p>
             <div class="con">
                 <form class="login">
-                <input class="form_control" type="text" id="login_id" name="username" placeholder="아이디" required="required">
-                <input class="form_control" type="text" id="login_pw" name="password" placeholder="비밀번호" required="required">
+                <input class="form_control" type="text" id="loginId" name="username" placeholder="아이디" required="required">
+                <input class="form_control" type="text" id="loginPw" name="password" placeholder="비밀번호" required="required">
                 <p id="errormsg"></p>
-                <button type="button" id="login_btn" name="login" class="btn btn_default">로그인</button>
+                <button type="button" id="loginBtn" name="login" class="btn btn_default">로그인</button>
                 </form>
                 <p>관리자 및 입주민 회원가입은 관리실에 문의하세요.</p>
             </div>
@@ -126,7 +126,6 @@
             <a href="javascript:;" class="close">X</a>
             <p class="title">부정주차 차량 확인하기</p>
             <div class="con">
-                <a class="nav-link active" aria-current="page" href="/mail">메일전송</a>
                 <table>
                     <thead>
                         <tr>
@@ -137,13 +136,13 @@
               
                <div class="container">
                 <table id="banList">
-                    <% banData.forEach(info => { %>
+                    <% violationList.forEach(info => { %>
                         <tr>
                             <th><%= info.parkingLotIndex %></th>
                             <th><%= info.floor %></th>
-                            <th><%= info.areaName %></th>
+                            <th><%= info.name %></th>
                             <th><%= info.carNum %></th>
-                            <th><input type='button' id= "<%= info.carNum %>" value='Delete' onclick='deleteRow(this)'/></th>
+                            <th><input type='button' id= "<%= info.violationIndex %>" value='Done' onclick='deleteRow(this)'/></th>
                         </tr>
                       
                      <% }); %>
@@ -216,8 +215,8 @@
             function deleteRow(click){
                 $.ajax({
                     type: "POST",
-                    url: "/main/<%= parkingLotIdx %>/banDoneList",
-                    data: {"carNum": click.id},
+                    url: "/readToViolation",
+                    data: {"violationIndex": click.id},
                     success: (data) => {
                     }
                 });

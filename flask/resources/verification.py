@@ -40,7 +40,6 @@ class Verification(Resource):
                     newData['carNum'] = carNum
             sendData.append(newData)
 
-        # data = {'info': sendInfo, 'data': sendData}
-        # return {'data': data} , 200
+        data = {'info': sendInfo, 'data': sendData}
         res = requests.post(targetUrl, data=data)
-        return {}, 200
+        return {'res': res, 'data': data} , 200

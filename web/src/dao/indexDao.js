@@ -62,12 +62,6 @@ async function getFloors(idx) {
 }
 
 async function getCurrParkData(areaNumber) {
-
-    // idx = 주차장 인덱스
-    // RDS => 해당 주차장의 주차구역 & 정보(장애인전용/전기차전용/일반전용) 확인
-    // DynamoDB => 해당 주차장의 특정 주차구역의 가장 최신 정보(차정보/inOut 등) 확인
-    // 주차된 위치 표시 & 주차 위반 여부 팝업
-
     const dynamo = new AWS.DynamoDB.DocumentClient();
     const params = {
         TableName: "parking",
@@ -113,26 +107,24 @@ async function getMyAreas(carNum) {
     }
     const data = await dynamo.scan(params).promise();
     return data.Items;
-}
+};
 
-async function addToDynamo(parkLocation, createdTime, electric, carNum, disabled, inOut, credit, imgURL) {
-    // credit 값 thershold 이상일 시 DynamoDB에 데이터 삽입
+async function addToDynamo(parkLocation, createdTime, electric, carNum, disabled, inOut) {
     const dynamo = new AWS.DynamoDB.DocumentClient();
     const params = {
         TableName: "parking",
         Item: {
             areaNumber: parkLocation,
             createdTime: createdTime,
-            electric: electric,
             carNum: carNum,
             disabled: disabled,
+            electric: electric,
             inOut: inOut
         }
     };
     const data = await dynamo.put(params).promise();
-    console.log('등록될 data >>', data);
     return;
-}
+};
 
 async function getSpecificAreaInfo(parkingLotIdx, floor, area) {
     const connection = await pool.getConnection(async (conn) => conn);
@@ -140,8 +132,64 @@ async function getSpecificAreaInfo(parkingLotIdx, floor, area) {
     const [rows] = await connection.query(Query);
     connection.release();
     return rows;
+};
+
+// 부정주차 리스트 추가
+async function addViolation(parkingLotIdx, floor, area, carNum, description, createdAt) {
+    const connection = await pool.getConnection(async (conn) => conn);
+    const Query = `INSERT INTO Violation(parkingLotIndex, floor, name, carNum, description, createdAt)
+    VALUES(?, ?, ?, ?, ?, ?);`;
+    const Params = [parkingLotIdx, floor, area, carNum, description, createdAt];
+    const [rows] = await connection.query(Query, Params);
+    connection.release();
+    return;
 }
 
+// 부정주차 확인 시 read 처리
+async function readViolation(violationIndex) {
+    const connection = await pool.getConnection(async (conn) => conn);
+    const Query = `UPDATE Violation
+    SET status = 'read'
+    WHERE violationIndex = ?;`;
+    const Params = [violationIndex];
+    const [rows] = await connection.query(Query, Params);
+    connection.release();
+    return;
+}
+
+async function addToUndone(parkingLotIdx, floor, area, carNum){
+    const connection = await pool.getConnection(async (conn) => conn);
+    const Query= `INSERT INTO Undone (parkingLotIndex, floor, areaName, carNum) VALUES(?, ?, ?, ?);`;
+    const Params = [parkingLotIdx, floor, area, carNum];
+    const [rows] = await connection.query(Query, Params);
+    // const Query = `DELETE FROM Undone WHERE parkingLotIndex=1`;
+    // const [rows] = await connection.query(Query);
+    connection.release();
+    return;
+}
+
+async function readToUndone() {
+    const connection = await pool.getConnection(async (conn) => conn);
+    const Query= `SELECT * FROM Undone;`;
+    const [rows] = await connection.query(Query);
+    connection.release();
+    return [rows];
+}
+
+async function addToDone(carNum) {
+    const connection = await pool.getConnection(async (conn) => conn);
+    const QueryOne = `SELECT * FROM Undone WHERE carNum= '${carNum}';`;
+    const [rowsOne] = await connection.query(QueryOne);
+    console.log(rowsOne);
+    const data = JSON.parse(JSON.stringify(rowsOne))[0];
+    const QueryTwo= `INSERT INTO Done (parkingLotIndex, floor, areaName, carNum) VALUES(?, ?, ?, ?);`;
+    const Params = [data.parkingLotIndex, data.floor, data.areaName, data.carNum];
+    const [rowsTwo] = await connection.query(QueryTwo, Params);
+    const QueryThree = `Delete From Undone WHERE carNum= '${carNum}';`;
+    const [rowsThree] = await connection.query(QueryThree);
+    connection.release();
+    return;
+}
 
 module.exports = {
     getUserList,
@@ -154,5 +202,10 @@ module.exports = {
     getMyCars,
     getMyAreas,
     addToDynamo,
-    getSpecificAreaInfo
+    getSpecificAreaInfo,
+    addToUndone,
+    readToUndone,
+    addToDone,
+    addViolation,
+    readViolation
 };

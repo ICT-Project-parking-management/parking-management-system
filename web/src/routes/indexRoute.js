@@ -10,8 +10,14 @@ module.exports = function(app) {
     // 내 주차구역 확인
     app.get('/main/:idx/myArea', index.myArea);
 
-    // lambda
-    app.post('/lambda', index.lambda)
+    // 부정주차 차량 확인
+    app.post('/main/:idx/banDoneList', index.banDoneList);
+
+    // 데이터 마이닝
+    app.get('/analyze', index.analyze);
+
+    // violation
+    app.post('/violation', index.violation)
 
     //로그인
     app.post('/login_check', index.login_check);

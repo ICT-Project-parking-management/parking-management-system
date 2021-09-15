@@ -104,9 +104,11 @@ exports.main = async function (req, res) {
                     //부정주차차량 RDS 조회
                     const [readToUndone] = await indexDao.readToUndone();
                     var objLength = Object.keys(readToUndone).length;
-                    var banData= [];
-                    for(var i=0; i< objLength; i++){
+                    var banData = [];
+                    for (var i=0; i< objLength; i++) {
                         banData[i] = JSON.parse(JSON.stringify(readToUndone))[i];
+                        const [parkingLotName] = await indexDao.getComplexName(banData[i].parkingLotIndex);
+                        banData[i].complexName = parkingLotName.complexName;
                     }
         
                     return res.render("main.ejs", {complexName, parkingLotInfo, parkingLotIdx, userName, banData});
@@ -218,6 +220,10 @@ exports.banDoneList = async function(req, res){
     const addToDone = await indexDao.addToDone(carNum);
 }
 
+exports.analyze = async function(req, res) {
+    return res.render("analyze.ejs");
+}
+
 exports.login_check = async function(req, res){
     const select = req.params.idx;
 
@@ -251,7 +257,6 @@ exports.login_check = async function(req, res){
         const data = {status};
         res.send(data);
     }
-
 }  
 
 exports.logout_check = async function(req, res){

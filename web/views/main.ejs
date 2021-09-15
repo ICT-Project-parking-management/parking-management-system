@@ -29,6 +29,7 @@
                             <li class="nav-item"><a class="nav-link active" aria-current="page" > 안녕하세요 <%= userName %> 님! </a></li>
                             <% if(userName =='admin') { %>
                                 <li class="nav-item"><a class="nav-link active" aria-current="page" href="javascript:checkMyBan('ban-modal');">부정주차 차량 확인하기<span class="alarm"><%= violationList.length %></span></a></li>
+                                <li class="nav-item"><a class="nav-link active" aria-current="page" href="/analyze">주차 정보 분석 보러가기</a></li>
                             <% } else { %>
                             <li class="nav-item"><a class="nav-link active" aria-current="page" href="javascript:checkMyArea('area-modal');"> 내 주차구역 확인하기</a></li>
                 
@@ -90,7 +91,7 @@
             <div class="con">
                 <form class="login">
                 <input type="text" id="loginId" name="username" placeholder="아이디" required="required">
-                <input type="text" id="loginPw" name="password" placeholder="비밀번호" required="required">
+                <input type="password" id="loginPw" name="password" placeholder="비밀번호" required="required">
                 <p id="errormsg"></p>
                 <button type="button" id="loginBtn" name="login" class="btn btn_default">로그인</button>
                 </form>
@@ -109,45 +110,47 @@
             </div>
         </div>
 
-         <!-- Require Login Modal-->
-         <div id="modal3"></div>
-         <div class="modal-con3 requireLogin-modal">
-             <a href="javascript:;" class="close">X</a>
-             <p class="title">내 주차구역 확인하기</p>
-             <div class="con">
-                 <h5>입주민 대상 기능입니다. 로그인을 진행해주세요.</h5>
-             </div>
+        <!-- Require Login Modal-->
+        <div id="modal3"></div>
+        <div class="modal-con3 requireLogin-modal">
+            <a href="javascript:;" class="close">X</a>
+            <p class="title">내 주차구역 확인하기</p>
+            <div class="con">
+                <h5>입주민 대상 기능입니다. 로그인을 진행해주세요.</h5>
+            </div>
          </div>
 
          
-         <!-- My Ban Modal-->
+        <!-- My Ban Modal-->
         <div id="modal4"></div>
         <div class="modal-con4 ban-modal">
             <a href="javascript:;" class="close">X</a>
             <p class="title">부정주차 차량 확인하기</p>
-            <div class="con">
-               <div class="container">
-                <table id="banList">
-                    <thead>
-                        <tr>
-                        <th>시간</th><th>주차구역</th><th>차량번호</th><th>위반사유</th><th>현재상태</th><th>관리자 조치 여부</th>
-                        </tr>
-                    </thead>
-                    <% violationList.forEach(info => { %>
-                        <tr>
-                            <th><%= info.createdAt %></th>
-                            <th><%= info.floor %><%= info.name %></th>
-                            <th><%= info.carNum %></th>
-                            <th><%= info.description %></th>
-                            <th>in</th>
-                            <th><input type='button' id= "<%= info.violationIndex %>" value='Done' onclick='deleteRow(this)'/></th>
-                            <th><label class="switch-button"> <input type="checkbox"/> <span class="onoff-switch"></span> </label>
-                        </tr>
-                      
-                     <% }); %>
-                  </table>
+
+            <div class="con" id="banCon">
+                <div class="container">
+                    <table id="banList">
+                        <thead>
+                            <tr>
+                                <th>시간</th><th>주차구역</th><th>차량번호</th><th>위반사유</th><th>현재상태</th><th>관리자 조치 여부</th><th></th>
+                                </tr>
+                        </thead>
+                        <tbody>
+                        <% violationList.forEach(info => { %>
+                            <tr>
+                                <th><%= info.createdAt %></th>
+                                <th><%= info.floor %><%= info.name %></th>
+                                <th><%= info.carNum %></th>
+                                <th><%= info.description %></th>
+                                <th>in</th>
+                                <!-- <th><input type='button' id= "<%= info.violationIndex %>" value='Done' onclick='deleteRow(this)'/></th> -->
+                                <th><label class="switch-button"> <input type="checkbox" id= "<%= info.carNum %>"/> <<span class="onoff-switch"></span> </label>
+                                <th><input type='button' id= "<%= info.violationIndex %>" value='X' onclick='deleteRow(this)'/></th>
+                            </tr>
+                        <% }); %>
+                        </tbody>
+                    </table>
                 </div>
-                
          </div>
         
         <script>
@@ -166,7 +169,6 @@
                 document.get
                 $("#modal2").fadeIn(300);
                 $("."+modalname).fadeIn(300);
-
                 $.ajax({
                     type: "GET",
                     url: "/main/<%= parkingLotIdx %>/myArea",
@@ -181,21 +183,23 @@
                                 )
                             }
                         })
-                        
                     }
                 })
             }
+
             $("#modal2, .close").on('click',function(){
                 var content = document.querySelector('.myAreaInfo');
                 content.innerHTML = '';
                 $("#modal2").fadeOut(300);
                 $(".modal-con2").fadeOut(300);
             });
-             function checkMyLogin(modalname){
+
+            function checkMyLogin(modalname){
                 document.get
                 $("#modal3").fadeIn(300);
                 $("."+modalname).fadeIn(300);
             }
+
             $("#modal3, .close").on('click',function(){
                 $("#modal3").fadeOut(300);
                 $(".modal-con3").fadeOut(300);
@@ -206,10 +210,16 @@
                 $("#modal4").fadeIn(300);
                 $("."+modalname).fadeIn(300);
             }
+
             $("#modal4, .close").on('click',function(){
                 $("#modal4").fadeOut(300);
                 $(".modal-con4").fadeOut(300);
             });
+            $('input:checkbox').on('click', function(){
+                    confirm("확인하셨습니까?");
+                    idx = $('input:checkbox').index(this);
+                    //document.getElementById("banList").deleteRow(idx+1);
+                })
 
             function deleteRow(click){
                 $.ajax({
@@ -219,12 +229,10 @@
                     success: (data) => {
                     }
                 });
+                confirm("삭제하시겠습니까?");
                 var index = click.parentNode.parentNode.rowIndex;
                 document.getElementById("banList").deleteRow(index);
-
             }
-    
-
         </script>
 
         <!--Login AJAX-->

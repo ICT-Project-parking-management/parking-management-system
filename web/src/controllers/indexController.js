@@ -100,13 +100,16 @@ exports.main = async function (req, res) {
                             return (a.areaName < b.areaName) ? -1 : (a.areaName > b.areaName) ? 1 : 0;
                         })
                     })
-                    
+                
                 
                     const [unreadViolation] = await indexDao.unreadViolation();
                     var objLength = Object.keys(unreadViolation).length;
                     var violationList = [];
                     for(var i=0; i< objLength; i++){
                         violationList[i] = JSON.parse(JSON.stringify(unreadViolation))[i];
+                        const [parkingLotName] = await indexDao.getComplexName(violationList[i].parkingLotIndex);
+                        violationList[i].complexName = parkingLotName.complexName;
+
                     }
 
                     return res.render("main.ejs", {complexName, parkingLotInfo, parkingLotIdx, userName, violationList});
@@ -155,6 +158,7 @@ exports.myArea = async function (req, res) {
 }
 
 exports.violation = async function (req, res) {
+    const info = req.body.info;
     const type = info.type; // parking or snapshot
     const createdAt = info.createdAt;
     const data = req.body.data;
@@ -218,8 +222,12 @@ exports.violation = async function (req, res) {
 }
 
 exports.readToViolation = async function(req, res){
-    const violationIdx = req.body.violationIndex;
-    await indexDao.readViolation(violationIdx);
+    //const violationIdx = req.body.violationIndex;
+    //await indexDao.readViolation(violationIdx);
+}
+
+exports.analyze = async function(req, res) {
+    return res.render("analyze.ejs");
 }
 
 exports.loginCheck = async function(req, res){
@@ -255,7 +263,6 @@ exports.loginCheck = async function(req, res){
         const data = {status};
         res.send(data);
     }
-
 }  
 
 exports.logoutCheck = async function(req, res){

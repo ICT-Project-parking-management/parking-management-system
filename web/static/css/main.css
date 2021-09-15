@@ -52,7 +52,6 @@ a.button{display:inline-block; padding: 10px 20px; text-decoration:none; color:#
   padding: 30px;
 }
 
-
 .modal-con .close, .modal-con2 .close, .modal-con3 .close,  .modal-con4 .close {
   display:block;
   position:absolute;
@@ -66,9 +65,11 @@ a.button{display:inline-block; padding: 10px 20px; text-decoration:none; color:#
   right:10px;
   top:10px;
 }
+
 .modal-con .con #errormsg { 
   color: red; 
 }
+
 .modal-con .con #loginBtn{
   width: 380px;
   background-color: rgb(204, 204, 204);
@@ -77,11 +78,13 @@ a.button{display:inline-block; padding: 10px 20px; text-decoration:none; color:#
   margin: 20px;
   height: 50px;
 }
+
 .modal-con4 .con .container{
   width: 100%;
   height: 300px;
   overflow: auto;
 }
+
 .modal-con4 .con table{
   width: 100%;
   border-collapse: collapse;
@@ -91,7 +94,6 @@ a.button{display:inline-block; padding: 10px 20px; text-decoration:none; color:#
   padding: 10px;
   border-bottom: 1px solid #444444 !important;
 }
-
 
 .modal-con4 .con .container::-webkit-scrollbar{
   width:10px;
@@ -159,26 +161,6 @@ a.button{display:inline-block; padding: 10px 20px; text-decoration:none; color:#
   text-align: center;
 }
 
-.B1 {
-  width: 44%;
-  height: auto;
-  border: 2px solid;
-  border-radius: 10px;
-  float: left;
-  margin-left: 4%;
-  margin-top: 2rem;
-}
-
-.B2 {
-  width: 44%;
-  height: auto;
-  border: 2px solid;
-  border-radius: 10px;
-  float: right;
-  margin-right: 4%;
-  margin-top: 2rem;
-}
-
 .floor {
   margin: 13px 0 10px 0;
 }
@@ -236,4 +218,23 @@ a.button{display:inline-block; padding: 10px 20px; text-decoration:none; color:#
 
 .text-center .parking td#notBlocked {
   background-color: rgb(109, 167, 109);
+}
+
+#banCon {
+  padding: 1rem;
+}
+
+#banList {
+  text-align: center;
+}
+
+#banList thead {
+  border: 0 !important;
+  background-color: rgb(155, 155, 155);
+}
+
+#banList tbody th {
+  font-weight: 400;
+  border: 0 !important;
+  background-color: rgb(247, 247, 247);
 }

@@ -155,10 +155,6 @@ exports.myArea = async function (req, res) {
 }
 
 exports.violation = async function (req, res) {
-    console.log("gh", req.body);
-    const info = req.body.info;
-    console.log(info);
-    
     const type = info.type; // parking or snapshot
     const createdAt = info.createdAt;
     const data = req.body.data;
@@ -191,11 +187,9 @@ exports.violation = async function (req, res) {
             let parkingLotIdx = parkLocation.substr(0, 1);
             let section = parkLocation.substr(2, 2);
             let location = parkLocation.substr(4, 2);
-            console.log("정보", parkingLotIdx, section, location);
 
             // 2-1. RDS 조회
             const [rows] = await indexDao.getSpecificAreaInfo(parkingLotIdx, section, location);
-            console.log("얍");
             const areaInfo = rows.areaInfo; //일반 0 장애인 1 전기 2
 
             // 2-2. 부정주차 시 RDS 데이터 추가
@@ -212,6 +206,11 @@ exports.violation = async function (req, res) {
                 // 메일 전송
                 await indexService.sendMail(parkingLotIdx, section, location, carNum, VIOLATION_ELECTRIC);
             }
+        } else { //3. inOut out인 경우 부정주차차량 확인 리스트에서 제거
+            //관리자가 done하기 전에 부정주차차량 A가 빠져나간 경우
+            //부정주차차량확인 페이지에서 차량 A를 삭제해야 하는데
+            // status를 unread에서 read로 전환해주는 쿼리를 실행해야하는지
+            // violation 테이블에서 삭제를 해야하는지 
         }
     });
 

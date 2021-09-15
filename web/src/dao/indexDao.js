@@ -149,7 +149,7 @@ async function addViolation(parkingLotIdx, floor, area, carNum, description, cre
 
 async function unreadViolation(){
     const connection = await pool.getConnection(async (conn)=>conn);
-    const Query = `SELECT violationIndex, parkingLotIndex, floor, name, carNum, updatedAT FROM Violation WHERE status = 'unread' `;
+    const Query = `SELECT violationIndex, parkingLotIndex, floor, name, carNum, description, createdAt FROM Violation WHERE status = 'unread' `;
     const [rows] = await connection.query(Query);
     connection.release();
     return [rows];

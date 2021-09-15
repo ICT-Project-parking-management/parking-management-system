@@ -41,5 +41,8 @@ class Verification(Resource):
             sendData.append(newData)
 
         data = {'info': sendInfo, 'data': sendData}
-        res = requests.post(targetUrl, data=data)
-        return {'res': res, 'data': data} , 200
+        res = requests.post(targetUrl, json=data)
+        data = json.loads(json.dumps(data))
+        data['res'] = res.status_code
+        data = json.loads(json.dumps(data))
+        return {'data': data} , 200

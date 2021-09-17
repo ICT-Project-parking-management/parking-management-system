@@ -217,8 +217,8 @@ exports.violation = async function (req, res) {
 }
 
 exports.readToViolation = async function(req, res){
-    //const violationIdx = req.body.violationIndex;
-    //await indexDao.readViolation(violationIdx);
+    const violationIdx = req.body.violationIndex;
+    await indexDao.readViolation(violationIdx);
 }
 
 exports.analyze = async function(req, res) {

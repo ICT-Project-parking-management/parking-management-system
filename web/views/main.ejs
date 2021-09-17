@@ -128,12 +128,16 @@
             <p class="title">부정주차 차량 확인하기</p>
 
             <div class="con" id="banCon">
-                <div class="container">
-                    <table id="banList">
+
+                    <table id="scrolltable">
                         <thead>
                             <tr>
-                                <th>시간</th><th>주차구역</th><th>차량번호</th><th>위반사유</th><th>현재상태</th><th>관리자 조치 여부</th><th></th>
-                                </tr>
+                            <th>시간</th>
+                            <th>주차구역</th>
+                            <th>차량번호</th>
+                            <th>위반사유</th>
+                            <th>관리자 조치 여부</th>
+                            </tr>
                         </thead>
                         <tbody>
                         <% violationList.forEach(info => { %>
@@ -142,15 +146,13 @@
                                 <th><%= info.floor %><%= info.name %></th>
                                 <th><%= info.carNum %></th>
                                 <th><%= info.description %></th>
-                                <th>in</th>
-                                <!-- <th><input type='button' id= "<%= info.violationIndex %>" value='Done' onclick='deleteRow(this)'/></th> -->
                                 <th><label class="switch-button"> <input type="checkbox" id= "<%= info.carNum %>"/> <<span class="onoff-switch"></span> </label>
-                                <th><input type='button' id= "<%= info.violationIndex %>" value='X' onclick='deleteRow(this)'/></th>
+                                <!-- <th><input class="delete-button" type='button' id= "<%= info.violationIndex %>" value='X' onclick='deleteRow(this)'/></th> -->
                             </tr>
                         <% }); %>
                         </tbody>
                     </table>
-                </div>
+               
          </div>
         
         <script>

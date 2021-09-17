@@ -210,11 +210,6 @@ exports.violation = async function (req, res) {
                 // 메일 전송
                 await indexService.sendMail(parkingLotIdx, section, location, carNum, VIOLATION_ELECTRIC);
             }
-        } else { //3. inOut out인 경우 부정주차차량 확인 리스트에서 제거
-            //관리자가 done하기 전에 부정주차차량 A가 빠져나간 경우
-            //부정주차차량확인 페이지에서 차량 A를 삭제해야 하는데
-            // status를 unread에서 read로 전환해주는 쿼리를 실행해야하는지
-            // violation 테이블에서 삭제를 해야하는지 
         }
     });
 

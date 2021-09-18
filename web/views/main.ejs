@@ -17,6 +17,7 @@
         
     </head>
     <body>
+        <% let alarmCount = violationList.length%>
         <!-- Responsive navbar-->
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
             <div class="container">
@@ -28,7 +29,7 @@
                         <% if(userName) { %>
                             <li class="nav-item"><a class="nav-link active" aria-current="page" > 안녕하세요 <%= userName %> 님! </a></li>
                             <% if(userName =='admin') { %>
-                                <li class="nav-item"><a class="nav-link active" aria-current="page" href="javascript:checkMyBan('ban-modal');">부정주차 차량 확인하기<span class="alarm"><%= violationList.length %></span></a></li>
+                                <li class="nav-item"><a class="nav-link active" aria-current="page" href="javascript:checkMyBan('ban-modal');">부정주차 차량 확인하기<% if(alarmCount>0) { %><span class="alarm"><%= alarmCount%></span></a></li><% } %>
                                 <li class="nav-item"><a class="nav-link active" aria-current="page" href="/analyze">주차 정보 분석 보러가기</a></li>
                             <% } else { %>
                             <li class="nav-item"><a class="nav-link active" aria-current="page" href="javascript:checkMyArea('area-modal');"> 내 주차구역 확인하기</a></li>
@@ -132,7 +133,7 @@
                     <table id="banList">
                         <thead>
                             <tr>
-                                <th>시간</th><th>주차구역</th><th>차량번호</th><th>위반사유</th><th>관리자 조치 여부</th><th></th>
+                                <th>시간</th><th>주차구역</th><th>차량번호</th><th>위반사유</th><th>관리자 조치 여부</th>
                                 </tr>
                         </thead>
                         <tbody>
@@ -142,8 +143,8 @@
                                 <th><%= info.floor %><%= info.name %></th>
                                 <th><%= info.carNum %></th>
                                 <th><%= info.description %></th>
-                                <th><label class="switch-button"> <input type="checkbox" id= "<%= info.carNum %>"/> <<span class="onoff-switch"></span> </label>
-                                <th><input type='button' class="delete-button" id= "<%= info.violationIndex %>" value='X' onclick='deleteRow(this)'/></th>
+                                <th><label class="switch-button"> <input type="checkbox" id= "<%= info.violationIndex %>" /><span class="onoff-switch"></span></label>
+                                <!-- <th><input type='button' class="delete-button" id= "<%= info.violationIndex %>" value='X' onclick='deleteRow(this)'/></th> -->
                             </tr>
                         <% }); %>
                         </tbody>
@@ -214,23 +215,29 @@
                 $(".modal-con4").fadeOut(300);
             });
             $('input:checkbox').on('click', function(){
-                    confirm("확인하셨습니까?");
-                    idx = $('input:checkbox').index(this);
+                    if(confirm("확인하셨습니까?")==true){
+
+                    }else{
+                        return false;
+                    }
+                    //idx = $('input:checkbox').index(this);
                     //document.getElementById("banList").deleteRow(idx+1);
                 })
-
-            function deleteRow(click){
+  
+            function unreadToread(this){
                 $.ajax({
                     type: "POST",
                     url: "/readToViolation",
                     data: {"violationIndex": click.id},
                     success: (data) => {
-                    }
+                    },
+
                 });
-                confirm("삭제하시겠습니까?");
-                var index = click.parentNode.parentNode.rowIndex;
-                document.getElementById("banList").deleteRow(index);
+                let alarmCount = $('.alarm').text();
+                $('.alarm').text(--alarmCount);       
             }
+         
+           
         </script>
 
         <!--Login AJAX-->

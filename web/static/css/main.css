@@ -144,9 +144,7 @@ a.button{display:inline-block; padding: 10px 20px; text-decoration:none; color:#
   text-shadow: 0 1px 0 #fff; 
   font-size: 1.3rem; 
 } 
-.modal-con4 .con #banList tbody tr .delete-button:nth-child(2n+1){
-  background-color: #f0f0f0;
-}
+
 
 .delete-button { 
   border: 0; 

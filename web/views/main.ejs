@@ -139,11 +139,12 @@
                         <tbody>
                         <% violationList.forEach(info => { %>
                             <tr>
+                                
                                 <th><%= info.createdAt %></th>
                                 <th><%= info.floor %><%= info.name %></th>
                                 <th><%= info.carNum %></th>
                                 <th><%= info.description %></th>
-                                <th><label class="switch-button"> <input type="checkbox" id= "<%= info.violationIndex %>" /><span class="onoff-switch"></span></label>
+                                <th><label class="switch-button"> <input type="checkbox" id= "<%= info.violationIndex %>" onclick="clickThis(this)"/><span class="onoff-switch"></span></label>
                                 <!-- <th><input type='button' class="delete-button" id= "<%= info.violationIndex %>" value='X' onclick='deleteRow(this)'/></th> -->
                             </tr>
                         <% }); %>
@@ -214,28 +215,33 @@
                 $("#modal4").fadeOut(300);
                 $(".modal-con4").fadeOut(300);
             });
+
+            function clickThis(click){
+                clickId = click.id;
+                return clickId;
+            }
+
             $('input:checkbox').on('click', function(){
                     if(confirm("확인하셨습니까?")==true){
+                        let clickId = clickThis(this);
+                        $.ajax({
+                            type: "POST",
+                            url: "/readToViolation",
+                            data: {"violationIndex": clickId},
+                            success: (data) => {
+                            },
 
+                        });
+                        let alarmCount = $('.alarm').text();
+                        $('.alarm').text(--alarmCount);       
+                    
                     }else{
                         return false;
                     }
                     //idx = $('input:checkbox').index(this);
                     //document.getElementById("banList").deleteRow(idx+1);
                 })
-  
-            function unreadToread(this){
-                $.ajax({
-                    type: "POST",
-                    url: "/readToViolation",
-                    data: {"violationIndex": click.id},
-                    success: (data) => {
-                    },
-
-                });
-                let alarmCount = $('.alarm').text();
-                $('.alarm').text(--alarmCount);       
-            }
+ 
          
            
         </script>

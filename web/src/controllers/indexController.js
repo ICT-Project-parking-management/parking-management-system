@@ -107,6 +107,12 @@ exports.main = async function (req, res) {
                     var violationList = [];
                     for(var i=0; i< objLength; i++){
                         violationList[i] = JSON.parse(JSON.stringify(unreadViolation))[i];
+                        const createdTime = violationList[i].createdAt;
+                        let left = createdTime.split('T');
+                        let date = left[0].split('-');
+                        let time = left[1].split(':');
+                        violationList[i].createdAt = date[1]+"월"+date[2]+"일 "+time[0]+"시"+time[1]+"분";
+                        
                         const [parkingLotName] = await indexDao.getComplexName(violationList[i].parkingLotIndex);
                         violationList[i].complexName = parkingLotName.complexName;
 

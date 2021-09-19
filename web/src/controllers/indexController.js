@@ -78,18 +78,25 @@ exports.main = async function (req, res) {
                             return (a.areaName < b.areaName) ? -1 : (a.areaName > b.areaName) ? 1 : 0;
                         })
                     })
-                    
-                    //부정주차차량 RDS 조회
-                    const [readToUndone] = await indexDao.readToUndone();
-                    var objLength = Object.keys(readToUndone).length;
-                    var banData = [];
-                    for (var i=0; i< objLength; i++) {
-                        banData[i] = JSON.parse(JSON.stringify(readToUndone))[i];
-                        const [parkingLotName] = await indexDao.getComplexName(banData[i].parkingLotIndex);
-                        banData[i].complexName = parkingLotName.complexName;
+                
+                
+                    const [unreadViolation] = await indexDao.unreadViolation();
+                    var objLength = Object.keys(unreadViolation).length;
+                    var violationList = [];
+                    for(var i=0; i< objLength; i++){
+                        violationList[i] = JSON.parse(JSON.stringify(unreadViolation))[i];
+                        const createdTime = violationList[i].createdAt;
+                        let left = createdTime.split('T');
+                        let date = left[0].split('-');
+                        let time = left[1].split(':');
+                        violationList[i].createdAt = date[1]+"월"+date[2]+"일 "+time[0]+"시"+time[1]+"분";
+                        
+                        const [parkingLotName] = await indexDao.getComplexName(violationList[i].parkingLotIndex);
+                        violationList[i].complexName = parkingLotName.complexName;
+
                     }
-        
-                    return res.render("main.ejs", {complexName, parkingLotInfo, parkingLotIdx, userName, banData});
+
+                    return res.render("main.ejs", {complexName, parkingLotInfo, parkingLotIdx, userName, violationList});
                 }
             }
         });
@@ -292,9 +299,9 @@ exports.violation = async function (req, res) {
     else return res.sendStatus(200);
 }
 
-exports.banDoneList = async function(req, res){
-    const carNum = req.body.carNum;
-    const addToDone = await indexDao.addToDone(carNum);
+exports.readToViolation = async function(req, res){
+    const violationIdx = req.body.violationIndex;
+    await indexDao.readViolation(violationIdx);
 }
 
 exports.analyze = async function(req, res) {
@@ -306,9 +313,9 @@ exports.analyze = async function(req, res) {
     }
 }
 
-exports.login_check = async function(req, res){
+exports.loginCheck = async function(req, res){
     const select = req.params.idx;
-
+    
     const userID = req.body.username;
     const userPW = req.body.password;
 
@@ -341,7 +348,7 @@ exports.login_check = async function(req, res){
     }
 }  
 
-exports.logout_check = async function(req, res){
+exports.logoutCheck = async function(req, res){
     const select = req.params.idx;
     req.session.destroy(function(){
         req.session;

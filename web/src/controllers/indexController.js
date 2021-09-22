@@ -10,7 +10,6 @@ exports.parkingData = async function (req, res) {
 
 exports.main = async function (req, res) {
     console.log('req.session.status >>', req.session.status);
-    console.log('req.session.idx >> ', req.session.idx);
     const parkingLotIdx = req.params.idx;
     const userName = req.session.nickname;
     
@@ -143,7 +142,6 @@ exports.myArea = async function (req, res) {
 }
 
 exports.violation = async function (req, res) {
-    console.log("얍", req.body);
     const info = req.body.info;
     const type = info.type; // parking or snapshot
     const createdAt = info.createdAt;
@@ -316,8 +314,6 @@ exports.analyze = async function(req, res) {
 }
 
 exports.loginCheck = async function(req, res){
-    console.log("로그인", req.body);
-    const select = req.params.idx;
     const userID = req.body.username;
     const userPW = req.body.password;
 
@@ -329,7 +325,6 @@ exports.loginCheck = async function(req, res){
     
     if (authPw.length > 0) { //로그인 성공
         req.session.nickname = userID;
-        req.session.idx = select;
         if (status == 0) {
             req.session.status = "admin";
         } else {

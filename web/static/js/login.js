@@ -1,7 +1,7 @@
 $(document).ready(async function(req, res){
     $('#loginBtn').click(async function(){
         $.ajax({
-            url:`/loginCheck`,
+            url:`/login`,
             dataType:'text',
             type:'POST',
             data: {"username":$('#loginId').val(),

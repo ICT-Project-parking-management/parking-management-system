@@ -10,6 +10,7 @@ exports.parkingData = async function (req, res) {
 
 exports.main = async function (req, res) {
     console.log('req.session.status >>', req.session.status);
+    console.log('req.session.idx >> ', req.session.idx);
     const parkingLotIdx = req.params.idx;
     const userName = req.session.nickname;
     
@@ -86,9 +87,9 @@ exports.main = async function (req, res) {
                     for(var i=0; i< objLength; i++){
                         violationList[i] = JSON.parse(JSON.stringify(unreadViolation))[i];
                         const createdTime = violationList[i].createdAt;
-                        let left = createdTime.split('T');
-                        let date = left[0].split('-');
-                        let time = left[1].split(':');
+                        let createdIndex = createdTime.split('T');
+                        let date = createdIndex[0].split('-');
+                        let time = createdIndex[1].split(':');
                         violationList[i].createdAt = date[1]+"월"+date[2]+"일 "+time[0]+"시"+time[1]+"분";
                         
                         const [parkingLotName] = await indexDao.getComplexName(violationList[i].parkingLotIndex);
@@ -142,6 +143,7 @@ exports.myArea = async function (req, res) {
 }
 
 exports.violation = async function (req, res) {
+    console.log("얍", req.body);
     const info = req.body.info;
     const type = info.type; // parking or snapshot
     const createdAt = info.createdAt;
@@ -175,8 +177,8 @@ exports.violation = async function (req, res) {
         const electric = element.electric;
         const disabled = element.disabled;
 
-        // data 값 제대로 안 들어온 경우
-        if (parkLocation === undefined || parkLocation === "" || inOut === undefined || inOut === "" || carNum === undefined || carNum === "" || electric === undefined || electric === "" || disabled === undefined || disabled === "") {
+         // data 값 제대로 안 들어온 경우
+         if (parkLocation === undefined || parkLocation === "" || inOut === undefined || inOut === "" || carNum === undefined || carNum === "" || electric === undefined || electric === "" || disabled === undefined || disabled === "") {
             dataValid = false;
             return false;
         }
@@ -314,8 +316,8 @@ exports.analyze = async function(req, res) {
 }
 
 exports.loginCheck = async function(req, res){
+    console.log("로그인", req.body);
     const select = req.params.idx;
-    
     const userID = req.body.username;
     const userPW = req.body.password;
 
@@ -327,6 +329,7 @@ exports.loginCheck = async function(req, res){
     
     if (authPw.length > 0) { //로그인 성공
         req.session.nickname = userID;
+        req.session.idx = select;
         if (status == 0) {
             req.session.status = "admin";
         } else {
@@ -349,9 +352,8 @@ exports.loginCheck = async function(req, res){
 }  
 
 exports.logoutCheck = async function(req, res){
-    const select = req.params.idx;
     req.session.destroy(function(){
         req.session;
     })
-    res.send(`<script>location.href='/main/${select}';window.history.go(-1)</script>`);
+    res.send();
 }

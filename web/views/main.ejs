@@ -21,7 +21,7 @@
         <!-- Responsive navbar-->
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
             <div class="container">
-                <a class="navbar-brand" href="#">주차관리 시스템</a>
+                <a class="navbar-brand" href="/">주차관리 시스템</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
@@ -35,7 +35,7 @@
                             <li class="nav-item"><a class="nav-link active" aria-current="page" href="javascript:checkMyArea('area-modal');"> 내 주차구역 확인하기</a></li>
                 
                             <% } %>
-                            <a class="nav-link active" aria-current="page" href="/logoutCheck/<%= parkingLotIdx %>"> 로그아웃</a> 
+                            <a class="nav-link active" aria-current="page" href="javascript:logoutCheck('logout-modal');"> 로그아웃</a> 
                         <% }else{%>
                             <li class="nav-item"><a class="nav-link active" aria-current="page" href="javascript:checkMyLogin('requireLogin-modal');"> 내 주차구역 확인하기</a></li>
                             <a class="nav-link active" aria-current="page" href="javascript:openModal('login-modal');"> 로그인</a>
@@ -238,11 +238,20 @@
                     }else{
                         return false;
                     }
-                    //idx = $('input:checkbox').index(this);
-                    //document.getElementById("banList").deleteRow(idx+1);
+                  
                 })
- 
-         
+            function logoutCheck(modalname){ 
+                $.ajax({
+                    type: "POST",
+                    url: "/logout",
+                    error: function(){
+                        alert("에러가 발생했습니다");
+                    },
+                    success:function(data){ 
+                        window.location.reload();
+                    }
+                })
+            }
            
         </script>
 

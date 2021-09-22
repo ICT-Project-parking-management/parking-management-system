@@ -20,8 +20,8 @@ module.exports = function(app) {
     app.post('/readToViolation', index.readToViolation);
 
     //로그인
-    app.post('/loginCheck', index.loginCheck);
+    app.post('/login', index.loginCheck);
 
     //로그아웃
-    app.get('/logoutCheck/:idx', index.logoutCheck);
+    app.post('/logout', index.logoutCheck);
 }

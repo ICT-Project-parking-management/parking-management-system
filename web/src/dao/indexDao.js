@@ -139,11 +139,11 @@ async function getSpecificAreaInfo(parkingLotIdx, floor, area) {
 // 부정주차 리스트 추가
 async function addViolation(parkingLotIdx, floor, area, carNum, description, createdAt) {
     const connection = await pool.getConnection(async (conn) => conn);
-    const Query = `INSERT INTO Violation(parkingLotIndex, floor, name, carNum, description, createdAt)
-    VALUES(?, ?, ?, ?, ?, ?);`;
+    const Query = `INSERT INTO Violation(parkingLotIndex, floor, name, carNum, description, createdAt) 
+    VALUES(?, ?, ?, ?, ?, ?);`; //이 경우에는 IN 추가
     const Params = [parkingLotIdx, floor, area, carNum, description, createdAt];
     const [rows] = await connection.query(Query, Params);
-    connection.release();
+    connection.release(); 
     return;
 };
 

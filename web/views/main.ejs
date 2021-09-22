@@ -151,6 +151,7 @@
                         </tbody>
                     </table>
                 </div>
+                <div class="allViolation"><a href="/all-violation">전체 부정주차 기록 확인하러 가기</a></div>
          </div>
         
         <script>
@@ -222,27 +223,21 @@
             }
 
             $('input:checkbox').on('click', function(){
-                    if(confirm("확인하셨습니까?")==true){
-                        let clickId = clickThis(this);
-                        $.ajax({
-                            type: "POST",
-                            url: "/readToViolation",
-                            data: {"violationIndex": clickId},
-                            success: (data) => {
-                            },
-
-                        });
-                        let alarmCount = $('.alarm').text();
-                        $('.alarm').text(--alarmCount);       
-                    
-                    }else{
-                        return false;
-                    }
-                    //idx = $('input:checkbox').index(this);
-                    //document.getElementById("banList").deleteRow(idx+1);
-                })
- 
-         
+                if(confirm("확인하셨습니까?")==true){
+                    let clickId = clickThis(this);
+                    $.ajax({
+                        type: "POST",
+                        url: "/readToViolation",
+                        data: {"violationIndex": clickId},
+                        success: (data) => {
+                        },
+                    });
+                    let alarmCount = $('.alarm').text();
+                    $('.alarm').text(--alarmCount);               
+                }else{
+                    return false;
+                }
+            })         
            
         </script>
 

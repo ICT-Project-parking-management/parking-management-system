@@ -176,13 +176,13 @@ async function getCarInfoByArea(areaNumber) {
 async function addViolation(parkingLotIdx, floor, area, carNum, description, createdAt) {
     const connection = await pool.getConnection(async (conn) => conn);
     const Query = `INSERT INTO Violation(parkingLotIndex, floor, name, carNum, description, createdAt) 
-    VALUES(?, ?, ?, ?, ?, ?);`; //이 경우에는 IN 추가
+    VALUES(?, ?, ?, ?, ?, ?);`; 
     const Params = [parkingLotIdx, floor, area, carNum, description, createdAt];
     const [rows] = await connection.query(Query, Params);
     connection.release(); 
     return;
 };
-async function outViolation(parkingLotIdx, floor, area, carNum){
+async function outViolation(parkingLotIdx, floor, area, carNum){ //부정주차 차량 출차시 out으로 변경
     const connection = await pool.getConnection(async (conn) => conn);
     const Query = `UPDATE Violation
     SET state = 'out'
@@ -192,7 +192,7 @@ async function outViolation(parkingLotIdx, floor, area, carNum){
     connection.release();
     return;
 }
-async function checkViolation(parkingLotIdx, floor, area, carNum){
+async function checkViolation(parkingLotIdx, floor, area, carNum){ //출차 한 차량이 부정주차한 차량인지 확인
     const connection = await pool.getConnection(async (conn)=>conn);
     const Query = `SELECT violationIndex FROM Violation WHERE parkingLotIndex = ? AND floor = ? AND name = ? AND carNum = ? ;`;
     const Params = [parkingLotIdx, floor, area, carNum];

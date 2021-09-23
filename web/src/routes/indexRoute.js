@@ -19,6 +19,9 @@ module.exports = function(app) {
     // violation
     app.post('/violation', index.violation)
 
+    // 전체 violation 기록
+    app.get('/all-violation', index.allViolation);
+
     //로그인
     app.post('/login_check', index.login_check);
 

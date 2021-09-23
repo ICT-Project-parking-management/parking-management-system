@@ -109,7 +109,7 @@ async function getMyAreas(carNum) {
     return data.Items;
 };
 
-async function addToDynamo(parkLocation, createdTime, electric, carNum, disabled, inOut) {
+async function addInToDynamo(parkLocation, createdTime, electric, carNum, disabled, inOut) {
     const dynamo = new AWS.DynamoDB.DocumentClient();
     const params = {
         TableName: "parking",
@@ -126,6 +126,21 @@ async function addToDynamo(parkLocation, createdTime, electric, carNum, disabled
     return;
 };
 
+async function addOutToDynamo(parkLocation, createdTime, inOut) {
+    console.log(parkLocation, createdTime, inOut);
+    const dynamo = new AWS.DynamoDB.DocumentClient();
+    const params = {
+        TableName: "parking",
+        Item: {
+            areaNumber: parkLocation,
+            createdTime: createdTime,
+            inOut: inOut
+        }
+    };
+    const data = await dynamo.put(params).promise();
+    return;
+};
+
 async function getSpecificAreaInfo(parkingLotIdx, floor, area) {
     const connection = await pool.getConnection(async (conn) => conn);
     const Query = `SELECT areaInfo FROM ParkingArea WHERE parkingLotIndex = ${parkingLotIdx} AND floor = '${floor}' AND areaName = '${area}';`;
@@ -133,6 +148,27 @@ async function getSpecificAreaInfo(parkingLotIdx, floor, area) {
     connection.release();
     return rows;
 };
+
+async function getCarInfoByArea(areaNumber) {
+    const value = "in"
+    const dynamo = new AWS.DynamoDB.DocumentClient();
+    const params = {
+        TableName: "parking",
+        ProjectionExpression: "#areaNumber, createdTime, carNum, disabled, electric, #inOut",
+        FilterExpression: "#areaNumber = :areaNumber AND #inOut = :value",
+        ExpressionAttributeNames:{
+            "#areaNumber": "areaNumber",
+            "#inOut": "inOut"
+        },
+        ExpressionAttributeValues: {
+            ":areaNumber": areaNumber,
+            ":value": value
+        },
+        ScanIndexForward: false,
+    }
+    const data = await dynamo.scan(params).promise();
+    return data.Items[data.Items.length - 1];
+}
 
 // 부정주차 리스트 추가
 async function addViolation(parkingLotIdx, floor, area, carNum, description, createdAt) {
@@ -201,8 +237,10 @@ module.exports = {
     getCurrParkData,
     getMyCars,
     getMyAreas,
-    addToDynamo,
+    addInToDynamo,
+    addOutToDynamo,
     getSpecificAreaInfo,
+    getCarInfoByArea,
     addToUndone,
     readToUndone,
     addToDone,

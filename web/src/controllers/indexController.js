@@ -169,23 +169,72 @@ exports.violation = async function (req, res) {
         const electric = element.electric;
         const disabled = element.disabled;
 
+        // parkLocation, inOut 값 제대로 안 들어온 경우
+        if (parkLocation === undefined || parkLocation === "" || inOut === undefined || inOut === "") {
+            dataValid = false;
+            return false;
+        }
+
+        // inOut 형식 잘못된 경우 (in/out)
+        if (inOut !== "in" && inOut !== "out") {
+            dataValid = false;
+            return false;
+        }   
+
+        if (inOut === "in") {
+            // carNum, electric, disabled 값 제대로 안 들어온 경우
+            if (carNum === undefined || carNum === "" || electric === undefined || electric === "" || disabled === undefined || disabled === "") {
+                dataValid = false;
+                return false;
+            }
+            // carNum 형식 잘못된 경우 (바른 예: 12가3456)
+            if (isNaN(Number(carNum.substr(0, 2))) || !check.test(carNum[2]) || carNum[3] === " " || isNaN(Number(carNum.substr(3, 4))) || carNum.length !== 7) {
+                dataValid = false;
+                return false;
+            }
+            // electric, disabled 형식 잘못된 경우 (0/1)
+            if ((electric !== 0 && electric !== 1) || (disabled !== 0 && disabled !== 1)) {
+                dataValid = false;
+                return false;
+            }
+        }     
+
         // 1. type 확인
         if (type === "parking") {
             // 1-1. DyanmoDB 데이터 추가
-            console.log('dynamoDB Update');
-            const update = await indexDao.addToDynamo(parkLocation, createdAt, electric, carNum, disabled, inOut);
+            try {
+                if (inOut === "in") await indexDao.addInToDynamo(parkLocation, createdAt, electric, carNum, disabled, inOut);
+                else if (inOut === "out") await indexDao.addOutToDynamo(parkLocation, createdAt, inOut);
+                console.log('DynamoDB Update');
+            } catch (err) {
+                console.log('DynamoDB Update Error', err);
+                dynamoUpdate = false;
+                return false;
+            }
         } else if (type === "snapshot") {
             // 1-2-1. DynamoDB 조회 (해당 주차구역에 대한 정보 Update 목적)
-            const [rows] = await indexDao.getCurrParkData(parkLocation);
-
-            // 1-2-2. 해당 주차구역에 대한 정보가 없거나, Update 되어 있지 않은 경우 DynamoDB 데이터 추가
-            if (rows === undefined || rows.carNum !== carNum || rows.inOut !== inOut) {
-                console.log('dynamoDB Insert New Data');
-                const update = await indexDao.addToDynamo(parkLocation, createdAt, electric, carNum, disabled, inOut);
+            try {
+                const [rows] = await indexDao.getCurrParkData(parkLocation);
+                // 1-2-2. 해당 주차구역에 대한 정보가 없거나, Update 되어 있지 않은 경우 DynamoDB 데이터 추가
+                if (rows === undefined || rows.carNum !== carNum || rows.inOut !== inOut) {
+                    try {
+                        if (inOut === "in") await indexDao.addInToDynamo(parkLocation, createdAt, electric, carNum, disabled, inOut);
+                        else if (inOut === "out") await indexDao.addOutToDynamo(parkLocation, createdAt, inOut);
+                        console.log('DynamoDB Insert New Data');
+                    } catch (err) {
+                        console.log('DynamoDB Insert Error', err);
+                        dynamoInsert = false;
+                        return false;
+                    }
+                }
+            } catch (err) {
+                console.log('DynamoDB Read Error', err);
+                dynamoRead = false;
+                return false;
             }
         }
 
-        // 2. inOut in인 경우 부정주차 여부 확인
+        // 2. 부정주차 여부 확인
         if (inOut === "in") {
             let parkingLotIdx = parkLocation.substr(0, 1);
             let section = parkLocation.substr(2, 2);
@@ -209,6 +258,13 @@ exports.violation = async function (req, res) {
                 // 메일 전송
                 await indexService.sendMail(parkingLotIdx, section, location, carNum, VIOLATION_ELECTRIC);
             }
+        } else {
+            // 1. DynamoDB 조회하여 해당 주차구역에 최근에 주차(inOut = in)한 차량 정보 확인 (세린)
+            const carInfo = await indexDao.getCarInfoByArea(parkLocation);
+            console.log('carInfo >', carInfo); // 차량 정보
+            
+            // 2. 부정주차 여부 확인 (소연)
+            // 3. 부정주차였을 시 violation DB에 추가 (inOut = out) (소연)
         }
     });
 
@@ -265,4 +321,12 @@ exports.logout_check = async function(req, res){
         req.session;
     })
     res.send(`<script>location.href='/main/${select}';window.history.go(-1)</script>`);
+}
+
+exports.allViolation = async function(req, res){
+    if (req.session.status === "admin") {
+        res.render("violate.ejs");
+    } else {
+        res.render("main.ejs");
+    }
 }

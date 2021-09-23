@@ -17,10 +17,11 @@
         
     </head>
     <body>
+        <% let alarmCount = violationList.length%>
         <!-- Responsive navbar-->
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
             <div class="container">
-                <a class="navbar-brand" href="#">주차관리 시스템</a>
+                <a class="navbar-brand" href="/">주차관리 시스템</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
@@ -28,13 +29,13 @@
                         <% if(userName) { %>
                             <li class="nav-item"><a class="nav-link active" aria-current="page" > 안녕하세요 <%= userName %> 님! </a></li>
                             <% if(userName =='admin') { %>
-                                <li class="nav-item"><a class="nav-link active" aria-current="page" href="javascript:checkMyBan('ban-modal');">부정주차 차량 확인하기<span class="alarm"><%= banData.length %></span></a></li>
+                                <li class="nav-item"><a class="nav-link active" aria-current="page" href="javascript:checkMyBan('ban-modal');">부정주차 차량 확인하기<% if(alarmCount>0) { %><span class="alarm"><%= alarmCount%></span></a></li><% } %>
                                 <li class="nav-item"><a class="nav-link active" aria-current="page" href="/analyze">주차 정보 분석 보러가기</a></li>
                             <% } else { %>
                             <li class="nav-item"><a class="nav-link active" aria-current="page" href="javascript:checkMyArea('area-modal');"> 내 주차구역 확인하기</a></li>
                 
                             <% } %>
-                            <a class="nav-link active" aria-current="page" href="/logout_check/<%= parkingLotIdx %>"> 로그아웃</a> 
+                            <a class="nav-link active" aria-current="page" href="javascript:logoutCheck('logout-modal');"> 로그아웃</a> 
                         <% }else{%>
                             <li class="nav-item"><a class="nav-link active" aria-current="page" href="javascript:checkMyLogin('requireLogin-modal');"> 내 주차구역 확인하기</a></li>
                             <a class="nav-link active" aria-current="page" href="javascript:openModal('login-modal');"> 로그인</a>
@@ -90,10 +91,10 @@
             <p class="title">로그인</p>
             <div class="con">
                 <form class="login">
-                <input class="form_control" type="text" id="login_id" name="username" placeholder="아이디" required="required">
-                <input class="form_control" type="text" id="login_pw" name="password" placeholder="비밀번호" required="required">
+                <input type="text" id="loginId" name="username" placeholder="아이디" required="required">
+                <input type="password" id="loginPw" name="password" placeholder="비밀번호" required="required">
                 <p id="errormsg"></p>
-                <button type="button" id="login_btn" name="login" class="btn btn_default">로그인</button>
+                <button type="button" id="loginBtn" name="login" class="btn btn_default">로그인</button>
                 </form>
                 <p>관리자 및 입주민 회원가입은 관리실에 문의하세요.</p>
             </div>
@@ -126,27 +127,25 @@
         <div class="modal-con4 ban-modal">
             <a href="javascript:;" class="close">X</a>
             <p class="title">부정주차 차량 확인하기</p>
+
             <div class="con" id="banCon">
-                <a class="nav-link active" aria-current="page" href="/mail">메일전송</a>
                 <div class="container">
                     <table id="banList">
                         <thead>
                             <tr>
-                                <th>주차장</th>
-                                <th>층</th>
-                                <th>구역</th>
-                                <th>차량번호</th>
-                                <th></th>
-                            </tr>
+                                <th>시간</th><th>주차구역</th><th>차량번호</th><th>위반사유</th><th>관리자 조치 여부</th>
+                                </tr>
                         </thead>
                         <tbody>
-                        <% banData.forEach(info => { %>
+                        <% violationList.forEach(info => { %>
                             <tr>
-                                <th><%= info.complexName %></th>
-                                <th><%= info.floor %></th>
-                                <th><%= info.areaName %></th>
+                                
+                                <th><%= info.createdAt %></th>
+                                <th><%= info.floor %><%= info.name %></th>
                                 <th><%= info.carNum %></th>
-                                <th><input type="button" id="<%= info.carNum %>" value="확인" onclick='deleteRow(this)'/></th>
+                                <th><%= info.description %></th>
+                                <th><label class="switch-button"> <input type="checkbox" id= "<%= info.violationIndex %>" onclick="clickThis(this)"/><span class="onoff-switch"></span></label>
+                                <!-- <th><input type='button' class="delete-button" id= "<%= info.violationIndex %>" value='X' onclick='deleteRow(this)'/></th> -->
                             </tr>
                         <% }); %>
                         </tbody>
@@ -195,7 +194,7 @@
                 $(".modal-con2").fadeOut(300);
             });
 
-             function checkMyLogin(modalname){
+            function checkMyLogin(modalname){
                 document.get
                 $("#modal3").fadeIn(300);
                 $("."+modalname).fadeIn(300);
@@ -217,17 +216,43 @@
                 $(".modal-con4").fadeOut(300);
             });
 
-            function deleteRow(click){
+            function clickThis(click){
+                clickId = click.id;
+                return clickId;
+            }
+
+            $('input:checkbox').on('click', function(){
+                    if(confirm("확인하셨습니까?")==true){
+                        let clickId = clickThis(this);
+                        $.ajax({
+                            type: "POST",
+                            url: "/readToViolation",
+                            data: {"violationIndex": clickId},
+                            success: (data) => {
+                            },
+
+                        });
+                        let alarmCount = $('.alarm').text();
+                        $('.alarm').text(--alarmCount);       
+                    
+                    }else{
+                        return false;
+                    }
+                  
+                })
+            function logoutCheck(modalname){ 
                 $.ajax({
                     type: "POST",
-                    url: "/main/<%= parkingLotIdx %>/banDoneList",
-                    data: {"carNum": click.id},
-                    success: (data) => {
+                    url: "/logout",
+                    error: function(){
+                        alert("에러가 발생했습니다");
+                    },
+                    success:function(data){ 
+                        window.location.reload();
                     }
-                });
-                var index = click.parentNode.parentNode.rowIndex;
-                document.getElementById("banList").deleteRow(index);
+                })
             }
+           
         </script>
 
         <!--Login AJAX-->

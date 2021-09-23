@@ -10,18 +10,18 @@ module.exports = function(app) {
     // 내 주차구역 확인
     app.get('/main/:idx/myArea', index.myArea);
 
-    // 부정주차 차량 확인
-    app.post('/main/:idx/banDoneList', index.banDoneList);
-
     // 데이터 마이닝
     app.get('/analyze', index.analyze);
 
     // violation
-    app.post('/violation', index.violation)
+    app.post('/violation', index.violation);
+
+    // violation 관리자 확인
+    app.post('/readToViolation', index.readToViolation);
 
     //로그인
-    app.post('/login_check', index.login_check);
+    app.post('/login', index.loginCheck);
 
     //로그아웃
-    app.get('/logout_check/:idx', index.logout_check);
+    app.post('/logout', index.logoutCheck);
 }

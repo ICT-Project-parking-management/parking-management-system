@@ -2,15 +2,26 @@ const indexDao = require("../dao/indexDao");
 const indexService = require("../services/indexService");
 const { VIOLATION_ELECTRIC, VIOLATION_DISABLED } = require("../../config/violation");
 
+/**
+ * update: 2021.08.08
+ * author: serin
+ * desc : 인덱스 페이지
+ */
 exports.parkingData = async function (req, res) {
     // 등록된 주차장 리스트 조회
     const parkingLotList = await indexDao.getParkingList();
     return res.render("intro.ejs", {parkingLotList});
 }
 
+/**
+ * update: 2021.08.08
+ * author: heedong
+ * desc : 메인 페이지
+ */
 exports.main = async function (req, res) {
     console.log('req.session.status >>', req.session.status);
     const parkingLotIdx = req.params.idx;
+    // const status = req.session.status;
     const userName = req.session.nickname;
     
     // 특정 주차장 정보 조회(주차장 이름, 주차 구역 리스트)
@@ -62,12 +73,23 @@ exports.main = async function (req, res) {
                 areas.push(area);
             }
 
+            // Todo 세션 처리됐을 경우
+            // if (status === "admin") {
+            //     const area = {areaName, isBlocked, carNum, areaInfo, warning};
+            //     areas.push(area);
+            // } else {
+            //     const area = {areaName, isBlocked, areaInfo, warning};
+            //     areas.push(area);
+            // }
+
             // 리턴
             if (areas.length == AreaRows.length) {
                 const floor = {floorName, areas};
                 parkingLotInfo.push(floor);
 
                 if (parkingLotInfo.length == floorRows.length) {
+                    //return res.json(parkingLotInfo);
+
                     // 층 순서 정렬
                     parkingLotInfo.sort((a, b) => {
                         return (a.floorName < b.floorName) ? -1 : (a.floorName > b.floorName) ? 1 : 0;
@@ -78,25 +100,18 @@ exports.main = async function (req, res) {
                             return (a.areaName < b.areaName) ? -1 : (a.areaName > b.areaName) ? 1 : 0;
                         })
                     })
-                
-                
-                    const [unreadViolation] = await indexDao.unreadViolation();
-                    var objLength = Object.keys(unreadViolation).length;
-                    var violationList = [];
-                    for(var i=0; i< objLength; i++){
-                        violationList[i] = JSON.parse(JSON.stringify(unreadViolation))[i];
-                        const createdTime = violationList[i].createdAt;
-                        let left = createdTime.split('T');
-                        let date = left[0].split('-');
-                        let time = left[1].split(':');
-                        violationList[i].createdAt = date[1]+"월"+date[2]+"일 "+time[0]+"시"+time[1]+"분";
-                        
-                        const [parkingLotName] = await indexDao.getComplexName(violationList[i].parkingLotIndex);
-                        violationList[i].complexName = parkingLotName.complexName;
-
+                    
+                    //부정주차차량 RDS 조회
+                    const [readToUndone] = await indexDao.readToUndone();
+                    var objLength = Object.keys(readToUndone).length;
+                    var banData = [];
+                    for (var i=0; i< objLength; i++) {
+                        banData[i] = JSON.parse(JSON.stringify(readToUndone))[i];
+                        const [parkingLotName] = await indexDao.getComplexName(banData[i].parkingLotIndex);
+                        banData[i].complexName = parkingLotName.complexName;
                     }
-
-                    return res.render("main.ejs", {complexName, parkingLotInfo, parkingLotIdx, userName, violationList});
+        
+                    return res.render("main.ejs", {complexName, parkingLotInfo, parkingLotIdx, userName, banData});
                 }
             }
         });
@@ -146,27 +161,6 @@ exports.violation = async function (req, res) {
     const type = info.type; // parking or snapshot
     const createdAt = info.createdAt;
     const data = req.body.data;
-
-    const check = /[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/;
-
-    let dataValid = true;
-    let dynamoUpdate = true;
-    let dynamoInsert = true;
-    let dynamoRead = true;
-    let sendMail = true;
-    let rdsInsert = true;
-    let rdsRead = true;
-
-    // info 값 제대로 안 들어온 경우
-    if (type === undefined || type === "" || createdAt === undefined || createdAt === "") {
-        return res.sendStatus(400);
-    }
-
-    // createdAt 형식 잘못된 경우 (바른 예: 2021-09-18 17:41:13)
-    if (createdAt[4] !== "-" || createdAt[7] !== "-" || createdAt[10] !== " " || createdAt[13] !== ":" || createdAt[16] !== ":") {
-        console.log(createdAt[4], createdAt[7], createdAt[10], createdAt[13], createdAt[16]);
-        return res.sendStatus(401);
-    }
 
     data.forEach(async (element) => {
         const parkLocation = element.parkLocation;
@@ -247,52 +241,22 @@ exports.violation = async function (req, res) {
             let location = parkLocation.substr(4, 2);
 
             // 2-1. RDS 조회
-            try {
-                const [rows] = await indexDao.getSpecificAreaInfo(parkingLotIdx, section, location);
-                const areaInfo = rows.areaInfo; //일반 0 장애인 1 전기 2
+            const [rows] = await indexDao.getSpecificAreaInfo(parkingLotIdx, section, location);
+            const areaInfo = rows.areaInfo; //일반 0 장애인 1 전기 2
 
-                // 2-2. 부정주차 시 RDS 데이터 추가
-                if (disabled === 0 && areaInfo === 1) {
-                    console.log('부정주차 - 장애인차량 전용 구역 주차');
-                    try {
-                        await indexDao.addViolation(parkingLotIdx, section, location, carNum, VIOLATION_DISABLED, createdAt);
-                        try {
-                            // 메일 전송
-                            await indexService.sendMail(parkingLotIdx, section, location, carNum, VIOLATION_DISABLED);
-                        } catch (err) {
-                            console.log('Send Mail Error', err);
-                            sendMail = false;
-                            return false;
-                        }
-                    } catch (err) {
-                        console.log('RDS Insert Error', err);
-                        rdsInsert = false;
-                        return false;
-                    }
-                } else if (electric === 0 && areaInfo === 2) {
-                    console.log('부정주차 - 전기차 전용 구역 주차');
-                    try {
-                        await indexDao.addViolation(parkingLotIdx, section, location, carNum, VIOLATION_ELECTRIC, createdAt);
-                        try {
-                            // 메일 전송
-                            await indexService.sendMail(parkingLotIdx, section, location, carNum, VIOLATION_ELECTRIC);
-                        } catch (err) {
-                            console.log('Send Mail Error', err);
-                            sendMail = false;
-                            return false;
-                        }
-                    } catch (err) {
-                        console.log('RDS Insert Error', err);
-                        rdsInsert = false;
-                        return false;
-                    }
-                } else {
-                    console.log('부정주차 차량 아님');
-                }
-            } catch (err) {
-                console.log('RDS Read Error', err);
-                rdsRead = false;
-                return false;
+            // 2-2. 부정주차 시 RDS 데이터 추가
+            if (disabled === 0 && areaInfo === 1) {
+                console.log('부정주차 - 장애인차량 전용 구역 주차');
+                console.log(parkingLotIdx, section, location, carNum);
+                await indexDao.addViolation(parkingLotIdx, section, location, carNum, VIOLATION_DISABLED, createdAt);
+                // 메일 전송
+                await indexService.sendMail(parkingLotIdx, section, location, carNum, VIOLATION_DISABLED);
+            } else if (electric === 0 && areaInfo === 2) {
+                console.log('부정주차 - 전기차 전용 구역 주차');
+                console.log(parkingLotIdx, section, location, carNum);
+                await indexDao.addViolation(parkingLotIdx, section, location, carNum, VIOLATION_ELECTRIC, createdAt);
+                // 메일 전송
+                await indexService.sendMail(parkingLotIdx, section, location, carNum, VIOLATION_ELECTRIC);
             }
         } else {
             // 1. DynamoDB 조회하여 해당 주차구역에 최근에 주차(inOut = in)한 차량 정보 확인 (세린)
@@ -304,33 +268,21 @@ exports.violation = async function (req, res) {
         }
     });
 
-    if (!dataValid) return res.sendStatus(402);
-    else if (!dynamoUpdate) return res.sendStatus(500);
-    else if (!dynamoInsert) return res.sendStatus(501);
-    else if (!dynamoRead) return res.sendStatus(502);
-    else if (!sendMail) return res.sendStatus(503);
-    else if (!rdsInsert) return res.sendStatus(504);
-    else if (!rdsRead) return res.sendStatus(505);
-    else return res.sendStatus(200);
+    return res.sendStatus(200);
 }
 
-exports.readToViolation = async function(req, res){
-    const violationIdx = req.body.violationIndex;
-    await indexDao.readViolation(violationIdx);
+exports.banDoneList = async function(req, res){
+    const carNum = req.body.carNum;
+    const addToDone = await indexDao.addToDone(carNum);
 }
 
 exports.analyze = async function(req, res) {
-    // 데이터마이닝 정보를 누구에게 제공하느냐에 따라 로직 수정 필요
-    if (req.session.status === "admin") {
-        res.render("analyze.ejs");
-    } else {
-        res.render("main.ejs");
-    }
+    return res.render("analyze.ejs");
 }
 
-exports.loginCheck = async function(req, res){
+exports.login_check = async function(req, res){
     const select = req.params.idx;
-    
+
     const userID = req.body.username;
     const userPW = req.body.password;
 
@@ -363,7 +315,7 @@ exports.loginCheck = async function(req, res){
     }
 }  
 
-exports.logoutCheck = async function(req, res){
+exports.logout_check = async function(req, res){
     const select = req.params.idx;
     req.session.destroy(function(){
         req.session;

@@ -1,11 +1,11 @@
 $(document).ready(async function(req, res){
-    $('#loginBtn').click(async function(){
+    $('#login_btn').click(async function(){
         $.ajax({
-            url:`/login`,
+            url:`/login_check`,
             dataType:'text',
             type:'POST',
-            data: {"username":$('#loginId').val(),
-                "password":$('#loginPw').val()},
+            data: {"username":$('#login_id').val(),
+                "password":$('#login_pw').val()},
             error: function(){
                 alert("에러가 발생했습니다");
             },

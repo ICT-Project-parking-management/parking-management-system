@@ -298,9 +298,21 @@ exports.violation = async function (req, res) {
             // 1. DynamoDB 조회하여 해당 주차구역에 최근에 주차(inOut = in)한 차량 정보 확인 (세린)
             const carInfo = await indexDao.getCarInfoByArea(parkLocation);
             console.log('carInfo >', carInfo); // 차량 정보
-            
+    
             // 2. 부정주차 여부 확인 (소연)
+            let areaNumber = carInfo.areaNumber;
+            let carNum = carInfo.carNum;
+            let parkingLotIdx = areaNumber.substr(0,1);
+            let section = areaNumber.substr(2,2);
+            let location = areaNumber.substr(4,4);
+
+            const checkViolation = await indexDao.checkViolation(parkingLotIdx, section, location, carNum);
+            
             // 3. 부정주차였을 시 violation DB에 추가 (inOut = out) (소연)
+            if(checkViolation[0].length > 0){ //checkViolation[0].length가 0인 경우 부정주차차량 아님
+                await indexDao.outViolation(parkingLotIdx, section ,location, carNum);
+                console.log("부정주차 차량 출차");
+            }
         }
     });
 

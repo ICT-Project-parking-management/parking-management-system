@@ -180,7 +180,32 @@ async function addViolation(parkingLotIdx, floor, area, carNum, description, cre
     connection.release();
     return;
 }
+async function outViolation(parkingLotIdx, floor, area, carNum){ //부정주차 차량 출차시 out으로 변경
+    const connection = await pool.getConnection(async (conn) => conn);
+    const Query = `UPDATE Violation
+    SET state = 'out'
+    WHERE parkingLotIndex = ? AND floor = ? AND name = ? AND carNum = ? ;`;
+    const Params = [parkingLotIdx, floor, area, carNum];
+    const [rows] = await connection.query(Query, Params);
+    connection.release();
+    return;
+}
+async function checkViolation(parkingLotIdx, floor, area, carNum){ //출차 한 차량이 부정주차한 차량인지 확인
+    const connection = await pool.getConnection(async (conn)=>conn);
+    const Query = `SELECT violationIndex FROM Violation WHERE parkingLotIndex = ? AND floor = ? AND name = ? AND carNum = ? ;`;
+    const Params = [parkingLotIdx, floor, area, carNum];
+    const rows = await connection.query(Query, Params);
+    connection.release();
+    return rows;
+}
 
+async function unreadViolation(){
+    const connection = await pool.getConnection(async (conn)=>conn);
+    const Query = `SELECT violationIndex, parkingLotIndex, floor, name, carNum, description, createdAt FROM Violation WHERE status = 'unread' ;`;
+    const [rows] = await connection.query(Query);
+    connection.release();
+    return [rows];
+};
 // 부정주차 확인 시 read 처리
 async function readViolation(violationIndex) {
     const connection = await pool.getConnection(async (conn) => conn);
@@ -193,39 +218,6 @@ async function readViolation(violationIndex) {
     return;
 }
 
-async function addToUndone(parkingLotIdx, floor, area, carNum){
-    const connection = await pool.getConnection(async (conn) => conn);
-    const Query= `INSERT INTO Undone (parkingLotIndex, floor, areaName, carNum) VALUES(?, ?, ?, ?);`;
-    const Params = [parkingLotIdx, floor, area, carNum];
-    const [rows] = await connection.query(Query, Params);
-    // const Query = `DELETE FROM Undone WHERE parkingLotIndex=1`;
-    // const [rows] = await connection.query(Query);
-    connection.release();
-    return;
-}
-
-async function readToUndone() {
-    const connection = await pool.getConnection(async (conn) => conn);
-    const Query= `SELECT * FROM Undone;`;
-    const [rows] = await connection.query(Query);
-    connection.release();
-    return [rows];
-}
-
-async function addToDone(carNum) {
-    const connection = await pool.getConnection(async (conn) => conn);
-    const QueryOne = `SELECT * FROM Undone WHERE carNum= '${carNum}';`;
-    const [rowsOne] = await connection.query(QueryOne);
-    console.log(rowsOne);
-    const data = JSON.parse(JSON.stringify(rowsOne))[0];
-    const QueryTwo= `INSERT INTO Done (parkingLotIndex, floor, areaName, carNum) VALUES(?, ?, ?, ?);`;
-    const Params = [data.parkingLotIndex, data.floor, data.areaName, data.carNum];
-    const [rowsTwo] = await connection.query(QueryTwo, Params);
-    const QueryThree = `Delete From Undone WHERE carNum= '${carNum}';`;
-    const [rowsThree] = await connection.query(QueryThree);
-    connection.release();
-    return;
-}
 
 module.exports = {
     getUserList,
@@ -241,9 +233,9 @@ module.exports = {
     addOutToDynamo,
     getSpecificAreaInfo,
     getCarInfoByArea,
-    addToUndone,
-    readToUndone,
-    addToDone,
     addViolation,
-    readViolation
+    outViolation,
+    checkViolation,
+    readViolation,
+    unreadViolation
 };

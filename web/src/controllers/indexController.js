@@ -334,7 +334,7 @@ exports.readToViolation = async function(req, res){
 exports.analyze = async function(req, res) {
      // 데이터마이닝 정보를 누구에게 제공하느냐에 따라 로직 수정 필요
      if (req.session.status === "admin") {
-        res.render("analyze.ejs");
+        res.render("adminAnalyze.ejs");
     } else {
         res.render("main.ejs");
     }

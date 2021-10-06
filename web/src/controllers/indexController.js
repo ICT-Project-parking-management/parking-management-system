@@ -340,6 +340,11 @@ exports.analyze = async function(req, res) {
     }
 }
 
+exports.userAnalyze = async function(req, res) {
+    const userInfo = req.session.status;
+    res.render("userAnalyze.ejs", {userInfo})
+}
+
 exports.loginCheck = async function(req, res){
     const select = req.params.idx;
 

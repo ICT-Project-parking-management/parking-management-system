@@ -10900,3 +10900,25 @@ textarea.form-control-lg {
   background-color: rgb(245, 245, 245);
   font-size: 1.5rem;
 }
+
+.scheduleForm {
+  margin: 3rem 7rem 0 7rem;
+  padding: 1rem 10rem;
+  background-color: rgb(236, 236, 236);
+}
+
+.fieldSet {
+  border-radius: 1rem;
+  padding: 1.2rem 0;
+  margin: 1.5rem 0;
+  background-color: rgb(224, 224, 224);
+}
+
+#time {
+  padding: 0.2rem;
+  font-size: 1.2rem;
+}
+
+.carCheckbox {
+  margin: 0 1rem 0 0.5rem;
+}

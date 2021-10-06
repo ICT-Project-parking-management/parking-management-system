@@ -13,6 +13,9 @@ module.exports = function(app) {
     // 데이터 마이닝
     app.get('/analyze', index.analyze);
 
+    // 예정 주차 구역
+    app.get('/userAnalyze', index.userAnalyze);
+
     // violation
     app.post('/violation', index.violation)
 

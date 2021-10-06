@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <meta name="description" content="" />
+        <meta name="author" content="" />
+        <title>주차관리 시스템</title>
+        <!-- Favicon-->
+        <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
+        <!-- Core theme CSS (includes Bootstrap)-->
+        <link rel="stylesheet" href="/css/style.css" type="text/css">
+        <link rel="stylesheet" href="/css/intro.css" type="text/css">
+        <!-- jquery -->
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    </head>
+    <body>
+        <!-- Responsive navbar-->
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <div class="container">
+                <a class="navbar-brand" href="#">주차관리 시스템</a>
+            </div>
+        </nav>
+        <!-- Page content-->
+        <div class="container">
+            <div class="text-center mt-5" id="innerContainer">
+                <h1>예정 주차 정보 입력</h1>
+                <p class="lead">예정 주차 시각과 차량 정보를 입력하여 맞춤형 주차 구역을 확인하세요.</p>
+                <div class="scheduleForm">
+                    <% if (!userInfo) { %>
+                        <br/>
+                        거주자이신가요? 로그인 후에 선호구역까지 확인해보세요.
+                    <% } %>
+                    <fieldset class="fieldSet">
+                        <legend>예정 주차 시각</legend>
+                        <input type="time" id="time">
+                    </fieldset>
+                    <fieldset class="fieldSet">
+                        <legend>차량 정보</legend>
+                        <span style="font-size: 1.1rem;">장애인 차량</span>
+                        <input type="checkbox" value="disabled" class="carCheckbox" id="disabled"/>
+                        <span style="font-size: 1.1rem;">전기 차량</span>
+                        <input type="checkbox" value="electric" class="carCheckbox" id="electric"/>
+                    </fieldset>
+                    <input type="submit" value="입력" onclick="uploadInfo()" onsubmit="return false;">
+                </div>
+            </div>
+        </div>
+
+        <script>
+            uploadInfo = () => {
+                let time = document.getElementById("time").value;
+                let disabled = false;
+                let electric = false;
+
+                if ( $('input:checkbox[id="disabled"]').is(":checked") == true ) disabled = true;
+                if ( $('input:checkbox[id="electric"]').is(":checked") == true ) electric = true;
+                
+                if (time === "") {
+                    alert('예정 주차 시각을 입력해주세요.');
+                    location.reload();
+                }
+
+                let today = new Date();
+                let dd = today.getDate();
+                let mm = today.getMonth() + 1;
+                let yyyy = today.getFullYear();
+
+                if (dd < 10) dd='0'+ dd;
+                if (mm < 10) mm='0'+ mm;
+                today = yyyy + '-' + mm + '-' + dd;
+
+                if (Number(time.substr(4, 1)) !== 0) time = time.substr(0, 4) + 0
+
+                getResult(today, time, disabled, electric);
+            }
+
+            getResult = (today, time, disabled, electric) => {
+                console.log(today, time, disabled, electric);
+            }
+        </script>
+
+        <!-- Bootstrap core JS-->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+        
+    </body>
+</html>

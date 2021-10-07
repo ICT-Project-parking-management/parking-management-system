@@ -180,23 +180,32 @@ async function addViolation(parkingLotIdx, floor, area, carNum, description, cre
     connection.release();
     return;
 }
-async function outViolation(parkingLotIdx, floor, area, carNum){ //부정주차 차량 출차시 out으로 변경
-    const connection = await pool.getConnection(async (conn) => conn);
-    const Query = `UPDATE Violation
-    SET state = 'out'
-    WHERE parkingLotIndex = ? AND floor = ? AND name = ? AND carNum = ? ;`;
+
+
+async function checkViolation(parkingLotIdx, floor, area, carNum){ //출차 한 차량이 부정주차한 차량인지 확인
+    const connection = await pool.getConnection(async (conn)=>conn);
+    const Query = `SELECT violationIndex, description FROM Violation WHERE parkingLotIndex = ? AND floor = ? AND name = ? AND carNum = ? ;`;
     const Params = [parkingLotIdx, floor, area, carNum];
+    const [rows] = await connection.query(Query, Params);
+    connection.release();
+    return rows;
+}
+
+async function outViolation(parkingLotIdx, floor, area, carNum, description){ //부정주차 차량 출차시 out으로 변경
+    const connection = await pool.getConnection(async (conn) => conn);
+    const Query = `INSERT INTO Violation(parkingLotIndex, floor, name, carNum, description, status, state)
+    VALUES (?,?,?,?,?,?, "out");`;
+    const Params = [parkingLotIdx, floor, area, carNum, description, "out"];
     const [rows] = await connection.query(Query, Params);
     connection.release();
     return;
 }
-async function checkViolation(parkingLotIdx, floor, area, carNum){ //출차 한 차량이 부정주차한 차량인지 확인
-    const connection = await pool.getConnection(async (conn)=>conn);
-    const Query = `SELECT violationIndex FROM Violation WHERE parkingLotIndex = ? AND floor = ? AND name = ? AND carNum = ? ;`;
-    const Params = [parkingLotIdx, floor, area, carNum];
-    const rows = await connection.query(Query, Params);
+async function inOutViolation(){
+    const connection = await pool.getConnection(async (conn) => conn);
+    const Query = `SELECT violationIndex, parkingLotIndex, floor, name, carNum, description, state FROM Violation ;`;
+    const [rows] = await connection.query(Query);
     connection.release();
-    return rows;
+    return [rows];
 }
 
 async function unreadViolation(){
@@ -206,9 +215,12 @@ async function unreadViolation(){
     connection.release();
     return [rows];
 };
+
+
 // 부정주차 확인 시 read 처리
 async function readViolation(violationIndex) {
     const connection = await pool.getConnection(async (conn) => conn);
+
     const Query = `UPDATE Violation
     SET status = 'read'
     WHERE violationIndex = ?;`;
@@ -217,7 +229,14 @@ async function readViolation(violationIndex) {
     connection.release();
     return;
 }
-
+async function doneViolation(violationIndex){
+    const connection = await pool.getConnection(async (conn) => conn);
+    const Query = `DELETE FROM Violation WHERE violationIndex = ?`;
+    const Params = [violationIndex];
+    const [rows] = await connection.query(Query, Params);
+    connection.release();
+    return;
+}
 
 module.exports = {
     getUserList,
@@ -237,5 +256,7 @@ module.exports = {
     outViolation,
     checkViolation,
     readViolation,
-    unreadViolation
+    unreadViolation,
+    inOutViolation,
+    doneViolation
 };

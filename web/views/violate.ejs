@@ -25,10 +25,46 @@
                 <h1>부정 주차 기록</h1>
                 <p class="lead">세부타이틀</p>
             
-
+                <div class="violation">
+                    <table id="myVio">
+                        <tbody id = "myT">
+                            <% violationList.forEach(info => { %>
+                                <tr>
+                                    <th><%= info.createdAt %></th>
+                                    <th><%= info.floor %><%= info.name %></th>
+                                    <th><%= info.carNum %></th>
+                                    <th><%= info.description %></th>
+                                    <th><%= info.state %></th>
+                                    <th><input type='button' class="delete-button" id= "<%= info.violationIndex %>" value='X' onclick='deleteRow(this)'/></th>
+                                </tr>
+                            <% }); %>
+                        </tbody>
+                       
+                                
+                           
+                    </table>
+                </div>
             </div>
         </div>
+        <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
 
+        <script>
+            
+            function deleteRow(click){
+                var i = click.parentNode.parentNode.rowIndex;
+                document.getElementById("myVio").deleteRow(i);
+                console.log("버튼 누름");
+                $.ajax({
+                    type: "POST",
+                    url: "/doneToViolation",
+                    data: {"violationIndex": click.id},
+                    error: function(){
+                        alert("에러가 발생했습니다");
+                    }
+                })
+            }
+
+        </script>
         <!-- Bootstrap core JS-->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
         <!-- Core theme JS-->

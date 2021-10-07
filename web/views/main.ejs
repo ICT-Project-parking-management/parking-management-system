@@ -144,7 +144,6 @@
                                     <th><%= info.carNum %></th>
                                     <th><%= info.description %></th>
                                     <th><label class="switch-button"> <input type="checkbox" id= "<%= info.violationIndex %>" onclick="clickThis(this)"/><span class="onoff-switch"></span></label>
-                                    <!-- <th><input type='button' class="delete-button" id= "<%= info.violationIndex %>" value='X' onclick='deleteRow(this)'/></th> -->
                                 </tr>
                             <% }); %>
                         </tbody>
@@ -220,10 +219,9 @@
                 clickId = click.id;
                 return clickId;
             }
-
+            
             $('input:checkbox').on('click', function(){
-                if(confirm("확인하셨습니까?")==true){
-                    let clickId = clickThis(this);
+                if(confirm("정말 확인하셨습니까?")==true){
                     $.ajax({
                         type: "POST",
                         url: "/readToViolation",
@@ -232,7 +230,9 @@
                         },
                     });
                     let alarmCount = $('.alarm').text();
-                    $('.alarm').text(--alarmCount);               
+                    $('.alarm').text(--alarmCount);  
+                    
+             
                 }else{
                     return false;
                 }

@@ -146,6 +146,8 @@ exports.violation = async function (req, res) {
     const type = info.type; // parking or snapshot
     const createdAt = info.createdAt;
     const data = req.body.data;
+    
+   
 
     const check = /[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/;
 
@@ -156,7 +158,6 @@ exports.violation = async function (req, res) {
     let sendMail = true;
     let rdsInsert = true;
     let rdsRead = true;
-
     // info 값 제대로 안 들어온 경우
     if (type === undefined || type === "" || createdAt === undefined || createdAt === "") {
         return res.sendStatus(400);
@@ -174,7 +175,7 @@ exports.violation = async function (req, res) {
         const carNum = element.carNum;
         const electric = element.electric;
         const disabled = element.disabled;
-
+       
         // parkLocation, inOut 값 제대로 안 들어온 경우
         if (parkLocation === undefined || parkLocation === "" || inOut === undefined || inOut === "") {
             dataValid = false;
@@ -245,7 +246,6 @@ exports.violation = async function (req, res) {
             let parkingLotIdx = parkLocation.substr(0, 1);
             let section = parkLocation.substr(2, 2);
             let location = parkLocation.substr(4, 2);
-
             // 2-1. RDS 조회
             try {
                 const [rows] = await indexDao.getSpecificAreaInfo(parkingLotIdx, section, location);
@@ -305,18 +305,18 @@ exports.violation = async function (req, res) {
             let parkingLotIdx = areaNumber.substr(0,1);
             let section = areaNumber.substr(2,2);
             let location = areaNumber.substr(4,4);
-
             const checkViolation = await indexDao.checkViolation(parkingLotIdx, section, location, carNum);
-            
-            // 3. 부정주차였을 시 violation DB에 추가 (inOut = out) (소연)
-            if(checkViolation[0].length > 0){ //checkViolation[0].length가 0인 경우 부정주차차량 아님
+            let violationIdx = checkViolation[0].violationIndex;
+            let description = checkViolation[0].description;
+           
+            // 3. 출차한 차량이 부정주차였을 시 violation DB에 추가 (inOut = out) (소연)
+            if(violationIdx != "undefined"){ //checkViolation[0].length가 0인 경우 부정주차차량 아님
                 //outViolation 파라미터를 checkViolation에서 violationIndex받아왔으니까 그거로 넣을 예쩡입니다
-                await indexDao.outViolation(parkingLotIdx, section ,location, carNum);
+                await indexDao.outViolation(parkingLotIdx, section ,location, carNum, description);  
                 console.log("부정주차 차량 출차");
             }
         }
     });
-
     if (!dataValid) return res.sendStatus(402);
     else if (!dynamoUpdate) return res.sendStatus(500);
     else if (!dynamoInsert) return res.sendStatus(501);
@@ -331,7 +331,10 @@ exports.readToViolation = async function(req, res){
     const violationIdx = req.body.violationIndex;
     await indexDao.readViolation(violationIdx);
 }
-
+exports.doneToViolation = async function(req, res){
+    const violationIdx = req.body.violationIndex;
+    await indexDao.doneViolation(violationIdx);
+}
 exports.analyze = async function(req, res) {
      // 데이터마이닝 정보를 누구에게 제공하느냐에 따라 로직 수정 필요
      if (req.session.status === "admin") {
@@ -385,8 +388,26 @@ exports.logoutCheck = async function(req, res){
 
 exports.allViolation = async function(req, res){
     if (req.session.status === "admin") {
-        res.render("violate.ejs");
+        const [inOutViolation] = await indexDao.inOutViolation();
+       
+        var objLength = Object.keys(inOutViolation).length;
+        var violationList = [];
+        for(var i=0; i< objLength; i++){
+            violationList[objLength-i] = JSON.parse(JSON.stringify(inOutViolation))[i];
+            //const createdTime = violationList[i].createdAt;
+           // let createdIndex = createdTime.split('T');
+            //let date = createdIndex[0].split('-');
+            //let time = createdIndex[1].split(':');
+            //violationList[i].createdAt = date[1]+"월"+date[2]+"일 "+time[0]+"시"+time[1]+"분";
+            //out된 시간으로 변경
+            const [parkingLotName] = await indexDao.getComplexName(violationList[objLength - i].parkingLotIndex);
+            violationList[objLength - i].complexName = parkingLotName.complexName;
+
+        }
+
+        res.render("violate.ejs", {violationList});
+       
     } else {
-        res.render("main.ejs");
+       res.render("main.ejs");
     }
 }

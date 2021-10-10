@@ -1,6 +1,7 @@
 const indexDao = require("../dao/indexDao");
 const indexService = require("../services/indexService");
 const { VIOLATION_ELECTRIC, VIOLATION_DISABLED } = require("../../config/violation");
+const { connect } = require("mongoose");
 
 exports.parkingData = async function (req, res) {
     // 등록된 주차장 리스트 조회
@@ -86,11 +87,11 @@ exports.main = async function (req, res) {
                     for(var i=0; i< objLength; i++){
                         violationList[i] = JSON.parse(JSON.stringify(unreadViolation))[i];
                         const createdTime = violationList[i].createdAt;
+                       
                         let createdIndex = createdTime.split('T');
                         let date = createdIndex[0].split('-');
                         let time = createdIndex[1].split(':');
                         violationList[i].createdAt = date[1]+"월"+date[2]+"일 "+time[0]+"시"+time[1]+"분";
-                        
                         const [parkingLotName] = await indexDao.getComplexName(violationList[i].parkingLotIndex);
                         violationList[i].complexName = parkingLotName.complexName;
 
@@ -298,7 +299,6 @@ exports.violation = async function (req, res) {
             // 1. DynamoDB 조회하여 해당 주차구역에 최근에 주차(inOut = in)한 차량 정보 확인 (세린)
             const carInfo = await indexDao.getCarInfoByArea(parkLocation);
             console.log('carInfo >', carInfo); // 차량 정보
-    
             // 2. 부정주차 여부 확인 (소연)
             let areaNumber = carInfo.areaNumber;
             let carNum = carInfo.carNum;
@@ -308,11 +308,10 @@ exports.violation = async function (req, res) {
             const checkViolation = await indexDao.checkViolation(parkingLotIdx, section, location, carNum);
             let violationIdx = checkViolation[0].violationIndex;
             let description = checkViolation[0].description;
-           
+            let createdAt = carInfo.createdTime;
             // 3. 출차한 차량이 부정주차였을 시 violation DB에 추가 (inOut = out) (소연)
             if(violationIdx != "undefined"){ //checkViolation[0].length가 0인 경우 부정주차차량 아님
-                //outViolation 파라미터를 checkViolation에서 violationIndex받아왔으니까 그거로 넣을 예쩡입니다
-                await indexDao.outViolation(parkingLotIdx, section ,location, carNum, description);  
+                await indexDao.outViolation(parkingLotIdx, section ,location, carNum, description, createdAt);  
                 console.log("부정주차 차량 출차");
             }
         }
@@ -329,6 +328,7 @@ exports.violation = async function (req, res) {
 
 exports.readToViolation = async function(req, res){
     const violationIdx = req.body.violationIndex;
+    console.log(violationIdx);
     await indexDao.readViolation(violationIdx);
 }
 exports.doneToViolation = async function(req, res){
@@ -389,19 +389,18 @@ exports.logoutCheck = async function(req, res){
 exports.allViolation = async function(req, res){
     if (req.session.status === "admin") {
         const [inOutViolation] = await indexDao.inOutViolation();
-       
         var objLength = Object.keys(inOutViolation).length;
         var violationList = [];
         for(var i=0; i< objLength; i++){
             violationList[objLength-i] = JSON.parse(JSON.stringify(inOutViolation))[i];
-            //const createdTime = violationList[i].createdAt;
-           // let createdIndex = createdTime.split('T');
-            //let date = createdIndex[0].split('-');
-            //let time = createdIndex[1].split(':');
-            //violationList[i].createdAt = date[1]+"월"+date[2]+"일 "+time[0]+"시"+time[1]+"분";
-            //out된 시간으로 변경
-            const [parkingLotName] = await indexDao.getComplexName(violationList[objLength - i].parkingLotIndex);
-            violationList[objLength - i].complexName = parkingLotName.complexName;
+            const createdTime = violationList[objLength-i].createdAt;
+            let createdIndex = createdTime.split('T');
+            let date = createdIndex[0].split('-');
+            let time = createdIndex[1].split(':');
+            violationList[objLength-i].createdAt = date[1]+"월"+date[2]+"일 "+time[0]+"시"+time[1]+"분";
+        
+            const [parkingLotName] = await indexDao.getComplexName(violationList[objLength-i].parkingLotIndex);
+            violationList[objLength-i].complexName = parkingLotName.complexName;
 
         }
 

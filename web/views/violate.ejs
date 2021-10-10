@@ -24,12 +24,17 @@
             <div class="text-center mt-5">
                 <h1>부정 주차 기록</h1>
                 <p class="lead">세부타이틀</p>
-            
+                <!--진짜 아무리 해봐도 css에서 적용이 안되어서 일단 여기에....-->
                 <div class="violation">
-                    <table id="myVio">
-                        <tbody id = "myT">
+                    <table id="myVio" style="width:100%;">
+                        <style>tr, th {padding:10px;} </style>
+                        <style>tr:nth-child(2n+1){
+                            background-color: #f0f0f0;
+                          }</style>
+                        <tbody id = "myT" >
                             <% violationList.forEach(info => { %>
                                 <tr>
+                                    <th><%= info.complexName %></th>
                                     <th><%= info.createdAt %></th>
                                     <th><%= info.floor %><%= info.name %></th>
                                     <th><%= info.carNum %></th>
@@ -51,17 +56,20 @@
         <script>
             
             function deleteRow(click){
-                var i = click.parentNode.parentNode.rowIndex;
-                document.getElementById("myVio").deleteRow(i);
-                console.log("버튼 누름");
-                $.ajax({
-                    type: "POST",
-                    url: "/doneToViolation",
-                    data: {"violationIndex": click.id},
-                    error: function(){
-                        alert("에러가 발생했습니다");
-                    }
-                })
+                if(confirm("정말 삭제하시겠습니까?")==true){
+                    var i = click.parentNode.parentNode.rowIndex;
+                    document.getElementById("myVio").deleteRow(i);
+                    $.ajax({
+                        type: "POST",
+                        url: "/doneToViolation",
+                        data: {"violationIndex": click.id},
+                        error: function(){
+                            alert("에러가 발생했습니다");
+                        }
+                    })
+                }else{
+                    return false;
+                }
             }
 
         </script>

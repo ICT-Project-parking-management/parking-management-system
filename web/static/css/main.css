@@ -120,6 +120,8 @@ a.button{display:inline-block; padding: 10px 20px; text-decoration:none; color:#
 .modal-con4 .con #banList tbody tr:nth-child(2n+1){
   background-color: #f0f0f0;
 }
+
+
 .modal-con4 .con .container::-webkit-scrollbar{
   width:10px;
 }
@@ -267,3 +269,4 @@ a.button{display:inline-block; padding: 10px 20px; text-decoration:none; color:#
   text-align: center !important;
   padding-top: 1rem;
 }
+

@@ -191,18 +191,18 @@ async function checkViolation(parkingLotIdx, floor, area, carNum){ //출차 한 
     return rows;
 }
 
-async function outViolation(parkingLotIdx, floor, area, carNum, description){ //부정주차 차량 출차시 out으로 변경
+async function outViolation(parkingLotIdx,floor, area, carNum, description, createdAt){ //부정주차 차량 출차시 out으로 변경
     const connection = await pool.getConnection(async (conn) => conn);
-    const Query = `INSERT INTO Violation(parkingLotIndex, floor, name, carNum, description, status, state)
-    VALUES (?,?,?,?,?,?, "out");`;
-    const Params = [parkingLotIdx, floor, area, carNum, description, "out"];
+    const Query = `INSERT INTO Violation(parkingLotIndex, floor, name, carNum, description, createdAt, state)
+    VALUES (?,?,?,?,?,?, ?);`;
+    const Params = [parkingLotIdx, floor, area, carNum, description,createdAt, "out"];
     const [rows] = await connection.query(Query, Params);
     connection.release();
     return;
 }
 async function inOutViolation(){
     const connection = await pool.getConnection(async (conn) => conn);
-    const Query = `SELECT violationIndex, parkingLotIndex, floor, name, carNum, description, state FROM Violation ;`;
+    const Query = `SELECT violationIndex, parkingLotIndex, floor, name, carNum, description,createdAt, state FROM Violation ;`;
     const [rows] = await connection.query(Query);
     connection.release();
     return [rows];
@@ -210,7 +210,7 @@ async function inOutViolation(){
 
 async function unreadViolation(){
     const connection = await pool.getConnection(async (conn)=>conn);
-    const Query = `SELECT violationIndex, parkingLotIndex, floor, name, carNum, description, createdAt FROM Violation WHERE status = 'unread' ;`;
+    const Query = `SELECT violationIndex, parkingLotIndex, floor, name, carNum, description, createdAt FROM Violation WHERE status = 'unread' AND state='in' ;`;
     const [rows] = await connection.query(Query);
     connection.release();
     return [rows];

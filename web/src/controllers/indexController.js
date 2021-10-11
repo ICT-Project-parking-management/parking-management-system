@@ -85,15 +85,15 @@ exports.main = async function (req, res) {
                     var objLength = Object.keys(unreadViolation).length;
                     var violationList = [];
                     for(var i=0; i< objLength; i++){
-                        violationList[i] = JSON.parse(JSON.stringify(unreadViolation))[i];
-                        const createdTime = violationList[i].createdAt;
+                        violationList[objLength-i] = JSON.parse(JSON.stringify(unreadViolation))[i];
+                        const createdTime = violationList[objLength-i].createdAt;
                        
                         let createdIndex = createdTime.split('T');
                         let date = createdIndex[0].split('-');
                         let time = createdIndex[1].split(':');
-                        violationList[i].createdAt = date[1]+"월"+date[2]+"일 "+time[0]+"시"+time[1]+"분";
-                        const [parkingLotName] = await indexDao.getComplexName(violationList[i].parkingLotIndex);
-                        violationList[i].complexName = parkingLotName.complexName;
+                        violationList[objLength-i].createdAt = date[1]+"월"+date[2]+"일 "+time[0]+"시"+time[1]+"분";
+                        const [parkingLotName] = await indexDao.getComplexName(violationList[objLength-i].parkingLotIndex);
+                        violationList[objLength-i].complexName = parkingLotName.complexName;
 
                     }
 
@@ -328,7 +328,6 @@ exports.violation = async function (req, res) {
 
 exports.readToViolation = async function(req, res){
     const violationIdx = req.body.violationIndex;
-    console.log(violationIdx);
     await indexDao.readViolation(violationIdx);
 }
 exports.doneToViolation = async function(req, res){

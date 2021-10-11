@@ -118,7 +118,7 @@ a.button{display:inline-block; padding: 10px 20px; text-decoration:none; color:#
 }
 
 .modal-con4 .con #banList tbody tr:nth-child(2n+1){
-  background-color: #f0f0f0;
+  background-color: #f0f0f0 !important;
 }
 
 
@@ -132,14 +132,6 @@ a.button{display:inline-block; padding: 10px 20px; text-decoration:none; color:#
   background-color:whitesmoke;
 }
 
-.switch-button { 
-  position: relative; 
-  display: inline-block; 
-  width: 47px; height: 20px; 
-} 
-.switch-button input {
-  opacity: 0; width: 0; height: 0;
-} 
 .delete-button {
   -webkit-appearance: none;
   -moz-appearance: none;
@@ -147,52 +139,14 @@ a.button{display:inline-block; padding: 10px 20px; text-decoration:none; color:#
   display:inline-block; 
   padding:2px 5px; 
   font-weight: 700; 
-  text-shadow: 0 1px 0 #fff; 
   font-size: 1.3rem; 
-} 
-
-
-.delete-button { 
   border: 0; 
   cursor:pointer; 
   opacity: .75; 
-}
-
-.onoff-switch 
-{ position: absolute;
-  cursor: pointer; 
-  top: 0; 
-  left: 0; 
-  right: 0; 
-  bottom: 0; 
-  border-radius:20px; 
-  background-color: #ccc; 
-  box-shadow: inset 1px 5px 1px #999; 
-  -webkit-transition: .4s; transition: .4s; 
+  background-color: transparent;
 } 
+
   
-.onoff-switch:before { 
-  position: absolute;
-  content: ""; 
-  height: 17px; 
-  width: 17px; 
-  left: 2px; 
-  bottom: 2px; 
-  background-color: #fff; 
-  -webkit-transition: .5s; 
-  transition: .4s; 
-  border-radius:20px; 
-}
-.switch-button input:checked + .onoff-switch { 
-  background-color: #F2D522; 
-  box-shadow: inset 1px 5px 1px #E3AE56; 
-} 
-.switch-button input:checked + .onoff-switch:before { 
-  -webkit-transform: translateX(26px); 
-  -ms-transform: translateX(26px);
-  transform: translateX(26px); 
-}
-
 
 .login input {
   display: block;

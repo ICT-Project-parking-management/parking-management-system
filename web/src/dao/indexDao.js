@@ -202,7 +202,8 @@ async function outViolation(parkingLotIdx,floor, area, carNum, description, crea
 }
 async function inOutViolation(){
     const connection = await pool.getConnection(async (conn) => conn);
-    const Query = `SELECT violationIndex, parkingLotIndex, floor, name, carNum, description,createdAt, state FROM Violation ;`;
+    const Query = `SELECT violationIndex, parkingLotIndex, floor, name, carNum, description, DATE_FORMAT(createdAt, '%m월 %d일 %H시 %i분') as createdAt, state
+    FROM Violation;`
     const [rows] = await connection.query(Query);
     connection.release();
     return [rows];
@@ -210,17 +211,16 @@ async function inOutViolation(){
 
 async function unreadViolation(){
     const connection = await pool.getConnection(async (conn)=>conn);
-    const Query = `SELECT violationIndex, parkingLotIndex, floor, name, carNum, description, createdAt FROM Violation WHERE status = 'unread' AND state='in' ;`;
+    const Query = `SELECT violationIndex, parkingLotIndex, floor, name, carNum, description, DATE_FORMAT(createdAt, '%m월 %d일 %H시 %i분') as createdAt
+    FROM Violation WHERE status = 'unread' AND state='in' ORDER BY createdAt DESC;`
     const [rows] = await connection.query(Query);
     connection.release();
     return [rows];
 };
 
-
 // 부정주차 확인 시 read 처리
 async function readViolation(violationIndex) {
     const connection = await pool.getConnection(async (conn) => conn);
-
     const Query = `UPDATE Violation
     SET status = 'read'
     WHERE violationIndex = ?;`;

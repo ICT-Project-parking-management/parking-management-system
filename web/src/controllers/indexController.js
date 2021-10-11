@@ -79,24 +79,15 @@ exports.main = async function (req, res) {
                             return (a.areaName < b.areaName) ? -1 : (a.areaName > b.areaName) ? 1 : 0;
                         })
                     })
-                
-                
                     const [unreadViolation] = await indexDao.unreadViolation();
+                   
                     var objLength = Object.keys(unreadViolation).length;
                     var violationList = [];
                     for(var i=0; i< objLength; i++){
-                        violationList[objLength-i] = JSON.parse(JSON.stringify(unreadViolation))[i];
-                        const createdTime = violationList[objLength-i].createdAt;
-                       
-                        let createdIndex = createdTime.split('T');
-                        let date = createdIndex[0].split('-');
-                        let time = createdIndex[1].split(':');
-                        violationList[objLength-i].createdAt = date[1]+"월"+date[2]+"일 "+time[0]+"시"+time[1]+"분";
-                        const [parkingLotName] = await indexDao.getComplexName(violationList[objLength-i].parkingLotIndex);
-                        violationList[objLength-i].complexName = parkingLotName.complexName;
-
+                        violationList[i] = JSON.parse(JSON.stringify(unreadViolation))[i];
+                        const [parkingLotName] = await indexDao.getComplexName(violationList[i].parkingLotIndex);
+                        violationList[i].complexName = parkingLotName.complexName;
                     }
-
                     return res.render("main.ejs", {complexName, parkingLotInfo, parkingLotIdx, userName, violationList});
                 }
             }
@@ -390,14 +381,9 @@ exports.allViolation = async function(req, res){
         const [inOutViolation] = await indexDao.inOutViolation();
         var objLength = Object.keys(inOutViolation).length;
         var violationList = [];
+      
         for(var i=0; i< objLength; i++){
             violationList[objLength-i] = JSON.parse(JSON.stringify(inOutViolation))[i];
-            const createdTime = violationList[objLength-i].createdAt;
-            let createdIndex = createdTime.split('T');
-            let date = createdIndex[0].split('-');
-            let time = createdIndex[1].split(':');
-            violationList[objLength-i].createdAt = date[1]+"월"+date[2]+"일 "+time[0]+"시"+time[1]+"분";
-        
             const [parkingLotName] = await indexDao.getComplexName(violationList[objLength-i].parkingLotIndex);
             violationList[objLength-i].complexName = parkingLotName.complexName;
 

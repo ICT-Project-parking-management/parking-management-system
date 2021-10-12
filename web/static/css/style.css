@@ -10922,3 +10922,16 @@ textarea.form-control-lg {
 .carCheckbox {
   margin: 0 1rem 0 0.5rem;
 }
+
+#info table {
+  margin-top: 5rem;
+  text-align: center;
+  width: 1300px;
+  font-size: 1.3rem;
+}
+
+#info th {
+  background-color:rgb(49, 49, 49);
+  color: white;
+  padding: 1rem;
+}

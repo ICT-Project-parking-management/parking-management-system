@@ -10,56 +10,40 @@
         <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
         <!-- Core theme CSS (includes Bootstrap)-->
         <link rel="stylesheet" href="/css/style.css" type="text/css">
-        <link rel="stylesheet" href="/css/intro.css" type="text/css">
+        <link rel="stylesheet" href="/css/main.css" type="text/css">
     </head>
     <body>
         <!-- Responsive navbar-->
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
             <div class="container">
-                <a class="navbar-brand" href="#">주차관리 시스템</a>
+                <a class="navbar-brand" href="/">주차관리 시스템</a>
             </div>
         </nav>
         <!-- Page content-->
         <div class="container">
             <div class="text-center mt-5">
                 <h1>부정 주차 기록</h1>
-                <p class="lead">세부타이틀</p>
-                <!--진짜 아무리 해봐도 css에서 적용이 안되어서 일단 여기에....-->
+                <p class="lead">전체부정주차 기록을 확인해보세요</p>
                 <div class="violation">
-                    <table id="myVio" style="width:100%;">
-                        <style>tr, th {padding:10px;} </style>
-                        <style>tr:nth-child(2n+1){
-                            background-color: #f0f0f0;
-                          }</style>
+                    <table id="myVio">
+                        <thead>
+                            <th>주자창</th><th>주차구역</th><th>차량번호</th><th>사유</th><th>주차시간</th><th>처리시간</th><th>현재상태</th><th></th>
+                        </thead>
                         <tbody id = "myT" >
                             <% violationList.forEach(info => { %>
                                 <tr>
-                                    <th><%= info.complexName %></th>
-                                    <th><%= info.createdAt %></th>
-                                    <th><%= info.floor %><%= info.name %></th>
-                                    <th><%= info.carNum %></th>
-                                    <th><%= info.description %></th>
-                                    <th><%= info.state %></th>
-                                    <th><input type='button' class="delete-button" id= "<%= info.violationIndex %>" value='X' onclick='deleteRow(this)'/></th>
-                                    <style>.delete-button {
-                                        -webkit-appearance: none;
-                                        -moz-appearance: none;
-                                        appearance: none;
-                                        display:inline-block; 
-                                        padding:2px 5px; 
-                                        font-weight: 700; 
-                                        font-size: 1.3rem; 
-                                        border: 0; 
-                                        cursor:pointer; 
-                                        opacity: .75; 
-                                        background-color: transparent;
-                                      }</style>
+                                    <td><%= info.complexName %></td>
+                                    <td><%= info.floor %><%= info.name %></td>
+                                    <td><%= info.carNum %></td>
+                                    <td><%= info.description %></td>
+                                    <td><%= info.createdAt %></td>
+                                    <td><%= info.updatedAt %></td>
+                                    <td><%= info.status %></td>
+                                    <td><input type='button' class="delete-button" id= "<%= info.violationIndex %>" value='X' onclick='deleteRow(this)'/></td>
                                 </tr>
                             <% }); %>
                         </tbody>
                        
-                                
-                           
                     </table>
                 </div>
             </div>

@@ -379,10 +379,9 @@ exports.logoutCheck = async function(req, res){
 
 exports.allViolation = async function(req, res){
     if (req.session.status === "admin") {
-        const [inOutViolation] = await indexDao.inOutViolation();
+        const [inOutViolation] = await indexDao.totalViolation();
         var objLength = Object.keys(inOutViolation).length;
         var violationList = [];
-      
         for(var i=0; i< objLength; i++){
             violationList[objLength-i] = JSON.parse(JSON.stringify(inOutViolation))[i];
             const [parkingLotName] = await indexDao.getComplexName(violationList[objLength-i].parkingLotIndex);

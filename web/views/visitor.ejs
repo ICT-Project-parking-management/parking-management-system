@@ -61,6 +61,7 @@
                     </fieldset>
                     <input type="submit" value="입력" onclick="uploadInfo()" onsubmit="return false;">
                 </div>
+                <div id="result"></div>
             </div>
         </div>
 
@@ -96,8 +97,14 @@
                     type: "GET",
                     url: `/recommend?now=${now}&period=${period}&type=${type}`,
                     success: (data) => {
-                        console.log('data >', data);    
-                    }
+                        const div = document.querySelector('#result');
+                        let text = '<h4>추천 주차구역</h4><table><tr><th>순위</th><th>주차장</th><th>주차층</th><th>주차구역</th></tr>';
+                        for (let i = 0; i < data.length; i++) {
+                            text += `<tr><td>${i + 1}</td><td>${data[i].parkingLotIndex}</td><td>${data[i].floor}</td><td>${data[i].areaName}</td></tr>`
+                        }
+                        text += '</table>';
+                        div.innerHTML = text;
+                        }
                 })
 
             }

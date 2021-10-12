@@ -25,8 +25,18 @@
         <div class="container">
             <div class="text-center mt-5" id="innerContainer">
                 <h1>선호 주차구역 정보 확인하기</h1>
-                <p class="lead">~~~</p>
-                
+                <p class="lead"><%= userName %>님의 과거 주차 데이터를 바탕으로 확인한 선호 주차구역입니다.</p>
+                <div id="info" class="text-center"></div>
+                <script>
+                    const locationData = <%- JSON.stringify(locationData) %>;
+                    const div = document.querySelector('#info');
+                    let text = '<table><tr><th>순위</th><th>주차장</th><th>주차층</th><th>주차구역</th></tr>';
+                    for (let i = 0; i < locationData.length; i++) {
+                        text += `<tr><td>${i + 1}</td><td>${locationData[i].parkingLotIndex}</td><td>${locationData[i].floor}</td><td>${locationData[i].areaName}</td></tr>`
+                    }
+                    text += '</table>';
+                    div.innerHTML = text;
+                </script>
             </div>
         </div>
 

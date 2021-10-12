@@ -348,11 +348,14 @@ exports.resident = async function(req, res) {
         const userName = req.session.nickname;
         const row = await indexDao.getUserIndex(userName);
         const userIndex = row[0].userIndex;
-        console.log(userIndex);
+        const locationData = [];
 
         try {
             const locations = await indexDao.getLocationForResidents(userIndex);
-            console.log(locations);
+            for (let i = 0; i < locations.length; i++) {
+                locationData.push({parkingLotIndex: locations[i].parkingLotIndex, floor: locations[i].floor, areaName: locations[i].areaName})
+            }
+            return res.render("resident.ejs", {userName, locationData});
         } catch(err) {
             console.log(err);
             return res.sendStatus(200);

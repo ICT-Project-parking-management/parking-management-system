@@ -27,7 +27,7 @@ def thread_task(filename):
             if credit >= 0.5:
                 newData['carNum'] = d['carNum']
             else:
-                img = jsonInfo['imgUrl']
+                img = d['imgUrl']
                 s3_get_object(s3, img, img)
                 carNum = getCarNumber(img)
                 os.remove(img)

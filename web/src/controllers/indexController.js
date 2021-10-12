@@ -87,7 +87,7 @@ exports.main = async function (req, res) {
                         violationList[i] = JSON.parse(JSON.stringify(unreadViolation))[i];
                         const [parkingLotName] = await indexDao.getComplexName(violationList[i].parkingLotIndex);
                         violationList[i].complexName = parkingLotName.complexName;
-                    }
+                    }                    
                     return res.render("main.ejs", {complexName, parkingLotInfo, parkingLotIdx, userName, violationList});
                 }
             }

@@ -11,6 +11,16 @@
         <!-- Core theme CSS (includes Bootstrap)-->
         <link rel="stylesheet" href="/css/style.css" type="text/css">
         <link rel="stylesheet" href="/css/intro.css" type="text/css">
+        <!-- Load C3 -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/c3/0.4.11/c3.min.css"/>
+        <script src="https://d3js.org/d3.v3.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/c3/0.4.11/c3.min.js"></script>
+
+        <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.css">
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/raphael/2.1.0/raphael-min.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.min.js"></script>
+
     </head>
     <body>
         <!-- Responsive navbar-->
@@ -24,14 +34,119 @@
             <div class="text-center mt-5">
                 <h1>주차 정보 분석</h1>
                 <p class="lead">세부타이틀</p>
-            
+                <br/>
 
+                <h4>한달치 (거주자 + 방문자)</h4>
+                <div id="monthlyAll" style="height: 250px;"></div>
+                <script>
+                    new Morris.Bar({
+                        element: 'monthlyAll',
+                        data: [
+                            { day: '1일', value: 20 },
+                            { day: '2일', value: 10 },
+                            { day: '3일', value: 29 },
+                            { day: '4일', value: 5 },
+                            { day: '5일', value: 20 },
+                            { day: '6일', value: 10 },
+                            { day: '7일', value: 3 },
+                            { day: '8일', value: 10 },
+                            { day: '9일', value: 27 },
+                            { day: '10일', value: 10 },
+                            { day: '11일', value: 20 },
+                            { day: '12일', value: 10 },
+                            { day: '13일', value: 25 },
+                            { day: '14일', value: 5 },
+                            { day: '15일', value: 20 },
+                            { day: '16일', value: 10 },
+                            { day: '17일', value: 23 },
+                            { day: '18일', value: 10 },
+                            { day: '19일', value: 17 },
+                            { day: '20일', value: 10 },
+                            { day: '21일', value: 22 },
+                            { day: '22일', value: 10 },
+                            { day: '23일', value: 8 },
+                            { day: '24일', value: 5 },
+                            { day: '25일', value: 20 },
+                            { day: '26일', value: 10 },
+                            { day: '27일', value: 13 },
+                            { day: '28일', value: 10 },
+                            { day: '29일', value: 30 },
+                            { day: '30일', value: 2 },
+                        ],
+                        xkey: 'day',
+                        ykeys: ['value'],
+                        labels: ['Value'],
+                        barColors: ['green']
+                    });
+                </script>
+                <br/>
+                
+                <h4>한달치 (거주자)</h4>
+                <div id="monthlyResident" style="height: 250px;"></div>
+                <script>
+                    new Morris.Bar({
+                        element: 'monthlyResident',
+                        data: [
+                            { day: '1일', value: 20 },
+                            { day: '2일', value: 10 },
+                            { day: '3일', value: 29 },
+                            { day: '4일', value: 5 },
+                            { day: '5일', value: 20 },
+                            { day: '6일', value: 10 },
+                            { day: '7일', value: 3 },
+                            { day: '8일', value: 10 },
+                            { day: '9일', value: 27 },
+                            { day: '10일', value: 10 },
+                            { day: '11일', value: 20 },
+                            { day: '12일', value: 10 },
+                            { day: '13일', value: 25 },
+                            { day: '14일', value: 5 },
+                            { day: '15일', value: 20 },
+                            { day: '16일', value: 10 },
+                            { day: '17일', value: 23 },
+                            { day: '18일', value: 10 },
+                            { day: '19일', value: 17 },
+                            { day: '20일', value: 10 },
+                            { day: '21일', value: 22 },
+                            { day: '22일', value: 10 },
+                            { day: '23일', value: 8 },
+                            { day: '24일', value: 5 },
+                            { day: '25일', value: 20 },
+                            { day: '26일', value: 10 },
+                            { day: '27일', value: 13 },
+                            { day: '28일', value: 10 },
+                            { day: '29일', value: 30 },
+                            { day: '30일', value: 2 },
+                        ],
+                        xkey: 'day',
+                        ykeys: ['value'],
+                        labels: ['Value'],
+                        barColors: ['#1531B2']
+                    });
+                </script>
+                <br/>
+
+                <h4>원활 보통 혼잡</h4>
+                <div class="floorsImg">
+                    <img src="/img/floors.png" width="100%"/>
+                </div>
+                <div class="floorsData">
+                    <h5>B1</h5>
+                    <div class="floorData"> 원활 (1/6) </div>
+
+                    <h5 style="margin-top: 1rem;">B2</h5>
+                    <div class="floorData"> 혼잡 (5/6) </div>
+
+                    <h5 style="margin-top: 1.7rem;">전체</h5>
+                    <div class="floorData"> 보통 (6/12) </div>
+                </div>
+                <div style="width: 21%; height: 400px; float: left;"></div>
+
+                <h4> 선호 구역 </h4>
             </div>
         </div>
-
         <!-- Bootstrap core JS-->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
-        <!-- Core theme JS-->
-        <script src="js/scripts.js"></script>
+        
     </body>
 </html>

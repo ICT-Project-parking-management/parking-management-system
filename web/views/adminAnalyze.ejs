@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <meta name="description" content="" />
+        <meta name="author" content="" />
+        <title>주차관리 시스템</title>
+        <!-- Favicon-->
+        <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
+        <!-- Core theme CSS (includes Bootstrap)-->
+        <link rel="stylesheet" href="/css/style.css" type="text/css">
+        <link rel="stylesheet" href="/css/intro.css" type="text/css">
+        <!-- Load C3 -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/c3/0.4.11/c3.min.css"/>
+        <script src="https://d3js.org/d3.v3.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/c3/0.4.11/c3.min.js"></script>
+
+        <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.css">
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/raphael/2.1.0/raphael-min.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.min.js"></script>
+
+    </head>
+    <body>
+        <!-- Responsive navbar-->
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <div class="container">
+                <a class="navbar-brand" href="#">주차관리 시스템</a>
+            </div>
+        </nav>
+        <!-- Page content-->
+        <div class="container">
+            <div class="text-center mt-5">
+                <h1>주차 점유 현황</h1>
+                <p class="lead">최근 6개월 간의 주차 데이터를 바탕으로 한 주차 점유율을 확인해보세요.</p>
+                <br/><br/>
+
+                <h4>전체 점유 현황</h4>
+                <div id="monthlyAll" style="height: 250px;"></div>
+                <script>
+                    const totalData = <%- JSON.stringify(totalData) %>;
+                    new Morris.Bar({
+                        element: 'monthlyAll',
+                        data: totalData,
+                        xkey: 'time',
+                        ykeys: ['value'],
+                        ymax: 100,
+                        postUnits: '%',
+                        labels: ['Value'],
+                        barColors: ['green'],
+                    });
+                </script>
+                <br/><br/>
+                
+                <h4>거주자 점유 현황</h4>
+                <div id="monthlyResident" style="height: 250px;"></div>
+                <script>
+                    const residentData = <%- JSON.stringify(residentData) %>;
+                    new Morris.Bar({
+                        element: 'monthlyResident',
+                        data: residentData,
+                        xkey: 'time',
+                        ykeys: ['value'],
+                        ymax: 100,
+                        postUnits: '%',
+                        labels: ['Value'],
+                        barColors: ['#1531B2'],
+                    });
+                </script>
+                <br/>                
+            </div>
+        </div>
+        <!-- Bootstrap core JS-->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+        
+    </body>
+</html>

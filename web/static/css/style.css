@@ -10877,3 +10877,75 @@ textarea.form-control-lg {
     color: white;
     background: #212529;
 }
+
+.floorsImg {
+  width: 65%;
+  height: 400px;
+  float: left;
+}
+
+.floorsData {
+  width: 14%;
+  height: 400px;
+  float: left;
+}
+
+.floorData {
+  border: 2px rgb(49, 49, 49) solid;
+  border-radius: 0.5em;
+  display: table-cell;
+  vertical-align: middle;
+  width: 180px;
+  height: 70px;
+  background-color: rgb(245, 245, 245);
+  font-size: 1.5rem;
+}
+
+.scheduleForm {
+  margin: 3rem 7rem 0 7rem;
+  padding: 1rem 10rem;
+  background-color: rgb(236, 236, 236);
+}
+
+#result {
+  margin: 3rem 7rem 5rem 7rem;
+  padding: 2rem 10rem 1rem 10rem;
+  background-color: rgb(236, 236, 236);
+}
+
+.fieldSet {
+  border-radius: 1rem;
+  padding: 1.2rem 0;
+  margin: 1.5rem 0;
+  background-color: rgb(224, 224, 224);
+}
+
+#time {
+  padding: 0.2rem;
+  font-size: 1.2rem;
+}
+
+.carCheckbox {
+  margin: 0 1rem 0 0.5rem;
+}
+
+#info table {
+  margin-top: 5rem;
+  text-align: center;
+  width: 1300px;
+  font-size: 1.3rem;
+}
+
+#result table {
+  margin-top: 2rem;
+  margin-bottom: 3rem;
+  text-align: center;
+  width: 750px;
+  font-size: 1.3rem;
+}
+
+#info th, #result th {
+  background-color: rgb(49, 49, 49);
+  color: white;
+  padding: 1rem;
+}

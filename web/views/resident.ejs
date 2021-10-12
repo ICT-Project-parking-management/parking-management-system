@@ -11,6 +11,8 @@
         <!-- Core theme CSS (includes Bootstrap)-->
         <link rel="stylesheet" href="/css/style.css" type="text/css">
         <link rel="stylesheet" href="/css/intro.css" type="text/css">
+        <!-- jquery -->
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     </head>
     <body>
         <!-- Responsive navbar-->
@@ -21,17 +23,25 @@
         </nav>
         <!-- Page content-->
         <div class="container">
-            <div class="text-center mt-5">
-                <h1>주차 정보 분석</h1>
-                <p class="lead">세부타이틀</p>
-            
-
+            <div class="text-center mt-5" id="innerContainer">
+                <h1>선호 주차구역 정보 확인하기</h1>
+                <p class="lead"><%= userName %>님의 과거 주차 데이터를 바탕으로 확인한 선호 주차구역입니다.</p>
+                <div id="info" class="text-center"></div>
+                <script>
+                    const locationData = <%- JSON.stringify(locationData) %>;
+                    const div = document.querySelector('#info');
+                    let text = '<table><tr><th>순위</th><th>주차장</th><th>주차층</th><th>주차구역</th></tr>';
+                    for (let i = 0; i < locationData.length; i++) {
+                        text += `<tr><td>${i + 1}</td><td>${locationData[i].parkingLotIndex}</td><td>${locationData[i].floor}</td><td>${locationData[i].areaName}</td></tr>`
+                    }
+                    text += '</table>';
+                    div.innerHTML = text;
+                </script>
             </div>
         </div>
 
         <!-- Bootstrap core JS-->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
-        <!-- Core theme JS-->
-        <script src="js/scripts.js"></script>
+        
     </body>
 </html>

@@ -277,8 +277,10 @@ async function getPossession(isTotal) {
 async function getLocationForVisitor(now, period, type) {
     const connection = await pool.getConnection(async (conn)=>conn);
     const Query = `
-        SELECT pa.parkingLotIndex, pa.floor, pa.areaName, ROUND((1-sum(pos.counting)/sum(pos.days))*100, 1) as prob
-        FROM d_possession pos JOIN ParkingArea pa on pa.location = pos.location
+        SELECT pl.complexName, pa.floor, pa.areaName, ROUND((1-sum(pos.counting)/sum(pos.days))*100, 1) as prob
+        FROM d_possession pos 
+        JOIN ParkingArea pa on pa.location = pos.location
+        JOIN ParkingLot pl ON pl.parkingLotIndex = pa.parkingLotIndex
         WHERE pos.status = 'residents' AND IF(TIMEDIFF(pos.time, ?) < TIME(SEC_TO_TIME(?*60*60))
         AND TIMEDIFF(pos.time, ?) >= '00:00:00', TRUE, FALSE) AND pa.areaInfo in (0, ?)
         GROUP BY pos.location ORDER BY prob ASC LIMIT 3;
@@ -293,7 +295,7 @@ async function getLocationForVisitor(now, period, type) {
 async function getLocationForResidents(userIndex) {
     const connection = await pool.getConnection(async (conn)=>conn);
     const Query = `
-    SELECT pa.parkingLotIndex, pa.floor, pa.areaName, ROUND((1-(counting/days))*100, 1) as prob
+    SELECT pl.complexName, pa.floor, pa.areaName, ROUND((1-(counting/days))*100, 1) as prob
     FROM d_popular_edit pop
     JOIN Car car on car.carNum = pop.num
     JOIN User user on car.userIndex = user.userIndex
@@ -303,6 +305,7 @@ async function getLocationForResidents(userIndex) {
             SELECT time FROM d_popular_time WHERE num in (SELECT c.carNum From Car c WHERE c.userIndex = ?)
         )) pos on pop.location = pos.location
     JOIN ParkingArea pa on pa.location = pos.location
+    JOIN ParkingLot pl ON pl.parkingLotIndex = pa.parkingLotIndex
     WHERE user.userIndex = ? AND
         IF(car.disabled = 0 AND pa.areaInfo = 1, FALSE, TRUE) AND
         IF(car.electric = 0 AND pa.areaInfo = 2, FALSE, TRUE)

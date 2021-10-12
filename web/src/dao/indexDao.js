@@ -262,12 +262,12 @@ async function getLocationForVisitor(now, period, type) {
         FROM d_possession pos JOIN ParkingArea pa on pa.location = pos.location
         WHERE pos.status = 'residents' AND IF(TIMEDIFF(pos.time, ?) < TIME(SEC_TO_TIME(?*60*60))
         AND TIMEDIFF(pos.time, ?) >= '00:00:00', TRUE, FALSE) AND pa.areaInfo in (0, ?)
-        GROUP BY pos.location ORDER BY prob DESC LIMIT 3;
+        GROUP BY pos.location ORDER BY prob ASC LIMIT 3;
     `;
     const Params = [now, period, now, type];
     const [rows] = await connection.query(Query, Params);
     connection.release();
-    return [rows];
+    return rows;
 }
 
 module.exports = {

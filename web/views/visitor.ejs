@@ -14,7 +14,7 @@
         <!-- jquery -->
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     </head>
-    <body>
+    <body onload="showClock()">
         <!-- Responsive navbar-->
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
             <div class="container">
@@ -28,8 +28,29 @@
                 <p class="lead">예정 주차 시각과 차량 정보를 입력하여 맞춤형 주차 구역을 확인하세요.</p>
                 <div class="scheduleForm">
                     <fieldset class="fieldSet">
-                        <legend>예정 주차 시각</legend>
-                        <input type="time" id="time">
+                        <legend>예정 주차 시작 시각</legend>
+                        <div id="divClock" class="clock"></div>
+                        <script type="text/javascript">
+                            showClock = () => {
+                                let currentDate = new Date();
+                                let divClock = document.getElementById('divClock');
+                                let msg = '';
+                                if (currentDate.getHours() > 12) {      //시간이 12보다 크다면 오후 아니면 오전
+                                    msg += '오후 ';
+                                    msg += currentDate.getHours() - 12 + '시 ';
+                                } else {
+                                    msg += "오전 ";
+                                    msg += currentDate.getHours() + '시 ';
+                                }
+                                msg += currentDate.getMinutes() + '분 ';
+                                divClock.innerText = msg;
+                                setTimeout(showClock, 1000);
+                            }
+                        </script>
+                    </fieldset>
+                    <fieldset class="fieldSet">
+                        <legend>예정 주차 기간</legend>
+                        약 <input type="number" style="width: 50px; margin-left: 5px; margin-right: 5px;" id="period">시간
                     </fieldset>
                     <fieldset class="fieldSet">
                         <legend>차량 정보</legend>
@@ -45,34 +66,40 @@
 
         <script>
             uploadInfo = () => {
-                let time = document.getElementById("time").value;
-                let disabled = false;
-                let electric = false;
+                let period = document.getElementById("period").value;
+                let type = 0;
 
-                if ( $('input:checkbox[id="disabled"]').is(":checked") == true ) disabled = true;
-                if ( $('input:checkbox[id="electric"]').is(":checked") == true ) electric = true;
-                
-                if (time === "") {
-                    alert('예정 주차 시각을 입력해주세요.');
+                if (period === "") {
+                    alert('예정 주차 기간을 입력해주세요.');
                     location.reload();
                 }
 
+                if ( $('input:checkbox[id="disabled"]').is(":checked") == true ) type = 1;
+                if ( $('input:checkbox[id="electric"]').is(":checked") == true ) type = 2;
+
                 let today = new Date();
-                let dd = today.getDate();
-                let mm = today.getMonth() + 1;
-                let yyyy = today.getFullYear();
+                let curHour = today.getHours();
+                let curMin = today.getMinutes();
+                let now;
 
-                if (dd < 10) dd='0'+ dd;
-                if (mm < 10) mm='0'+ mm;
-                today = yyyy + '-' + mm + '-' + dd;
-
-                if (Number(time.substr(4, 1)) !== 0) time = time.substr(0, 4) + 0
-
-                getResult(today, time, disabled, electric);
+                if (curMin < 15) {
+                    now = String(curHour) + ':00:00';
+                } else {
+                    if (curHour < 23) now = String(curHour) + ':30:00';
+                    else now = String(curHour + 1) + ':00:00';
+                }
+                getResult(now, period, type);
             }
 
-            getResult = (today, time, disabled, electric) => {
-                console.log(today, time, disabled, electric);
+            getResult = (now, period, type) => {
+                $.ajax({
+                    type: "GET",
+                    url: `/recommend?now=${now}&period=${period}&type=${type}`,
+                    success: (data) => {
+                        console.log('data >', data);    
+                    }
+                })
+
             }
         </script>
 

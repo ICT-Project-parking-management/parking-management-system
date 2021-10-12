@@ -328,9 +328,19 @@ exports.doneToViolation = async function(req, res){
 }
 
 exports.visitor = async function(req, res) {
-    const userInfo = req.session.status;
-    console.log('userInfo >>', userInfo);
-    res.render("visitor.ejs", {userInfo})
+    res.render("visitor.ejs")
+}
+
+exports.recommend = async function(req, res) {
+    const now = req.query.now;
+    const period = req.query.period;
+    const type = req.query.type;    
+    const areas = await indexDao.getLocationForVisitor(now, period, type);
+    const returnData = [];
+    for (let i = 0; i < areas.length; i++) {
+        returnData.push({parkingLotIndex: areas[i].parkingLotIndex, floor: areas[i].floor, areaName: areas[i].areaName})
+    }
+    res.json(returnData);
 }
 
 exports.resident = async function(req, res) {

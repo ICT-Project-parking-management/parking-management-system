@@ -13,8 +13,11 @@ module.exports = function(app) {
     // 관리자 - 데이터 마이닝
     app.get('/analyze', index.getPossession);
 
-    // 방문자 - 예정 주차 구역
+    // 방문자 - 예정 주차 시간 페이지
     app.get('/visitor', index.visitor);
+
+    // 방문자 - 주차 구역 추천
+    app.get('/recommend', index.recommend);
 
     // 거주자 - 선호 주차 구역
     app.get('/resident', index.resident);

@@ -334,9 +334,16 @@ exports.analyze = async function(req, res) {
     }
 }
 
-exports.userAnalyze = async function(req, res) {
+exports.visitor = async function(req, res) {
     const userInfo = req.session.status;
-    res.render("userAnalyze.ejs", {userInfo})
+    console.log('userInfo >>', userInfo);
+    res.render("visitor.ejs", {userInfo})
+}
+
+exports.resident = async function(req, res) {
+    const userInfo = req.session.status;
+    console.log('userInfo >>', userInfo);
+    res.render("resident.ejs", {userInfo});
 }
 
 exports.loginCheck = async function(req, res){

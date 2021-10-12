@@ -32,12 +32,12 @@
                                 <li class="nav-item"><a class="nav-link active" aria-current="page" href="/analyze">주차 정보 분석 보러가기</a></li>
                             <% } else { %>
                                 <li class="nav-item"><a class="nav-link active" aria-current="page" href="javascript:checkMyArea('area-modal');"> 내 주차구역 확인하기</a></li>
-                                <li class="nav-item"><a class="nav-link active" aria-current="page" href="/userAnalyze"> 예정 주차 정보 입력하기 </a></li>
+                                <li class="nav-item"><a class="nav-link active" aria-current="page" href="/resident"> 내 선호구역 정보 확인하기 </a></li>
                             <% } %>
                             <a class="nav-link active" aria-current="page" href="javascript:logoutCheck('logout-modal');">로그아웃</a>
                         <% } else { %>
                             <li class="nav-item"><a class="nav-link active" aria-current="page" href="javascript:checkMyLogin('requireLogin-modal');"> 내 주차구역 확인하기</a></li>
-                            <li class="nav-item"><a class="nav-link active" aria-current="page" href="/userAnalyze"> 예정 주차 정보 입력하기 </a></li>
+                            <li class="nav-item"><a class="nav-link active" aria-current="page" href="/visitor"> 예정 주차 정보 입력하기 </a></li>
                             <a class="nav-link active" aria-current="page" href="javascript:openModal('login-modal');">로그인</a>
                         <% } %>
                     </ul>

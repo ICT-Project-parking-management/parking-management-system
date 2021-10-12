@@ -11,7 +11,7 @@ module.exports = function(app) {
     app.get('/main/:idx/myArea', index.myArea);
 
     // 관리자 - 데이터 마이닝
-    app.get('/analyze', index.analyze);
+    app.get('/analyze', index.getPossession);
 
     // 방문자 - 예정 주차 구역
     app.get('/visitor', index.visitor);

@@ -321,17 +321,10 @@ exports.readToViolation = async function(req, res){
     const violationIdx = req.body.violationIndex;
     await indexDao.readViolation(violationIdx);
 }
+
 exports.doneToViolation = async function(req, res){
     const violationIdx = req.body.violationIndex;
     await indexDao.doneViolation(violationIdx);
-}
-exports.analyze = async function(req, res) {
-     // 데이터마이닝 정보를 누구에게 제공하느냐에 따라 로직 수정 필요
-     if (req.session.status === "admin") {
-        res.render("adminAnalyze.ejs");
-    } else {
-        res.render("main.ejs");
-    }
 }
 
 exports.visitor = async function(req, res) {
@@ -394,16 +387,33 @@ exports.allViolation = async function(req, res){
         var objLength = Object.keys(inOutViolation).length;
         var violationList = [];
       
-        for(var i=0; i< objLength; i++){
+        for(var i = 0; i < objLength; i++){
             violationList[objLength-i] = JSON.parse(JSON.stringify(inOutViolation))[i];
             const [parkingLotName] = await indexDao.getComplexName(violationList[objLength-i].parkingLotIndex);
             violationList[objLength-i].complexName = parkingLotName.complexName;
-
         }
-
-        res.render("violate.ejs", {violationList});
-       
+        res.render("violate.ejs", {violationList});      
     } else {
        res.render("main.ejs");
+    }
+}
+
+exports.getPossession = async function(req, res){
+    if (req.session.status === "admin") {
+        // 거주자 & 방문자 점유율
+        const [totalPossession] = await indexDao.getPossession(true);
+        const totalData = [];
+        // 거주자 점유율
+        const [residentPossession] = await indexDao.getPossession(false);
+        const residentData = [];
+
+        for (var i=0; i<totalPossession.length; i++) {
+            totalData.push({ time: totalPossession[i].time, value: Number(totalPossession[i].possession ) })
+            residentData.push({ time: residentPossession[i].time, value: Number(residentPossession[i].possession) })
+        }
+
+        return res.render("adminAnalyze.ejs", {totalData, residentData});
+    } else {
+        return res.render("main.ejs");
     }
 }

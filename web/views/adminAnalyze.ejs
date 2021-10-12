@@ -32,102 +32,43 @@
         <!-- Page content-->
         <div class="container">
             <div class="text-center mt-5">
-                <h1>주차 정보 분석</h1>
-                <p class="lead">세부타이틀</p>
-                <br/>
+                <h1>주차 점유 현황</h1>
+                <p class="lead">최근 6개월 간의 주차 데이터를 바탕으로 한 주차 점유율을 확인해보세요.</p>
+                <br/><br/>
 
-                <h4>한달치 (거주자 + 방문자)</h4>
+                <h4>전체 점유 현황</h4>
                 <div id="monthlyAll" style="height: 250px;"></div>
                 <script>
+                    const totalData = <%- JSON.stringify(totalData) %>;
                     new Morris.Bar({
                         element: 'monthlyAll',
-                        data: [
-                            { day: '1일', value: 20 },
-                            { day: '2일', value: 10 },
-                            { day: '3일', value: 29 },
-                            { day: '4일', value: 5 },
-                            { day: '5일', value: 20 },
-                            { day: '6일', value: 10 },
-                            { day: '7일', value: 3 },
-                            { day: '8일', value: 10 },
-                            { day: '9일', value: 27 },
-                            { day: '10일', value: 10 },
-                            { day: '11일', value: 20 },
-                            { day: '12일', value: 10 },
-                            { day: '13일', value: 25 },
-                            { day: '14일', value: 5 },
-                            { day: '15일', value: 20 },
-                            { day: '16일', value: 10 },
-                            { day: '17일', value: 23 },
-                            { day: '18일', value: 10 },
-                            { day: '19일', value: 17 },
-                            { day: '20일', value: 10 },
-                            { day: '21일', value: 22 },
-                            { day: '22일', value: 10 },
-                            { day: '23일', value: 8 },
-                            { day: '24일', value: 5 },
-                            { day: '25일', value: 20 },
-                            { day: '26일', value: 10 },
-                            { day: '27일', value: 13 },
-                            { day: '28일', value: 10 },
-                            { day: '29일', value: 30 },
-                            { day: '30일', value: 2 },
-                        ],
-                        xkey: 'day',
+                        data: totalData,
+                        xkey: 'time',
                         ykeys: ['value'],
+                        ymax: 100,
+                        postUnits: '%',
                         labels: ['Value'],
-                        barColors: ['green']
+                        barColors: ['green'],
                     });
                 </script>
-                <br/>
+                <br/><br/>
                 
-                <h4>한달치 (거주자)</h4>
+                <h4>거주자 점유 현황</h4>
                 <div id="monthlyResident" style="height: 250px;"></div>
                 <script>
+                    const residentData = <%- JSON.stringify(residentData) %>;
                     new Morris.Bar({
                         element: 'monthlyResident',
-                        data: [
-                            { day: '1일', value: 20 },
-                            { day: '2일', value: 10 },
-                            { day: '3일', value: 29 },
-                            { day: '4일', value: 5 },
-                            { day: '5일', value: 20 },
-                            { day: '6일', value: 10 },
-                            { day: '7일', value: 3 },
-                            { day: '8일', value: 10 },
-                            { day: '9일', value: 27 },
-                            { day: '10일', value: 10 },
-                            { day: '11일', value: 20 },
-                            { day: '12일', value: 10 },
-                            { day: '13일', value: 25 },
-                            { day: '14일', value: 5 },
-                            { day: '15일', value: 20 },
-                            { day: '16일', value: 10 },
-                            { day: '17일', value: 23 },
-                            { day: '18일', value: 10 },
-                            { day: '19일', value: 17 },
-                            { day: '20일', value: 10 },
-                            { day: '21일', value: 22 },
-                            { day: '22일', value: 10 },
-                            { day: '23일', value: 8 },
-                            { day: '24일', value: 5 },
-                            { day: '25일', value: 20 },
-                            { day: '26일', value: 10 },
-                            { day: '27일', value: 13 },
-                            { day: '28일', value: 10 },
-                            { day: '29일', value: 30 },
-                            { day: '30일', value: 2 },
-                        ],
-                        xkey: 'day',
+                        data: residentData,
+                        xkey: 'time',
                         ykeys: ['value'],
+                        ymax: 100,
+                        postUnits: '%',
                         labels: ['Value'],
-                        barColors: ['#1531B2']
+                        barColors: ['#1531B2'],
                     });
                 </script>
-                <br/>
-
-                <h4> 선호 구역 </h4>
-                
+                <br/>                
             </div>
         </div>
         <!-- Bootstrap core JS-->

@@ -10907,6 +10907,12 @@ textarea.form-control-lg {
   background-color: rgb(236, 236, 236);
 }
 
+#result {
+  margin: 3rem 7rem 5rem 7rem;
+  padding: 2rem 10rem 1rem 10rem;
+  background-color: rgb(236, 236, 236);
+}
+
 .fieldSet {
   border-radius: 1rem;
   padding: 1.2rem 0;
@@ -10930,8 +10936,16 @@ textarea.form-control-lg {
   font-size: 1.3rem;
 }
 
-#info th {
-  background-color:rgb(49, 49, 49);
+#result table {
+  margin-top: 2rem;
+  margin-bottom: 3rem;
+  text-align: center;
+  width: 750px;
+  font-size: 1.3rem;
+}
+
+#info th, #result th {
+  background-color: rgb(49, 49, 49);
   color: white;
   padding: 1rem;
 }

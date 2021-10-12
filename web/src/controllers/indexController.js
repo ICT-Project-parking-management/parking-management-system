@@ -1,7 +1,6 @@
 const indexDao = require("../dao/indexDao");
 const indexService = require("../services/indexService");
 const { VIOLATION_ELECTRIC, VIOLATION_DISABLED } = require("../../config/violation");
-const { connect } = require("mongoose");
 
 exports.parkingData = async function (req, res) {
     // 등록된 주차장 리스트 조회
@@ -345,9 +344,22 @@ exports.recommend = async function(req, res) {
 }
 
 exports.resident = async function(req, res) {
-    const userInfo = req.session.status;
-    console.log('userInfo >>', userInfo);
-    res.render("resident.ejs", {userInfo});
+    if (req.session.status === "resident") {
+        const userName = req.session.nickname;
+        const row = await indexDao.getUserIndex(userName);
+        const userIndex = row[0].userIndex;
+        console.log(userIndex);
+
+        try {
+            const locations = await indexDao.getLocationForResidents(userIndex);
+            console.log(locations);
+        } catch(err) {
+            console.log(err);
+            return res.sendStatus(200);
+        }
+    } else {
+        return res.sendStatus(200);
+    }
 }
 
 exports.loginCheck = async function(req, res){

@@ -303,6 +303,7 @@ exports.violation = async function (req, res) {
             // 3. 출차한 차량이 부정주차였을 시 violation DB에 추가 (inOut = out) (소연)
             if(violationIdx != "undefined"){ //checkViolation[0].length가 0인 경우 부정주차차량 아님
                 await indexDao.outViolation(parkingLotIdx, section ,location, carNum, description, createdAt);  
+                await indexDao.statusOut(violationIdx);
                 console.log("부정주차 차량 출차");
             }
         }

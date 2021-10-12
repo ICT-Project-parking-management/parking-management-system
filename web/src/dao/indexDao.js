@@ -200,6 +200,15 @@ async function outViolation(parkingLotIdx,floor, area, carNum, description, crea
     connection.release();
     return;
 }
+async function statusOut(parkingLotIdx){
+    const connection = await pool.getConnection(async (conn)=> conn);
+    const Query = `UPDATE Violation
+    SET status = 'out'
+    WHERE violationIndex = ${parkingLotIdx};`;
+    const [rows] = await connection.query(Query);
+    connection.release();
+    return;
+}
 async function inOutViolation(){
     const connection = await pool.getConnection(async (conn) => conn);
     const Query = `SELECT violationIndex, parkingLotIndex, floor, name, carNum, description, DATE_FORMAT(createdAt, '%m월 %d일 %H시 %i분') as createdAt, state
@@ -258,5 +267,6 @@ module.exports = {
     readViolation,
     unreadViolation,
     inOutViolation,
-    doneViolation
+    doneViolation,
+    statusOut
 };

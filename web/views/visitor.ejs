@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
         <meta name="description" content="" />
         <meta name="author" content="" />
-        <title>주차관리 시스템</title>
+        <title>Linked Park</title>
         <!-- Favicon-->
         <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
         <!-- Core theme CSS (includes Bootstrap)-->
@@ -18,7 +18,7 @@
         <!-- Responsive navbar-->
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
             <div class="container">
-                <a class="navbar-brand" href="#">주차관리 시스템</a>
+                <a class="navbar-brand" href="#">Linked Park</a>
             </div>
         </nav>
         <!-- Page content-->
@@ -100,11 +100,11 @@
                         const div = document.querySelector('#result');
                         let text = '<h4>추천 주차구역</h4><table><tr><th>순위</th><th>주차장</th><th>주차층</th><th>주차구역</th></tr>';
                         for (let i = 0; i < data.length; i++) {
-                            text += `<tr><td>${i + 1}</td><td>${data[i].parkingLotIndex}</td><td>${data[i].floor}</td><td>${data[i].areaName}</td></tr>`
+                            text += `<tr><td>${i + 1}</td><td>${data[i].complexName}</td><td>${data[i].floor}</td><td>${data[i].areaName}</td></tr>`
                         }
                         text += '</table>';
                         div.innerHTML = text;
-                        }
+                    }
                 })
 
             }

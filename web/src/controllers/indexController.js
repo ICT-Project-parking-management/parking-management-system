@@ -338,7 +338,7 @@ exports.recommend = async function(req, res) {
     const areas = await indexDao.getLocationForVisitor(now, period, type);
     const returnData = [];
     for (let i = 0; i < areas.length; i++) {
-        returnData.push({parkingLotIndex: areas[i].parkingLotIndex, floor: areas[i].floor, areaName: areas[i].areaName})
+        returnData.push({complexName: areas[i].complexName, floor: areas[i].floor, areaName: areas[i].areaName})
     }
     res.json(returnData);
 }
@@ -353,7 +353,7 @@ exports.resident = async function(req, res) {
         try {
             const locations = await indexDao.getLocationForResidents(userIndex);
             for (let i = 0; i < locations.length; i++) {
-                locationData.push({parkingLotIndex: locations[i].parkingLotIndex, floor: locations[i].floor, areaName: locations[i].areaName})
+                locationData.push({complexName: locations[i].complexName, floor: locations[i].floor, areaName: locations[i].areaName})
             }
             return res.render("resident.ejs", {userName, locationData});
         } catch(err) {

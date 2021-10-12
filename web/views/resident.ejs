@@ -32,7 +32,7 @@
                     const div = document.querySelector('#info');
                     let text = '<table><tr><th>순위</th><th>주차장</th><th>주차층</th><th>주차구역</th></tr>';
                     for (let i = 0; i < locationData.length; i++) {
-                        text += `<tr><td>${i + 1}</td><td>${locationData[i].parkingLotIndex}</td><td>${locationData[i].floor}</td><td>${locationData[i].areaName}</td></tr>`
+                        text += `<tr><td>${i + 1}</td><td>${locationData[i].complexName}</td><td>${locationData[i].floor}</td><td>${locationData[i].areaName}</td></tr>`
                     }
                     text += '</table>';
                     div.innerHTML = text;

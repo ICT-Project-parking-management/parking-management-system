@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <meta name="description" content="" />
+        <meta name="author" content="" />
+        <title>주차관리 시스템</title>
+        <!-- Favicon-->
+        <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
+        <!-- Core theme CSS (includes Bootstrap)-->
+        <link rel="stylesheet" href="/css/style.css" type="text/css">
+        <link rel="stylesheet" href="/css/intro.css" type="text/css">
+        <!-- jquery -->
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    </head>
+    <body onload="showClock()">
+        <!-- Responsive navbar-->
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <div class="container">
+                <a class="navbar-brand" href="#">주차관리 시스템</a>
+            </div>
+        </nav>
+        <!-- Page content-->
+        <div class="container">
+            <div class="text-center mt-5" id="innerContainer">
+                <h1>예정 주차 정보 입력</h1>
+                <p class="lead">예정 주차 시각과 차량 정보를 입력하여 맞춤형 주차 구역을 확인하세요.</p>
+                <div class="scheduleForm">
+                    <fieldset class="fieldSet">
+                        <legend>예정 주차 시작 시각</legend>
+                        <div id="divClock" class="clock"></div>
+                        <script type="text/javascript">
+                            showClock = () => {
+                                let currentDate = new Date();
+                                let divClock = document.getElementById('divClock');
+                                let msg = '';
+                                if (currentDate.getHours() > 12) {      //시간이 12보다 크다면 오후 아니면 오전
+                                    msg += '오후 ';
+                                    msg += currentDate.getHours() - 12 + '시 ';
+                                } else {
+                                    msg += "오전 ";
+                                    msg += currentDate.getHours() + '시 ';
+                                }
+                                msg += currentDate.getMinutes() + '분 ';
+                                divClock.innerText = msg;
+                                setTimeout(showClock, 1000);
+                            }
+                        </script>
+                    </fieldset>
+                    <fieldset class="fieldSet">
+                        <legend>예정 주차 기간</legend>
+                        약 <input type="number" style="width: 50px; margin-left: 5px; margin-right: 5px;" id="period">시간
+                    </fieldset>
+                    <fieldset class="fieldSet">
+                        <legend>차량 정보</legend>
+                        <span style="font-size: 1.1rem;">장애인 차량</span>
+                        <input type="checkbox" value="disabled" class="carCheckbox" id="disabled"/>
+                        <span style="font-size: 1.1rem;">전기 차량</span>
+                        <input type="checkbox" value="electric" class="carCheckbox" id="electric"/>
+                    </fieldset>
+                    <input type="submit" value="입력" onclick="uploadInfo()" onsubmit="return false;">
+                </div>
+            </div>
+        </div>
+
+        <script>
+            uploadInfo = () => {
+                let period = document.getElementById("period").value;
+                let type = 0;
+
+                if (period === "") {
+                    alert('예정 주차 기간을 입력해주세요.');
+                    location.reload();
+                }
+
+                if ( $('input:checkbox[id="disabled"]').is(":checked") == true ) type = 1;
+                if ( $('input:checkbox[id="electric"]').is(":checked") == true ) type = 2;
+
+                let today = new Date();
+                let curHour = today.getHours();
+                let curMin = today.getMinutes();
+                let now;
+
+                if (curMin < 15) {
+                    now = String(curHour) + ':00:00';
+                } else {
+                    if (curHour < 23) now = String(curHour) + ':30:00';
+                    else now = String(curHour + 1) + ':00:00';
+                }
+                getResult(now, period, type);
+            }
+
+            getResult = (now, period, type) => {
+                $.ajax({
+                    type: "GET",
+                    url: `/recommend?now=${now}&period=${period}&type=${type}`,
+                    success: (data) => {
+                        console.log('data >', data);    
+                    }
+                })
+
+            }
+        </script>
+
+        <!-- Bootstrap core JS-->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+        
+    </body>
+</html>

@@ -25,22 +25,21 @@
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-                        
-                        <% if(userName) { %>
+                        <% if (userName) { %>
                             <li class="nav-item"><a class="nav-link active" aria-current="page" > 안녕하세요 <%= userName %> 님! </a></li>
                             <% if(userName =='admin') { %>
                                 <li class="nav-item"><a class="nav-link active" aria-current="page" href="javascript:checkMyBan('ban-modal');">부정주차 차량 확인하기<% if(alarmCount>0) { %><span class="alarm"><%= alarmCount%></span></a></li><% } %>
                                 <li class="nav-item"><a class="nav-link active" aria-current="page" href="/analyze">주차 정보 분석 보러가기</a></li>
                             <% } else { %>
-                            <li class="nav-item"><a class="nav-link active" aria-current="page" href="javascript:checkMyArea('area-modal');"> 내 주차구역 확인하기</a></li>
-                
+                                <li class="nav-item"><a class="nav-link active" aria-current="page" href="javascript:checkMyArea('area-modal');"> 내 주차구역 확인하기</a></li>
+                                <li class="nav-item"><a class="nav-link active" aria-current="page" href="/resident"> 내 선호구역 정보 확인하기 </a></li>
                             <% } %>
-                            <a class="nav-link active" aria-current="page" href="javascript:logoutCheck('logout-modal');"> 로그아웃</a>
-                        <% }else{%>
+                            <a class="nav-link active" aria-current="page" href="javascript:logoutCheck('logout-modal');">로그아웃</a>
+                        <% } else { %>
                             <li class="nav-item"><a class="nav-link active" aria-current="page" href="javascript:checkMyLogin('requireLogin-modal');"> 내 주차구역 확인하기</a></li>
-                            <a class="nav-link active" aria-current="page" href="javascript:openModal('login-modal');"> 로그인</a>
-                            <% } %>
-                        </li>
+                            <li class="nav-item"><a class="nav-link active" aria-current="page" href="/visitor"> 예정 주차 정보 입력하기 </a></li>
+                            <a class="nav-link active" aria-current="page" href="javascript:openModal('login-modal');">로그인</a>
+                        <% } %>
                     </ul>
                 </div>
             </div>

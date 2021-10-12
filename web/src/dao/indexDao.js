@@ -194,12 +194,13 @@ async function checkViolation(parkingLotIdx, floor, area, carNum){ //출차 한 
 async function outViolation(parkingLotIdx,floor, area, carNum, description, createdAt){ //부정주차 차량 출차시 out으로 변경
     const connection = await pool.getConnection(async (conn) => conn);
     const Query = `INSERT INTO Violation(parkingLotIndex, floor, name, carNum, description, createdAt, state)
-    VALUES (?,?,?,?,?,?, ?);`;
+    VALUES (?, ?, ?, ?, ?, ?, ?);`;
     const Params = [parkingLotIdx, floor, area, carNum, description,createdAt, "out"];
     const [rows] = await connection.query(Query, Params);
     connection.release();
     return;
 }
+
 async function statusOut(parkingLotIdx){
     const connection = await pool.getConnection(async (conn)=> conn);
     const Query = `UPDATE Violation
@@ -248,13 +249,44 @@ async function readViolation(violationIndex) {
     connection.release();
     return;
 }
-async function doneViolation(violationIndex){
+
+async function doneViolation(violationIndex) {
     const connection = await pool.getConnection(async (conn) => conn);
     const Query = `DELETE FROM Violation WHERE violationIndex = ?`;
     const Params = [violationIndex];
     const [rows] = await connection.query(Query, Params);
     connection.release();
     return;
+}
+
+// 데이터마이닝 1 - 전체 점유 현황, 거주자 점유 현황 (isResident : bool)
+async function getPossession(isTotal) {
+    const connection = await pool.getConnection(async (conn)=>conn);
+    isTotal = isTotal ? 'total' : 'residents';
+    const Query = `
+        SELECT time, ROUND(sum(counting)/sum(days)*100, 1) as possession
+        FROM d_possession WHERE status = ? GROUP BY time ORDER BY time ASC;
+    `;
+    const Params = [isTotal];
+    const [rows] = await connection.query(Query, Params);
+    connection.release();
+    return [rows];
+}
+
+// 데이터마이닝 2 - 방문자 구역 유도 (now : 현재시간 / period : 점유 시간 / type : none 0 disabled 1 electric 2)
+async function getLocationForVisitor(now, period, type) {
+    const connection = await pool.getConnection(async (conn)=>conn);
+    const Query = `
+        SELECT pa.parkingLotIndex, pa.floor, pa.areaName, ROUND((1-sum(pos.counting)/sum(pos.days))*100, 1) as prob
+        FROM d_possession pos JOIN ParkingArea pa on pa.location = pos.location
+        WHERE pos.status = 'residents' AND IF(TIMEDIFF(pos.time, ?) < TIME(SEC_TO_TIME(?*60*60))
+        AND TIMEDIFF(pos.time, ?) >= '00:00:00', TRUE, FALSE) AND pa.areaInfo in (0, ?)
+        GROUP BY pos.location ORDER BY prob ASC LIMIT 3;
+    `;
+    const Params = [now, period, now, type];
+    const [rows] = await connection.query(Query, Params);
+    connection.release();
+    return rows;
 }
 
 module.exports = {
@@ -276,6 +308,8 @@ module.exports = {
     checkViolation,
     readViolation,
     unreadViolation,
+    getPossession,
+    getLocationForVisitor,
     totalViolation,
     doneViolation,
     statusOut

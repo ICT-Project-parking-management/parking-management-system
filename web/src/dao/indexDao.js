@@ -289,6 +289,31 @@ async function getLocationForVisitor(now, period, type) {
     return rows;
 }
 
+// 데이터마이닝 4 - 거주자 구역 추천 (userIndex : int)
+async function getLocationForResidents(userIndex) {
+    const connection = await pool.getConnection(async (conn)=>conn);
+    const Query = `
+    SELECT pa.parkingLotIndex, pa.floor, pa.areaName, ROUND((1-(counting/days))*100, 1) as prob
+    FROM d_popular_edit pop
+    JOIN Car car on car.carNum = pop.num
+    JOIN User user on car.userIndex = user.userIndex
+    JOIN (SELECT location, counting, days
+        FROM d_possession
+        WHERE status = 'total' AND time = (
+            SELECT time FROM d_popular_time WHERE num in (SELECT c.carNum From Car c WHERE c.userIndex = ?)
+        )) pos on pop.location = pos.location
+    JOIN ParkingArea pa on pa.location = pos.location
+    WHERE user.userIndex = ? AND
+        IF(car.disabled = 0 AND pa.areaInfo = 1, FALSE, TRUE) AND
+        IF(car.electric = 0 AND pa.areaInfo = 2, FALSE, TRUE)
+    ORDER BY pop.\`order\` ASC LIMIT 3;
+    `;
+    const Params = [userIndex, userIndex];
+    const [rows] = await connection.query(Query, Params);
+    connection.release();
+    return rows;
+}
+
 module.exports = {
     getUserList,
     getUserIndex,
@@ -312,5 +337,6 @@ module.exports = {
     getLocationForVisitor,
     totalViolation,
     doneViolation,
-    statusOut
+    statusOut,
+    getLocationForResidents
 };

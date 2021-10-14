@@ -137,8 +137,6 @@ exports.violation = async function (req, res) {
     const type = info.type; // parking or snapshot
     const createdAt = info.createdAt;
     const data = req.body.data;
-    
-   
 
     const check = /[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/;
 
@@ -255,6 +253,14 @@ exports.violation = async function (req, res) {
                             sendMail = false;
                             return false;
                         }
+                        try {
+                            // SMS 전송
+                            await indexService.sms(
+                                complexName, section, location, carNum, VIOLATION_DISABLED
+                            );
+                        } catch(err) {
+                            console.log(`Send SMS Error : `);
+                        }
                     } catch (err) {
                         console.log('RDS Insert Error', err);
                         rdsInsert = false;
@@ -271,6 +277,14 @@ exports.violation = async function (req, res) {
                             console.log('Send Mail Error', err);
                             sendMail = false;
                             return false;
+                        }
+                        try {
+                            // SMS 전송
+                            await indexService.sms(
+                                complexName, section, location, carNum, VIOLATION_ELECTRIC
+                            );
+                        } catch(err) {
+                            console.log(`Send SMS Error : `);
                         }
                     } catch (err) {
                         console.log('RDS Insert Error', err);
@@ -442,4 +456,17 @@ exports.getPossession = async function(req, res){
     } else {
         return res.render("main.ejs");
     }
+}
+
+exports.smsTest = async function(req, res) {
+    const parkingLotIdx = 1;
+    const section = "B1";
+    const location = "A1";
+    const carNum = "12가3456";
+    const violationDesc = VIOLATION_DISABLED;
+
+    await indexService.sms(
+        parkingLotIdx, section, location, carNum, violationDesc
+    );
+    return res.sendStatus(200);
 }

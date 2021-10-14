@@ -107,6 +107,7 @@ async function getMyAreas(carNum) {
             ":carNum": carNum,
         },
         ScanIndexForward: false,
+        Limit: 1
     }
     const data = await dynamo.scan(params).promise();
     return data.Items;

@@ -10,7 +10,7 @@
         <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
         <!-- Core theme CSS (includes Bootstrap)-->
         <link rel="stylesheet" href="/css/style.css" type="text/css">
-        <link rel="stylesheet" href="/css/intro.css" type="text/css">
+        <link rel="stylesheet" href="/css/main.css" type="text/css">
         <!-- jquery -->
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     </head>
@@ -18,7 +18,7 @@
         <!-- Responsive navbar-->
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
             <div class="container">
-                <a class="navbar-brand" href="/">Linked Park</a>
+                <a class="navbar-brand" href="#">Linked Park</a>
             </div>
         </nav>
         <!-- Page content-->
@@ -61,7 +61,31 @@
                     </fieldset>
                     <input type="submit" value="입력" onclick="uploadInfo()" onsubmit="return false;">
                 </div>
-                <div id="result"></div>
+
+                <div class="parking" style="padding-top: 7rem;">
+                    <h3> 추천 주차구역 </h3> <br/>
+                    <% parkingLotInfo.forEach(element => { %>
+                        <h3><%= element.floorName %></h3>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <% element.areas.forEach(area => { %>
+                                        <th> <%= area.areaName %> </th>
+                                    <% }); %>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <% element.areas.forEach(area => { %> <%
+                                        if (area.areaInfo === 1) { %> <td class=none id=<%= element.floorName %><%= area.areaName %>> </td> <% }
+                                        else if (area.areaInfo === 2) { %> <td class=none id=<%= element.floorName %><%= area.areaName %>> </td> <% }
+                                        else { %> <td class=none id=<%= element.floorName %><%= area.areaName %>></td> <% }
+                                    %> <% }); %>
+                                </tr>
+                            </tbody>
+                        </table>
+                    <% }); %>
+                </div>
             </div>
         </div>
 
@@ -97,13 +121,22 @@
                     type: "GET",
                     url: `/recommend?now=${now}&period=${period}&type=${type}`,
                     success: (data) => {
-                        const div = document.querySelector('#result');
-                        let text = '<h4>추천 주차구역</h4><table><tr><th>순위</th><th>주차장</th><th>주차층</th><th>주차구역</th></tr>';
-                        for (let i = 0; i < data.length; i++) {
-                            text += `<tr><td>${i + 1}</td><td>${data[i].complexName}</td><td>${data[i].floor}</td><td>${data[i].areaName}</td></tr>`
+                        const div = document.querySelector('.parking');
+                        const tds = document.querySelectorAll('td');
+                        console.log('tds >', tds);
+                        for (let i = 0; i < tds.length; i++) {
+                            tds[i].className = 'none';
+                            tds[i].innerText = '';
                         }
-                        text += '</table>';
-                        div.innerHTML = text;
+                        //console.log('tds >', tds);
+                        //tds.className = 'none';
+                        for (let i = 0; i < data.length; i++) {
+                            const id = data[i].floor + data[i].areaName;
+                            const td = document.querySelector(`#${id}`);
+                            td.className = 'recommend';
+                            td.innerText = `추천 ${i + 1}순위`
+                        }
+                        div.scrollIntoView(true);
                     }
                 })
 

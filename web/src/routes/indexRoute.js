@@ -39,4 +39,6 @@ module.exports = function(app) {
 
     //로그아웃
     app.post('/logout', index.logoutCheck);
+
+    app.get('/test/sms', index.smsTest);
 }

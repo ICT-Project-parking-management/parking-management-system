@@ -13,8 +13,7 @@ const awsRemoteConfig = {
     region: process.env.DYNAMO_REGION
 };
 
-AWS.config.update(awsRemoteConfig);
-
 module.exports = {
-    AWS: AWS
+    AWS: AWS,
+    awsRemoteConfig
 };

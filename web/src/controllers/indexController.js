@@ -256,7 +256,7 @@ exports.violation = async function (req, res) {
                         try {
                             // SMS 전송
                             await indexService.sms(
-                                complexName, section, location, carNum, VIOLATION_DISABLED
+                                parkingLotIdx, section, location, carNum, VIOLATION_DISABLED
                             );
                         } catch(err) {
                             console.log(`Send SMS Error : `);
@@ -281,7 +281,7 @@ exports.violation = async function (req, res) {
                         try {
                             // SMS 전송
                             await indexService.sms(
-                                complexName, section, location, carNum, VIOLATION_ELECTRIC
+                                parkingLotIdx, section, location, carNum, VIOLATION_ELECTRIC
                             );
                         } catch(err) {
                             console.log(`Send SMS Error : `);

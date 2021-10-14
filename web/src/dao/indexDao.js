@@ -1,5 +1,5 @@
 const { pool } = require("../../config/database");
-const { AWS } = require('../../config/dynamo');
+const { AWS, awsRemoteConfig } = require('../../config/dynamo');
 
 async function getUserList(userID, userPW) {
     const connection = await pool.getConnection(async (conn)=> conn);
@@ -62,6 +62,7 @@ async function getFloors(idx) {
 }
 
 async function getCurrParkData(areaNumber) {
+    AWS.config.update(awsRemoteConfig);
     const dynamo = new AWS.DynamoDB.DocumentClient();
     const params = {
         TableName: "parking",
@@ -90,6 +91,7 @@ async function getMyCars(idx, userIndex) {
 }
 
 async function getMyAreas(carNum) {
+    AWS.config.update(awsRemoteConfig);
     const dynamo = new AWS.DynamoDB.DocumentClient();
     const params = {
         TableName: "parking",
@@ -110,6 +112,7 @@ async function getMyAreas(carNum) {
 };
 
 async function addInToDynamo(parkLocation, createdTime, electric, carNum, disabled, inOut) {
+    AWS.config.update(awsRemoteConfig);
     const dynamo = new AWS.DynamoDB.DocumentClient();
     const params = {
         TableName: "parking",
@@ -127,7 +130,7 @@ async function addInToDynamo(parkLocation, createdTime, electric, carNum, disabl
 };
 
 async function addOutToDynamo(parkLocation, createdTime, inOut) {
-    console.log(parkLocation, createdTime, inOut);
+    AWS.config.update(awsRemoteConfig);
     const dynamo = new AWS.DynamoDB.DocumentClient();
     const params = {
         TableName: "parking",
@@ -151,6 +154,7 @@ async function getSpecificAreaInfo(parkingLotIdx, floor, area) {
 
 async function getCarInfoByArea(areaNumber) {
     const value = "in"
+    AWS.config.update(awsRemoteConfig);
     const dynamo = new AWS.DynamoDB.DocumentClient();
     const params = {
         TableName: "parking",

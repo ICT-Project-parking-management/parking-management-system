@@ -1,8 +1,5 @@
 require('dotenv').config();
-const AWS = require('aws-sdk');
-AWS.config.update({
-    region: process.env.SNS_REGION
-});
+const AWS_SNS = require('aws-sdk');
 const ADMIN_TEL = process.env.TEL_NUM;
 
 
@@ -14,7 +11,10 @@ async function createSMSParams(complexName, section, location, carNum, violation
 }
 
 async function sendSMS(params) {
-    const sns = new AWS.SNS(
+    AWS_SNS.config.update({
+        region: process.env.SNS_REGION
+    });
+    const sns = new AWS_SNS.SNS(
         {
             apiVersion: '2010-03-31'
         }

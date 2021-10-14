@@ -37,7 +37,7 @@
                             <a class="nav-link active" aria-current="page" href="javascript:logoutCheck('logout-modal');">로그아웃</a>
                         <% } else { %>
                             <li class="nav-item"><a class="nav-link active" aria-current="page" href="javascript:checkMyLogin('requireLogin-modal');"> 내 주차구역 확인하기</a></li>
-                            <li class="nav-item"><a class="nav-link active" aria-current="page" href="/visitor"> 예정 주차 정보 입력하기 </a></li>
+                            <li class="nav-item"><a class="nav-link active" aria-current="page" onclick="movepage(<%= parkingLotIdx %>);"> 예정 주차 정보 입력하기 </a></li>
                             <a class="nav-link active" aria-current="page" href="javascript:openModal('login-modal');">로그인</a>
                         <% } %>
                     </ul>
@@ -235,30 +235,6 @@
                     return false;
                 }
             }
-
-
-            // function clickThis(click){
-            //     clickId = click.id;
-            //     return clickId;
-            // }
-         
-            // $('input:checkbox').on('click', function(){
-            //     if(confirm("정말 확인하셨습니까?")==true){
-            //         $.ajax({
-            //             type: "POST",
-            //             url: "/readToViolation",
-            //             data: {"violationIndex": clickId},
-            //             success: (data) => {
-            //             },
-            //         });
-            //         let alarmCount = $('.alarm').text();
-            //         $('.alarm').text(--alarmCount);  
-              
-        
-            //     }else{
-            //         return false;
-            //     }
-            // })  
            
             function logoutCheck(modalname){ 
                 $.ajax({
@@ -271,6 +247,12 @@
                         window.location.reload();
                     }
                 })
+            }
+        </script>
+
+        <script type="text/javascript">
+            function movepage(value) {
+                location.href = `/visitor/${value}`;
             }
         </script>
 

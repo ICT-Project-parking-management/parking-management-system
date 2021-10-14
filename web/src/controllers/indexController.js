@@ -343,7 +343,36 @@ exports.doneToViolation = async function(req, res){
 }
 
 exports.visitor = async function(req, res) {
-    res.render("visitor.ejs")
+    const parkingLotIdx = req.params.idx;
+
+    const parkingLotInfo = [];
+    const floorRows = await indexDao.getFloors(parkingLotIdx); // 주차장 층 조회
+    floorRows.forEach(async function (e1) {
+        const floorName = e1.floor;
+        let areas = []
+        const AreaRows = await indexDao.getAreas(parkingLotIdx, floorName);
+        AreaRows.forEach(async function (e2) {
+            const areaName = e2.areaName;
+            const areaInfo = e2.areaInfo;
+            const area = {areaName, areaInfo};
+            areas.push(area);
+        })
+        if (areas.length == AreaRows.length) {
+            const floor = {floorName, areas};
+            parkingLotInfo.push(floor);
+            if (parkingLotInfo.length == floorRows.length) {
+                parkingLotInfo.sort((a, b) => {
+                    return (a.floorName < b.floorName) ? -1 : (a.floorName > b.floorName) ? 1 : 0;
+                })
+                parkingLotInfo.forEach((e) => {
+                    e.areas.sort((a, b) => {
+                        return (a.areaName < b.areaName) ? -1 : (a.areaName > b.areaName) ? 1 : 0;
+                    })
+                })
+                return res.render("visitor.ejs", {parkingLotInfo});
+            }
+        }
+    })
 }
 
 exports.recommend = async function(req, res) {

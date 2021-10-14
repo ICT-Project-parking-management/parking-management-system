@@ -68,7 +68,24 @@
                         barColors: ['#1531B2'],
                     });
                 </script>
-                <br/>                
+                <br/><br/>
+                
+                <h4>방문자 점유 현황</h4>
+                <div id="monthlyVistor" style="height: 250px;"></div>
+                <script>
+                    const visitorData = <%- JSON.stringify(visitorData) %>;
+                    new Morris.Bar({
+                        element: 'monthlyVistor',
+                        data: visitorData,
+                        xkey: 'time',
+                        ykeys: ['value'],
+                        ymax: 100,
+                        postUnits: '%',
+                        labels: ['Value'],
+                        barColors: ['#b21532'], 
+                    });
+                </script>
+                <br/> 
             </div>
         </div>
         <!-- Bootstrap core JS-->

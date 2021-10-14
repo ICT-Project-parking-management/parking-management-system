@@ -166,6 +166,8 @@ exports.violation = async function (req, res) {
         const electric = element.electric;
         const disabled = element.disabled;
        
+        console.log(parkLocation, inOut, carNum, electric, disabled);
+
         // parkLocation, inOut 값 제대로 안 들어온 경우
         if (parkLocation === undefined || parkLocation === "" || inOut === undefined || inOut === "") {
             dataValid = false;
@@ -185,10 +187,10 @@ exports.violation = async function (req, res) {
                 return false;
             }
             // carNum 형식 잘못된 경우 (바른 예: 12가3456)
-            if (isNaN(Number(carNum.substr(0, 2))) || !check.test(carNum[2]) || carNum[3] === " " || isNaN(Number(carNum.substr(3, 4))) || carNum.length !== 7) {
-                dataValid = false;
-                return false;
-            }
+            // if (isNaN(Number(carNum.substr(0, 2))) || !check.test(carNum[2]) || carNum[3] === " " || isNaN(Number(carNum.substr(3, 4))) || carNum.length !== 7) {
+            //     dataValid = false;
+            //     return false;
+            // }
             // electric, disabled 형식 잘못된 경우 (0/1)
             if ((electric !== 0 && electric !== 1) || (disabled !== 0 && disabled !== 1)) {
                 dataValid = false;

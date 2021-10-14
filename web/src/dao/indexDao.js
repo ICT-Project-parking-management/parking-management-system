@@ -1,5 +1,6 @@
 const { pool } = require("../../config/database");
 const { AWS, awsRemoteConfig } = require('../../config/dynamo');
+const { VISITOR } = require("../../type/userRole");
 
 async function getUserList(userID, userPW) {
     const connection = await pool.getConnection(async (conn)=> conn);
@@ -264,17 +265,31 @@ async function doneViolation(violationIndex) {
 }
 
 // 데이터마이닝 1 - 전체 점유 현황, 거주자 점유 현황 (isResident : bool)
-async function getPossession(isTotal) {
+async function getPossession(type) {
     const connection = await pool.getConnection(async (conn)=>conn);
-    isTotal = isTotal ? 'total' : 'residents';
-    const Query = `
-        SELECT time, ROUND(sum(counting)/sum(days)*100, 1) as possession
-        FROM d_possession WHERE status = ? GROUP BY time ORDER BY time ASC;
-    `;
-    const Params = [isTotal];
-    const [rows] = await connection.query(Query, Params);
-    connection.release();
-    return [rows];
+    if (type === VISITOR) {
+        const Query = `
+        SELECT time, ROUND(
+            (SELECT sum(d1.counting)/sum(d1.days)*100 FROM d_possession d1 WHERE d1.status = 'total' AND d1.time = dp.time) -
+            (SELECT sum(d2.counting)/sum(d2.days)*100 FROM d_possession d2 WHERE d2.status = 'residents' AND d2.time = dp.time)
+        , 1) as possession
+        FROM d_possession dp
+        GROUP BY dp.time
+        ORDER BY dp.time ASC;
+        `;
+        const [rows] = await connection.query(Query);
+        connection.release();
+        return [rows];
+    } else {
+        const Query = `
+            SELECT time, ROUND(sum(counting)/sum(days)*100, 1) as possession
+            FROM d_possession WHERE status = ? GROUP BY time ORDER BY time ASC;
+        `;
+        const Params = [type];
+        const [rows] = await connection.query(Query, Params);
+        connection.release();
+        return [rows];
+    }
 }
 
 // 데이터마이닝 2 - 방문자 구역 유도 (now : 현재시간 / period : 점유 시간 / type : none 0 disabled 1 electric 2)

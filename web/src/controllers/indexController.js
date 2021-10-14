@@ -1,6 +1,7 @@
 const indexDao = require("../dao/indexDao");
 const indexService = require("../services/indexService");
-const { VIOLATION_ELECTRIC, VIOLATION_DISABLED } = require("../../config/violation");
+const { VIOLATION_ELECTRIC, VIOLATION_DISABLED } = require("../../type/violation");
+const { TOTAL, RESIDENTS, VISITOR } = require("../../type/userRole");
 
 exports.parkingData = async function (req, res) {
     // 등록된 주차장 리스트 조회
@@ -441,18 +442,22 @@ exports.allViolation = async function(req, res){
 exports.getPossession = async function(req, res){
     if (req.session.status === "admin") {
         // 거주자 & 방문자 점유율
-        const [totalPossession] = await indexDao.getPossession(true);
+        const [totalPossession] = await indexDao.getPossession(TOTAL);
         const totalData = [];
         // 거주자 점유율
-        const [residentPossession] = await indexDao.getPossession(false);
+        const [residentPossession] = await indexDao.getPossession(RESIDENTS);
         const residentData = [];
+
+        const [visitorPossession] = await indexDao.getPossession(VISITOR);
+        const visitorData = [];
 
         for (var i=0; i<totalPossession.length; i++) {
             totalData.push({ time: totalPossession[i].time, value: Number(totalPossession[i].possession ) })
             residentData.push({ time: residentPossession[i].time, value: Number(residentPossession[i].possession) })
+            visitorData.push({ time: visitorPossession[i].time, value: Number(visitorPossession[i].possession) })
         }
 
-        return res.render("adminAnalyze.ejs", {totalData, residentData});
+        return res.render("adminAnalyze.ejs", {totalData, residentData, visitorData});
     } else {
         return res.render("main.ejs");
     }

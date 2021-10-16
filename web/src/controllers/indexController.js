@@ -500,9 +500,9 @@ exports.getPossession = async function(req, res){
 
 exports.smsTest = async function(req, res) {
     const parkingLotIdx = 1;
-    const section = "B1";
+    const section = "B2";
     const location = "A1";
-    const carNum = "12가3456";
+    const carNum = "66보6677";
     const violationDesc = VIOLATION_DISABLED;
 
     await indexService.sms(

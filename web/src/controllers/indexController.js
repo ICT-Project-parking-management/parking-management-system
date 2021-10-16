@@ -301,6 +301,8 @@ exports.violation = async function (req, res) {
                 return false;
             }
         } else {
+            // inOut = out인 경우
+
             // 1. DynamoDB 조회하여 해당 주차구역에 최근에 주차(inOut = in)한 차량 정보 확인 (세린)
             const carInfo = await indexDao.getCarInfoByArea(parkLocation);
             if (carInfo == undefined || carInfo == null) {
@@ -313,16 +315,16 @@ exports.violation = async function (req, res) {
                 let section = areaNumber.substr(2,2);
                 let location = areaNumber.substr(4,4);
                 const checkViolation = await indexDao.checkViolation(parkingLotIdx, section, location, carNum);
-                let violationIdx = checkViolation[0].violationIndex;
-                let description = checkViolation[0].description;
-                let createdAt = carInfo.createdTime;
 
                 // 3. 출차한 차량이 부정주차였을 시 violation DB에 추가 (inOut = out) (소연)
-                if(violationIdx != "undefined"){ //checkViolation[0].length가 0인 경우 부정주차차량 아님
+                if(violationIdx !== "undefined" || violationIdx !== null || violationIdx !== ""){ //checkViolation[0].length가 0인 경우 부정주차차량 아님
+                    let violationIdx = checkViolation[0].violationIndex;
+                    let description = checkViolation[0].description;
+                    let createdAt = carInfo.createdTime;
                     await indexDao.outViolation(parkingLotIdx, section ,location, carNum, description, createdAt);  
                     await indexDao.statusOut(violationIdx);
                     console.log("부정주차 차량 출차");
-                }
+                }                
             }
         }
     });

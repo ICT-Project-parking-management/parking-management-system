@@ -317,7 +317,7 @@ exports.violation = async function (req, res) {
                 const checkViolation = await indexDao.checkViolation(parkingLotIdx, section, location, carNum);
 
                 // 3. 출차한 차량이 부정주차였을 시 violation DB에 추가 (inOut = out) (소연)
-                if(violationIdx !== "undefined" || violationIdx !== null || violationIdx !== ""){ //checkViolation[0].length가 0인 경우 부정주차차량 아님
+                if(checkViolation !== "undefined" && checkViolation !== null && checkViolation.length !== 0){ //checkViolation[0].length가 0인 경우 부정주차차량 아님
                     let violationIdx = checkViolation[0].violationIndex;
                     let description = checkViolation[0].description;
                     let createdAt = carInfo.createdTime;

@@ -321,8 +321,7 @@ exports.violation = async function (req, res) {
                     let violationIdx = checkViolation[0].violationIndex;
                     let description = checkViolation[0].description;
                     let createdAt = carInfo.createdTime;
-                    await indexDao.outViolation(parkingLotIdx, section ,location, carNum, description, createdAt);  
-                    await indexDao.statusOut(violationIdx);
+                    await indexDao.outViolation(violationIdx);  
                     console.log("부정주차 차량 출차");
                 }                
             }
@@ -345,6 +344,7 @@ exports.readToViolation = async function(req, res){
 
 exports.doneToViolation = async function(req, res){
     const violationIdx = req.body.violationIndex;
+    console.log(violationIdx);  
     await indexDao.doneViolation(violationIdx);
 }
 

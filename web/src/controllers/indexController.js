@@ -139,7 +139,7 @@ exports.violation = async function (req, res) {
     const createdAt = info.createdAt;
     const data = req.body.data;
 
-    const check = /[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/;
+    // const check = /[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/;
 
     let dataValid = true;
     let dynamoUpdate = true;
@@ -185,10 +185,10 @@ exports.violation = async function (req, res) {
                 return false;
             }
             // carNum 형식 잘못된 경우 (바른 예: 12가3456)
-            if (isNaN(Number(carNum.substr(0, 2))) || !check.test(carNum[2]) || carNum[3] === " " || isNaN(Number(carNum.substr(3, 4))) || carNum.length !== 7) {
-                dataValid = false;
-                return false;
-            }
+            // if (isNaN(Number(carNum.substr(0, 2))) || !check.test(carNum[2]) || carNum[3] === " " || isNaN(Number(carNum.substr(3, 4))) || carNum.length !== 7) {
+            //     dataValid = false;
+            //     return false;
+            // }
             // electric, disabled 형식 잘못된 경우 (0/1)
             if ((electric !== 0 && electric !== 1) || (disabled !== 0 && disabled !== 1)) {
                 dataValid = false;
@@ -301,24 +301,29 @@ exports.violation = async function (req, res) {
                 return false;
             }
         } else {
+            // inOut = out인 경우
+
             // 1. DynamoDB 조회하여 해당 주차구역에 최근에 주차(inOut = in)한 차량 정보 확인 (세린)
             const carInfo = await indexDao.getCarInfoByArea(parkLocation);
-            console.log('carInfo >', carInfo); // 차량 정보
-            // 2. 부정주차 여부 확인 (소연)
-            let areaNumber = carInfo.areaNumber;
-            let carNum = carInfo.carNum;
-            let parkingLotIdx = areaNumber.substr(0,1);
-            let section = areaNumber.substr(2,2);
-            let location = areaNumber.substr(4,4);
-            const checkViolation = await indexDao.checkViolation(parkingLotIdx, section, location, carNum);
-            let violationIdx = checkViolation[0].violationIndex;
-            let description = checkViolation[0].description;
-            let createdAt = carInfo.createdTime;
-            // 3. 출차한 차량이 부정주차였을 시 violation DB에 추가 (inOut = out) (소연)
-            if(violationIdx != "undefined"){ //checkViolation[0].length가 0인 경우 부정주차차량 아님
-                await indexDao.outViolation(parkingLotIdx, section ,location, carNum, description, createdAt);  
-                await indexDao.statusOut(violationIdx);
-                console.log("부정주차 차량 출차");
+            if (carInfo == undefined || carInfo == null) {
+                console.log('carInfo >', carInfo); // 차량 정보
+            } else {
+                // 2. 부정주차 여부 확인 (소연)
+                let areaNumber = carInfo.areaNumber;
+                let carNum = carInfo.carNum;
+                let parkingLotIdx = areaNumber.substr(0,1);
+                let section = areaNumber.substr(2,2);
+                let location = areaNumber.substr(4,4);
+                const checkViolation = await indexDao.checkViolation(parkingLotIdx, section, location, carNum);
+
+                // 3. 출차한 차량이 부정주차였을 시 violation DB에 추가 (inOut = out) (소연)
+                if(checkViolation !== "undefined" && checkViolation !== null && checkViolation.length !== 0){ //checkViolation[0].length가 0인 경우 부정주차차량 아님
+                    let violationIdx = checkViolation[0].violationIndex;
+                    let description = checkViolation[0].description;
+                    let createdAt = carInfo.createdTime;
+                    await indexDao.outViolation(violationIdx);  
+                    console.log("부정주차 차량 출차");
+                }                
             }
         }
     });
@@ -339,6 +344,7 @@ exports.readToViolation = async function(req, res){
 
 exports.doneToViolation = async function(req, res){
     const violationIdx = req.body.violationIndex;
+    console.log(violationIdx);  
     await indexDao.doneViolation(violationIdx);
 }
 
@@ -494,9 +500,9 @@ exports.getPossession = async function(req, res){
 
 exports.smsTest = async function(req, res) {
     const parkingLotIdx = 1;
-    const section = "B1";
+    const section = "B2";
     const location = "A1";
-    const carNum = "12가3456";
+    const carNum = "66보6677";
     const violationDesc = VIOLATION_DISABLED;
 
     await indexService.sms(

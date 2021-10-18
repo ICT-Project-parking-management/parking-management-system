@@ -197,35 +197,37 @@ async function checkViolation(parkingLotIdx, floor, area, carNum){ //출차 한 
     return rows;
 }
 
-async function outViolation(parkingLotIdx,floor, area, carNum, description, createdAt){ //부정주차 차량 출차시 out으로 변경
+async function outViolation(violationIdx){ //부정주차 차량 출차시 out으로 변경
     const connection = await pool.getConnection(async (conn) => conn);
-    const Query = `INSERT INTO Violation(parkingLotIndex, floor, name, carNum, description, createdAt, state)
-    VALUES (?, ?, ?, ?, ?, ?, ?);`;
-    const Params = [parkingLotIdx, floor, area, carNum, description,createdAt, "out"];
+    const Query = `UPDATE Violation
+    SET state = 'out', status = 'out'
+    WHERE violationIndex = ?;`;;
+    const Params = [violationIdx];
     const [rows] = await connection.query(Query, Params);
     connection.release();
     return;
 }
 
-async function statusOut(parkingLotIdx){
-    const connection = await pool.getConnection(async (conn)=> conn);
-    const Query = `UPDATE Violation
-    SET status = 'out'
-    WHERE violationIndex = ${parkingLotIdx};`;
-    const [rows] = await connection.query(Query);
-    connection.release();
-    return;
-}
+// async function statusOut(parkingLotIdx){
+//     const connection = await pool.getConnection(async (conn)=> conn);
+//     const Query = `UPDATE Violation
+//     SET status = 'out'
+//     WHERE violationIndex = ${parkingLotIdx};`;
+//     const [rows] = await connection.query(Query);
+//     connection.release();
+//     return;
+// }
 async function totalViolation(){
     const connection = await pool.getConnection(async (conn) => conn);
-    const Query = `SELECT  parkingLotIndex as 'parkingLotIndex', floor as'floor', name as 'name', carNum as 'carNum', description as 'description', DATE_FORMAT(createdAt, '%m월 %d일 %H시 %i분') as createdAt,
+    const Query = `SELECT  parkingLotIndex as 'parkingLotIndex', violationIndex as 'violationIndex', floor as'floor', name as 'name', carNum as 'carNum', description as 'description', DATE_FORMAT(createdAt, '%m월 %d일 %H시 %i분') as createdAt,
     (CASE
-        WHEN updatedAt = createdAt THEN '-'
+        WHEN status = 'unread' THEN '-'
         ELSE DATE_FORMAT(updatedAt, '%m월 %d일 %H시 %i분')
      END) as updatedAt,
     (CASE
         WHEN status = 'unread' THEN '관리자 미처리'
         WHEN status = 'read' THEN '관리자 처리'
+        WHEN state = 'out' THEN '출차'
         WHEN status = 'out' THEN '출차'
      END) as 'status'
 
@@ -360,6 +362,5 @@ module.exports = {
     getLocationForVisitor,
     totalViolation,
     doneViolation,
-    statusOut,
     getLocationForResidents
 };

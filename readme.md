@@ -1,7 +1,7 @@
 # Linked Park
 
 ## Info
-![summary](./assets/summary.png)
+![summary](./assets/summary.PNG)
 
 ## Architecture
 ![architecture](./assets/architecture.png)

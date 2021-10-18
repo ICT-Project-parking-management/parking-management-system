@@ -1,16 +1,20 @@
 # Linked Park
 
 ## Info
-![summary](./assets/summary.PNG)
+- 엣지 컴퓨팅 기반 클라우드 거주자 주차관리 시스템<br>(자세한 정보를 확인할 경우 [Detail](./assets/readme.md) 링크를 클릭해주세요)
+
+---
+
+## Demo
+[![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/GdsyC-Oe-pI/0.jpg)](https://www.youtube.com/watch?v=GdsyC-Oe-pI)
+
+---
+
 
 ## Architecture
 ![architecture](./assets/architecture.png)
 
-## Flow
-![flow](./assets/flow.png)
-
-## Service
-![service](./assets/service.png)
+---
 
 ## Environment & Software skill
 |구분|항목|
@@ -21,6 +25,8 @@
 |Database|MySQL, DynamoDB|
 |Web Server|Nginx|
 |Cloud|AWS(EC2, S3, RDS, DynamoDB, Lambda, SNS)
+
+---
 
 ## Repository Architecture
 ```bash

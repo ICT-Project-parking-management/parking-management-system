@@ -6,7 +6,7 @@
 ---
 
 ## Demo
-[![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/GdsyC-Oe-pI/0.jpg)](https://www.youtube.com/watch?v=GdsyC-Oe-pI)
+[![Video](https://img.youtube.com/vi/PAR3cGi0zfg/0.jpg)](https://www.youtube.com/watch?v=PAR3cGi0zfg)
 
 ---
 

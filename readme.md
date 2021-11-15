@@ -8,6 +8,8 @@
 ## Demo
 [![Video](https://img.youtube.com/vi/PAR3cGi0zfg/0.jpg)](https://www.youtube.com/watch?v=PAR3cGi0zfg)
 
+![demo-image](https://user-images.githubusercontent.com/59307414/141739459-af826aa4-393f-42fc-aa99-90bcbff038fe.jpg)
+
 ---
 
 
@@ -41,7 +43,7 @@
 |------|-----|
 |assets|readme 작성을 위한 자료|
 |data-mining|데이터마이닝 관련 코드|
-|docs|제출 서류 관련 코드|
+|docs|제출 서류|
 |flask|플라스크 관련 코드|
 |hardware|젯슨나노 및 아두이노 관련 코드|
 |web|노드 관련 코드|
